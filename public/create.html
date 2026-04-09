@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Your Song — StorySound</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#FAF8F4;
+  --ink:#18120E;
+  --ink2:#3A2E28;
+  --muted:#8A7D75;
+  --rust:#B5471C;
+  --rust-hover:#9A3B15;
+  --rust-light:rgba(181,71,28,0.08);
+  --gold:#B8832A;
+  --border:rgba(0,0,0,0.1);
+  --white:#fff;
+  --green:#2A7A4A;
+}
+html,body{height:100%;margin:0}
+body{background:var(--cream);font-family:'Inter',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
+
+/* ── PROGRESS BAR ── */
+.progress-wrap{padding:0 24px;background:var(--cream)}
+.progress-bar-track{height:4px;background:rgba(0,0,0,0.1);border-radius:2px;margin-top:2px}
+.progress-bar-fill{height:4px;background:var(--rust);border-radius:2px;transition:width 0.4s ease}
+.progress-meta{display:flex;justify-content:space-between;padding:10px 0 0;font-size:13px;color:var(--muted)}
+
+/* ── SCREEN (full-height step) ── */
+.screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 100px);padding:40px 24px 100px;text-align:center}
+.screen.active{display:flex}
+.screen h1{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,44px);font-weight:700;color:var(--ink);margin-bottom:10px;line-height:1.15}
+.screen .sub{font-size:16px;color:var(--muted);margin-bottom:36px;max-width:460px}
+
+/* ── PILL GRID ── */
+.pill-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:600px;margin-bottom:32px}
+.pill{border:1.5px solid var(--border);border-radius:100px;padding:10px 22px;font-size:15px;font-weight:500;cursor:pointer;background:var(--white);color:var(--ink2);transition:all 0.15s;user-select:none}
+.pill:hover{border-color:var(--rust);color:var(--rust)}
+.pill.sel{border-color:var(--rust);background:var(--rust);color:#fff}
+
+/* ── INPUTS ── */
+.input-block{width:100%;max-width:560px;text-align:left;margin-bottom:8px}
+.input-block label{display:block;font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:8px}
+.input-block input,.input-block textarea{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;font-family:'Inter',sans-serif;font-size:15px;color:var(--ink);background:var(--white);outline:none;transition:border 0.15s;-webkit-appearance:none}
+.input-block input:focus,.input-block textarea:focus{border-color:var(--rust)}
+.input-block textarea{min-height:160px;resize:vertical;line-height:1.6}
+.input-tip{font-size:12px;color:var(--muted);margin-top:5px}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-top:1px solid var(--border);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;z-index:50}
+.btn-back{background:none;border:1.5px solid var(--border);border-radius:100px;padding:12px 28px;font-size:15px;font-weight:500;cursor:pointer;color:var(--muted);transition:all 0.15s;display:flex;align-items:center;gap:6px}
+.btn-back:hover{border-color:var(--ink);color:var(--ink)}
+.btn-next{background:var(--rust);color:#fff;border:none;border-radius:100px;padding:13px 36px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:6px}
+.btn-next:hover{background:var(--rust-hover)}
+.btn-next:disabled{opacity:0.45;cursor:not-allowed}
+.terms{text-align:center;font-size:12px;color:var(--muted);padding-top:4px}
+.terms a{color:var(--muted);text-decoration:underline}
+
+/* ── SOCIAL PROOF WALL (step 6) ── */
+.proof-wall{max-width:900px;width:100%;text-align:center}
+.proof-wall h1{font-size:clamp(22px,4vw,36px);margin-bottom:6px}
+.proof-wall .sub{margin-bottom:20px}
+.avatar-row{display:flex;justify-content:center;gap:-8px;margin-bottom:6px}
+.av{width:40px;height:40px;border-radius:50%;border:2.5px solid var(--cream);background:var(--muted);margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0}
+.av:first-child{margin-left:0}
+.av.c1{background:#C4604A}.av.c2{background:#5B8A6A}.av.c3{background:#7A5C8A}.av.c4{background:#4A7A8A}.av.c5{background:#8A7A4A}.av.c6{background:#8A4A5C}.av.c7{background:#4A6A8A}
+.proof-count{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:24px}
+.testi-scroll{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;text-align:left;margin-bottom:28px}
+.tc{background:var(--white);border-radius:16px;padding:20px 18px;border:1px solid var(--border)}
+.tc-song{font-size:12px;font-weight:600;color:var(--gold);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.tc-stars{color:var(--rust);font-size:13px;letter-spacing:1px;margin-bottom:8px}
+.tc-quote{font-size:14px;color:var(--ink2);line-height:1.7;font-style:italic;margin-bottom:12px}
+.tc-quote strong{font-style:normal;color:var(--ink)}
+.tc-author{display:flex;align-items:center;gap:8px}
+.tc-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.tc-name{font-size:13px;font-weight:600;color:var(--ink)}
+.tc-detail{font-size:11px;color:var(--muted)}
+.guarantee-box{background:rgba(42,122,74,0.08);border:1px solid rgba(42,122,74,0.2);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:10px;margin-bottom:24px;text-align:left}
+.guarantee-box .gcheck{color:var(--green);font-size:20px;flex-shrink:0}
+.guarantee-box strong{font-size:15px;color:var(--green);display:block;margin-bottom:2px}
+.guarantee-box span{font-size:13px;color:var(--muted)}
+.btn-continue{width:100%;background:var(--rust);color:#fff;border:none;border-radius:100px;padding:16px;font-size:17px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-bottom:14px}
+.btn-continue:hover{background:var(--rust-hover)}
+.media-proof{margin-top:16px}
+.media-proof p{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.media-logos{display:flex;justify-content:center;gap:28px;flex-wrap:wrap}
+.ml{font-size:13px;font-weight:700;color:var(--muted);opacity:0.5;letter-spacing:0.04em;font-family:'Playfair Display',serif}
+
+/* ── ORDER PAGE (step 7) ── */
+.order-page{max-width:600px;width:100%;text-align:center}
+.order-page h1{font-size:clamp(24px,4vw,36px);margin-bottom:8px}
+.delivery-badge{display:inline-flex;align-items:center;gap:6px;background:var(--rust);color:#fff;border-radius:100px;padding:6px 18px;font-size:13px;font-weight:600;margin-bottom:28px}
+.order-card{background:var(--white);border-radius:16px;padding:24px 22px;margin-bottom:16px;border:1px solid var(--border);text-align:left}
+.order-card h2{font-size:14px;font-weight:600;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:7px}
+.email-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;font-family:'Inter',sans-serif;font-size:15px;color:var(--ink);background:var(--white);outline:none;transition:border 0.15s;margin-bottom:14px}
+.email-input:focus{border-color:var(--rust)}
+.btn-order{width:100%;background:var(--rust);color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
+.btn-order:hover{background:var(--rust-hover)}
+.btn-order:disabled{opacity:0.5;cursor:not-allowed}
+.gmoney{display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;color:var(--green);font-weight:500}
+.order-summary-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:14px;color:var(--muted)}
+.order-summary-row:first-child{border-bottom:1px solid var(--border);margin-bottom:8px;padding-bottom:12px}
+.order-summary-row strong{color:var(--ink)}
+.price-line{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.price-badge{background:rgba(181,71,28,0.1);color:var(--rust);border-radius:100px;padding:3px 10px;font-size:12px;font-weight:700}
+.price-orig{font-size:14px;color:var(--muted);text-decoration:line-through}
+.price-now{font-size:24px;font-weight:700;color:var(--rust);font-family:'Playfair Display',serif}
+.edit-btn{width:100%;border:1.5px solid var(--border);background:none;border-radius:10px;padding:12px;font-size:14px;color:var(--muted);cursor:pointer;margin-top:10px;transition:all 0.15s}
+.edit-btn:hover{border-color:var(--ink);color:var(--ink)}
+.offer-box{background:#FFFBF0;border:1px solid rgba(184,131,42,0.3);border-radius:12px;padding:16px 18px;text-align:left;margin-bottom:14px}
+.offer-box h3{font-size:14px;font-weight:600;color:var(--gold);margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.offer-box p{font-size:13px;color:var(--muted);line-height:1.6}
+.sample-list{list-style:none}
+.sample-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.sample-item:last-child{border-bottom:none}
+.play-btn{width:40px;height:40px;background:var(--rust);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
+.play-btn svg{fill:#fff;margin-left:2px}
+.sample-info .sname{font-size:14px;font-weight:600;color:var(--ink)}
+.sample-info .sauthor{font-size:12px;color:var(--muted)}
+.sample-quote{font-size:12px;color:var(--muted);font-style:italic;margin-top:4px;padding-left:52px}
+.guarantee-list{list-style:none}
+.gl-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0}
+.gl-dot{width:10px;height:10px;background:var(--green);border-radius:50%;flex-shrink:0;margin-top:5px}
+.gl-item .gt{font-size:14px;font-weight:600;color:var(--ink)}
+.gl-item .gs{font-size:13px;color:var(--muted)}
+.what-list{list-style:none}
+.wl-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0}
+.wl-dot{width:10px;height:10px;background:var(--gold);border-radius:50%;flex-shrink:0;margin-top:5px}
+.why-list{list-style:none}
+.why-item{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:14px;color:var(--ink2)}
+.why-check{color:var(--green);font-size:16px}
+
+@media(max-width:480px){
+  .screen{padding:24px 16px 90px}
+  .pill{padding:9px 16px;font-size:14px}
+  .bottom-nav{padding:12px 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div class="progress-wrap">
+  <div class="progress-bar-track"><div class="progress-bar-fill" id="pgBar" style="width:20%"></div></div>
+  <div class="progress-meta">
+    <span id="pgStep">Step 1 of 5</span>
+    <span id="pgPct">20% Complete</span>
+  </div>
+</div>
+
+<!-- STEP 1: Who's this for -->
+<div class="screen active" id="sc1">
+  <h1>Let's start with the basics</h1>
+  <p class="sub">Tell us about the special person in your life</p>
+  <div class="pill-grid" id="forGrid">
+    <div class="pill" onclick="pickFor(this)">Husband</div>
+    <div class="pill" onclick="pickFor(this)">Wife</div>
+    <div class="pill" onclick="pickFor(this)">Children</div>
+    <div class="pill" onclick="pickFor(this)">Boyfriend</div>
+    <div class="pill" onclick="pickFor(this)">Girlfriend</div>
+    <div class="pill" onclick="pickFor(this)">Father</div>
+    <div class="pill" onclick="pickFor(this)">Mother</div>
+    <div class="pill" onclick="pickFor(this)">Sibling</div>
+    <div class="pill" onclick="pickFor(this)">Friend</div>
+    <div class="pill" onclick="pickFor(this)">Myself</div>
+    <div class="pill" onclick="pickFor(this)">Other</div>
+  </div>
+  <div class="input-block">
+    <label>What's their name?</label>
+    <input id="f-recipient" type="text" placeholder="Enter their first name">
+    <p class="input-tip">Tip: add pronunciation for clarity (e.g. Alicia: ah-lee-sha)</p>
+  </div>
+</div>
+
+<!-- STEP 2: Genre -->
+<div class="screen" id="sc2">
+  <h1>Choose a Genre</h1>
+  <p class="sub">Pick the sound that fits your story</p>
+  <div class="pill-grid" id="genreGrid">
+    <div class="pill" onclick="pickGenre(this)">Pop</div>
+    <div class="pill" onclick="pickGenre(this)">Country</div>
+    <div class="pill" onclick="pickGenre(this)">Rock</div>
+    <div class="pill" onclick="pickGenre(this)">R&amp;B</div>
+    <div class="pill" onclick="pickGenre(this)">Jazz</div>
+    <div class="pill" onclick="pickGenre(this)">Soul</div>
+    <div class="pill" onclick="pickGenre(this)">Folk</div>
+    <div class="pill" onclick="pickGenre(this)">Latin</div>
+    <div class="pill" onclick="pickGenre(this)">Rap / Hip-Hop</div>
+  </div>
+</div>
+
+<!-- STEP 3: What makes them special -->
+<div class="screen" id="sc3">
+  <h1>What makes them special?</h1>
+  <p class="sub">Describe their character and the qualities you love most</p>
+  <div class="input-block">
+    <label>Their beautiful qualities</label>
+    <textarea id="f-qualities" placeholder="Are they patient, wise, funny, protective, encouraging? What makes them the incredible person they are?"></textarea>
+  </div>
+</div>
+
+<!-- STEP 4: Favorite memories -->
+<div class="screen" id="sc4">
+  <h1>Share your favorite memories</h1>
+  <p class="sub">What moments with them do you treasure most?</p>
+  <div class="input-block">
+    <label>Special moments together</label>
+    <textarea id="f-memories" placeholder="Share how you met, special years, inside jokes, or moments that made your relationship unique..."></textarea>
+  </div>
+</div>
+
+<!-- STEP 5: Message from heart -->
+<div class="screen" id="sc5">
+  <h1>A message from your heart</h1>
+  <p class="sub">Write anything else you feel would make your song even more special</p>
+  <div class="input-block">
+    <label>Special message</label>
+    <textarea id="f-message" placeholder="What do you want them to know, feel, or remember?"></textarea>
+  </div>
+</div>
+
+<!-- STEP 6: Social proof wall -->
+<div class="screen" id="sc6" style="padding-top:48px;padding-bottom:48px">
+  <div class="proof-wall">
+    <h1>You're just a few clicks away from your StorySound!</h1>
+    <p class="sub">Join thousands of people who gave the most personal gift imaginable</p>
+    <div class="avatar-row">
+      <div class="av c1">JM</div><div class="av c2">TR</div><div class="av c3">AL</div>
+      <div class="av c4">RK</div><div class="av c5">SP</div><div class="av c6">MB</div>
+      <div class="av c7">+</div>
+    </div>
+    <p class="proof-count">14,847+ Families Love Their StorySound!</p>
+    <div class="testi-scroll">
+      <div class="tc">
+        <div class="tc-song">♪ The Night We Got Lost in Rome</div>
+        <div class="tc-stars">★★★★★</div>
+        <p class="tc-quote">"Oh my God. <strong>I am literally shaking.</strong> My husband didn't say a word for two minutes. Then he cried. Then I cried. Best $99 I've ever spent."</p>
+        <div class="tc-author"><div class="tc-av c1">JM</div><div><div class="tc-name">Jessica M.</div><div class="tc-detail">Verified Customer · Tampa, FL</div></div></div>
+      </div>
+      <div class="tc">
+        <div class="tc-song">♪ Chosen From the Start</div>
+        <div class="tc-stars">★★★★★</div>
+        <p class="tc-quote">"We used this as our <strong>first dance song at our wedding.</strong> Nobody knew it was AI. People thought we hired a real songwriter."</p>
+        <div class="tc-author"><div class="tc-av c2">TR</div><div><div class="tc-name">Tyler R.</div><div class="tc-detail">Verified Customer · Austin, TX</div></div></div>
+      </div>
+      <div class="tc">
+        <div class="tc-song">♪ Thirty Years of You</div>
+        <div class="tc-stars">★★★★★</div>
+        <p class="tc-quote">"I ordered this for my parents' 30th anniversary. <strong>My mom called me sobbing.</strong> The song mentioned the diner where they had their first date."</p>
+        <div class="tc-author"><div class="tc-av c3">AL</div><div><div class="tc-name">Amanda L.</div><div class="tc-detail">Verified Customer · Nashville, TN</div></div></div>
+      </div>
+    </div>
+    <div class="guarantee-box">
+      <span class="gcheck">✓</span>
+      <div><strong>30-Day Money-Back Guarantee</strong><span>We're confident you'll love your StorySound. If you're not satisfied, we'll give you a full refund.</span></div>
+    </div>
+    <button class="btn-continue" onclick="goTo(7)">Continue to Checkout →</button>
+    <div class="media-proof">
+      <p>Featured on</p>
+      <div class="media-logos">
+        <span class="ml">CBS</span><span class="ml">FOX</span><span class="ml">AOL</span><span class="ml">YAHOO LIFE</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 7: Order page -->
+<div class="screen" id="sc7" style="padding-top:48px;padding-bottom:48px;align-items:stretch;max-width:640px;margin:0 auto">
+  <div class="order-page" style="width:100%">
+    <h1>Almost There! Complete Your Order</h1>
+    <p style="font-size:15px;color:var(--muted);margin-bottom:14px">You're one click away from creating a beautiful, personalized song for <strong id="recipientDisplay" style="color:var(--rust)">them</strong>.</p>
+    <div class="delivery-badge">📅 Song delivered within 5 minutes</div>
+
+    <div class="order-card">
+      <input class="email-input" id="f-email" type="email" placeholder="Your email address">
+      <button class="btn-order" id="payBtn" onclick="submitOrder()">🎁 Create My Song</button>
+      <div class="gmoney">✓ 30-Day Money Back Guarantee</div>
+    </div>
+
+    <div class="order-card">
+      <h2>🎵 Your Custom Song Order</h2>
+      <div class="order-summary-row"><span>Song for:</span><strong id="recipientLine" style="color:var(--rust)">—</strong></div>
+      <div class="order-summary-row"><span>Genre:</span><strong id="genreLine">—</strong></div>
+      <div class="order-summary-row" style="border-top:none"><span>Delivery:</span><strong>Within 5 minutes</strong></div>
+      <div class="price-line">
+        <span class="price-badge">50% OFF</span>
+        <span class="price-orig">$199</span>
+        <span class="price-now">$99 USD</span>
+      </div>
+      <button class="edit-btn" onclick="goTo(1)">✏️ Review or Edit Survey</button>
+    </div>
+
+    <div class="offer-box">
+      <h3>🎁 Limited Time Offer</h3>
+      <p>Our songs typically cost <strong>$199</strong>, but for a limited time, you can get the same studio-quality song for just <strong>$99 USD</strong>.</p>
+    </div>
+
+    <div class="order-card">
+      <h2>🎵 Hear Songs We've Made</h2>
+      <ul class="sample-list">
+        <li class="sample-item">
+          <div class="play-btn"><svg width="14" height="16" viewBox="0 0 14 16"><path d="M0 0l14 8L0 16V0z"/></svg></div>
+          <div class="sample-info"><div class="sname">The Night We Found Each Other</div><div class="sauthor">Ordered by Jessica M.</div></div>
+        </li>
+        <li class="sample-quote">"I am literally shaking. My husband cried for two full minutes." — Jessica M.</li>
+        <li class="sample-item">
+          <div class="play-btn"><svg width="14" height="16" viewBox="0 0 14 16"><path d="M0 0l14 8L0 16V0z"/></svg></div>
+          <div class="sample-info"><div class="sname">Chosen From the Start</div><div class="sauthor">Ordered by Tyler R.</div></div>
+        </li>
+        <li class="sample-quote">"We used this as our first dance song at our wedding." — Tyler R.</li>
+        <li class="sample-item">
+          <div class="play-btn"><svg width="14" height="16" viewBox="0 0 14 16"><path d="M0 0l14 8L0 16V0z"/></svg></div>
+          <div class="sample-info"><div class="sname">Thirty Years of You</div><div class="sauthor">Ordered by Amanda L.</div></div>
+        </li>
+        <li class="sample-quote">"My mom called me sobbing. It mentioned their first date diner." — Amanda L.</li>
+      </ul>
+    </div>
+
+    <div class="order-card">
+      <h2 style="color:var(--green)">✓ 100% Money Back Guarantee</h2>
+      <ul class="guarantee-list">
+        <li class="gl-item"><div class="gl-dot"></div><div><div class="gt">Not satisfied? Get a full refund</div><div class="gs">No questions asked, no hassle</div></div></li>
+        <li class="gl-item"><div class="gl-dot"></div><div><div class="gt">30-day guarantee</div><div class="gs">Plenty of time to listen and decide</div></div></li>
+        <li class="gl-item"><div class="gl-dot"></div><div><div class="gt">Risk-free purchase</div><div class="gs">Your satisfaction is our priority</div></div></li>
+      </ul>
+    </div>
+
+    <div class="order-card">
+      <h2>🎁 What You'll Get</h2>
+      <ul class="what-list">
+        <li class="wl-item"><div class="wl-dot"></div><div><div class="gt" style="font-size:14px;font-weight:600;color:var(--ink)">Studio-Quality Song</div><div class="gs">Full 2–3 minute song, MP3 + WAV, ready to share</div></div></li>
+        <li class="wl-item"><div class="wl-dot"></div><div><div class="gt" style="font-size:14px;font-weight:600;color:var(--ink)">Personalized Lyrics</div><div class="gs">Custom lyrics written just for <span id="recipientWhat">them</span></div></div></li>
+        <li class="wl-item"><div class="wl-dot"></div><div><div class="gt" style="font-size:14px;font-weight:600;color:var(--ink)">5-Minute Delivery</div><div class="gs">In your inbox in minutes, not days</div></div></li>
+      </ul>
+    </div>
+
+    <div class="order-card">
+      <h2 style="color:var(--gold)">★ Why Choose StorySound?</h2>
+      <ul class="why-list">
+        <li class="why-item"><span class="why-check">✓</span> Over 14,000 satisfied customers</li>
+        <li class="why-item"><span class="why-check">✓</span> 100% satisfaction guarantee</li>
+        <li class="why-item"><span class="why-check">✓</span> Secure payment processing</li>
+        <li class="why-item"><span class="why-check">✓</span> Delivered in under 5 minutes</li>
+      </ul>
+    </div>
+
+    <button class="btn-continue" style="margin-top:8px" onclick="document.getElementById('f-email').focus();document.getElementById('f-email').scrollIntoView({behavior:'smooth'})">🎁 Create My Song — $99</button>
+    <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">Ready to create something special for <span id="recipientFinal">them</span>?</p>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottomNav">
+  <button class="btn-back" id="backBtn" onclick="goBack()">← Back</button>
+  <div>
+    <button class="btn-next" id="nextBtn" onclick="goNext()">Next →</button>
+    <p class="terms" id="termsLine">By continuing, you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</p>
+  </div>
+</div>
+
+<script>
+const STEPS = 7;
+let cur = 1;
+const data = { forWhom:'', recipient:'', genre:'', qualities:'', memories:'', message:'' };
+
+const PROGRESS = {1:[20,'Step 1 of 5'],2:[40,'Step 2 of 5'],3:[60,'Step 3 of 5'],4:[80,'Step 4 of 5'],5:[100,'Step 5 of 5'],6:[100,'Almost done!'],7:[100,'Final step!']};
+
+function showStep(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sc'+n).classList.add('active');
+  const [pct,label]=PROGRESS[n]||[100,''];
+  document.getElementById('pgBar').style.width=pct+'%';
+  document.getElementById('pgStep').textContent=label;
+  document.getElementById('pgPct').textContent=pct+'% Complete';
+  const nav=document.getElementById('bottomNav');
+  nav.style.display=(n===6||n===7)?'none':'flex';
+  window.scrollTo(0,0);
+  cur=n;
+}
+
+function goNext(){
+  if(cur===1){
+    if(!data.forWhom){alert('Please select who this song is for.');return;}
+    data.recipient=document.getElementById('f-recipient').value.trim()||data.forWhom;
+    updateRecipientUI();
+  }
+  if(cur===2&&!data.genre){alert('Please choose a genre.');return;}
+  if(cur===3){data.qualities=document.getElementById('f-qualities').value.trim();}
+  if(cur===4){data.memories=document.getElementById('f-memories').value.trim();}
+  if(cur===5){data.message=document.getElementById('f-message').value.trim();}
+  showStep(cur<STEPS?cur+1:STEPS);
+}
+
+function goBack(){if(cur>1)showStep(cur-1);}
+function goTo(n){showStep(n);}
+
+function pickFor(el){
+  document.querySelectorAll('#forGrid .pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  data.forWhom=el.textContent;
+}
+
+function pickGenre(el){
+  document.querySelectorAll('#genreGrid .pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  data.genre=el.textContent;
+  document.getElementById('genreLine').textContent=data.genre;
+}
+
+function updateRecipientUI(){
+  const r=data.recipient||'them';
+  ['recipientDisplay','recipientLine','recipientWhat','recipientFinal'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=r;
+  });
+}
+
+const PRICE_ID = 'STRIPE_PRICE_STORYSOUND_STANDARD';
+
+async function submitOrder(){
+  const email=document.getElementById('f-email').value.trim();
+  if(!email||!email.includes('@')){alert('Please enter a valid email address.');return;}
+  const btn=document.getElementById('payBtn');
+  btn.disabled=true;btn.textContent='Redirecting to payment...';
+  const metadata={
+    names: data.recipient,
+    email,
+    years: '',
+    story: (data.memories||'')+(data.message?' '+data.message:''),
+    moments: data.qualities||'',
+    genre: data.genre||'Pop',
+    mood: 'Romantic',
+    vocals: 'vocals',
+    plan: 'standard',
+    forWhom: data.forWhom
+  };
+  try{
+    const res=await fetch('/.netlify/functions/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({priceId:PRICE_ID,email,metadata})});
+    const d=await res.json();
+    if(d.url)window.location.href=d.url;
+    else throw new Error(d.error||'Checkout failed');
+  }catch(e){
+    alert('Something went wrong: '+e.message);
+    btn.disabled=false;btn.textContent='🎁 Create My Song';
+  }
+}
+</script>
+</body>
+</html>
