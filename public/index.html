@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StorySound — Your Love Story Becomes a Real Song</title>
+<meta name="description" content="Turn your love story into a custom 3-minute song with real vocals. Delivered in minutes. The most personal gift you'll ever give.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#FAF7F2;
+  --cream2:#F3EDE1;
+  --ink:#0F0A06;
+  --ink2:#2C2016;
+  --muted:#7A6E64;
+  --rust:#B5471C;
+  --rust2:#8E3415;
+  --gold:#C49A2E;
+  --gold-l:#F5DFA0;
+  --warm:#E8D5B0;
+  --border:rgba(15,10,6,0.08);
+  --white:#FFFFFF;
+}
+html{scroll-behavior:smooth}
+body{background:var(--cream);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+
+/* ── FLOATING MUSIC NOTES ── */
+.notes-canvas{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.note{position:absolute;font-size:20px;opacity:0;animation:floatNote linear infinite;filter:blur(0px)}
+@keyframes floatNote{
+  0%{transform:translateY(100vh) rotate(0deg);opacity:0}
+  5%{opacity:0.12}
+  90%{opacity:0.07}
+  100%{transform:translateY(-120px) rotate(360deg);opacity:0}
+}
+
+/* ── GRAIN OVERLAY ── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1;opacity:0.4}
+
+/* ── TOPBAR ── */
+.topbar{position:relative;z-index:10;background:var(--ink);color:var(--gold-l);text-align:center;padding:11px 16px;font-size:13px;font-weight:500;letter-spacing:0.03em}
+.topbar strong{color:#fff}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(250,247,242,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 40px;height:68px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-0.02em}
+.logo span{color:var(--rust)}
+.nav-links a{font-size:14px;color:var(--muted);text-decoration:none;margin-left:28px;transition:color 0.2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-btn{background:var(--ink);color:#fff;border:none;padding:11px 26px;border-radius:100px;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;transition:all 0.2s;letter-spacing:0.01em}
+.nav-btn:hover{background:var(--rust);transform:translateY(-1px)}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:2;min-height:92vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:100px 24px 80px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%, rgba(196,154,46,0.08) 0%, transparent 70%);pointer-events:none}
+.hero-ring{position:absolute;width:700px;height:700px;border-radius:50%;border:1px solid rgba(196,154,46,0.1);top:50%;left:50%;transform:translate(-50%,-50%);animation:ringPulse 6s ease-in-out infinite}
+.hero-ring2{position:absolute;width:500px;height:500px;border-radius:50%;border:1px solid rgba(181,71,28,0.07);top:50%;left:50%;transform:translate(-50%,-50%);animation:ringPulse 6s ease-in-out infinite 2s}
+@keyframes ringPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.5}50%{transform:translate(-50%,-50%) scale(1.05);opacity:1}}
+.hero-inner{position:relative;max-width:760px}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(181,71,28,0.08);border:1px solid rgba(181,71,28,0.18);border-radius:100px;padding:7px 18px;font-size:12px;font-weight:500;color:var(--rust);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:30px;opacity:0;animation:fadeUp 0.7s ease 0.2s forwards}
+.hero-badge::before{content:"♪";font-size:14px}
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(44px,7vw,86px);font-weight:700;line-height:1.05;color:var(--ink);letter-spacing:-0.03em;margin-bottom:22px;opacity:0;animation:fadeUp 0.7s ease 0.35s forwards}
+h1 em{font-style:italic;color:var(--rust);position:relative}
+h1 em::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--rust);transform:scaleX(0);animation:underlineGrow 0.5s ease 1.1s forwards}
+@keyframes underlineGrow{to{transform:scaleX(1)}}
+.hero-sub{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:520px;margin:0 auto 42px;line-height:1.65;opacity:0;animation:fadeUp 0.7s ease 0.5s forwards}
+.hero-cta{opacity:0;animation:fadeUp 0.7s ease 0.65s forwards;display:flex;flex-direction:column;align-items:center;gap:14px}
+.btn-hero{background:var(--rust);color:#fff;border:none;padding:18px 52px;border-radius:100px;font-size:17px;font-weight:500;cursor:pointer;text-decoration:none;transition:all 0.3s;box-shadow:0 8px 32px rgba(181,71,28,0.3);letter-spacing:0.01em;position:relative;overflow:hidden}
+.btn-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15) 0%,transparent 50%);pointer-events:none}
+.btn-hero:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(181,71,28,0.4);background:var(--rust2)}
+.hero-trust{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+
+/* ── AUDIO CARD ── */
+.audio-section{position:relative;z-index:2;padding:0 24px 80px;max-width:560px;margin:0 auto;opacity:0;animation:fadeUp 0.8s ease 0.9s forwards}
+.audio-card{background:var(--white);border-radius:24px;overflow:hidden;border:1px solid var(--border);box-shadow:0 4px 16px rgba(15,10,6,0.06),0 24px 64px rgba(15,10,6,0.1);transition:transform 0.3s,box-shadow 0.3s}
+.audio-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(15,10,6,0.08),0 32px 80px rgba(15,10,6,0.13)}
+.audio-thumb{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#1A0E08 0%,#3D2010 40%,#1A0E08 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:pointer}
+.thumb-particles{position:absolute;inset:0}
+.thumb-particle{position:absolute;width:2px;height:2px;background:var(--gold-l);border-radius:50%;animation:particleDrift linear infinite;opacity:0}
+@keyframes particleDrift{0%{transform:translateY(0) translateX(0);opacity:0}20%{opacity:0.6}80%{opacity:0.3}100%{transform:translateY(-80px) translateX(20px);opacity:0}}
+.thumb-glow{position:absolute;width:200px;height:200px;background:radial-gradient(circle,rgba(196,154,46,0.25) 0%,transparent 70%);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);animation:glowPulse 3s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.5}50%{transform:translate(-50%,-50%) scale(1.3);opacity:1}}
+.play-outer{width:76px;height:76px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;z-index:2;transition:all 0.25s;backdrop-filter:blur(8px);background:rgba(255,255,255,0.1)}
+.play-outer:hover{border-color:rgba(255,255,255,0.7);transform:scale(1.08);background:rgba(255,255,255,0.2)}
+.play-inner{width:0;height:0;border-style:solid;border-width:13px 0 13px 24px;border-color:transparent transparent transparent #fff;margin-left:5px}
+.thumb-label{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);text-align:center;color:#fff;z-index:2}
+.thumb-label p:first-child{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;font-style:italic}
+.thumb-label p:last-child{font-size:12px;opacity:0.6}
+.audio-info{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.song-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.song-meta{font-size:12px;color:var(--muted)}
+.waveform{display:flex;align-items:center;gap:2.5px;height:36px;flex-shrink:0}
+.wb{background:linear-gradient(to top,var(--rust),var(--gold));border-radius:2px;width:3px;animation:wave 1.4s ease-in-out infinite;transform-origin:bottom}
+@keyframes wave{0%,100%{height:3px;opacity:0.3}50%{opacity:1}}
+
+/* ── PROOF STRIP ── */
+.proof-strip{position:relative;z-index:2;background:var(--ink);padding:32px 24px}
+.proof-inner{max-width:860px;margin:0 auto;display:flex;justify-content:center;gap:0;flex-wrap:wrap}
+.proof-stat{text-align:center;padding:8px 48px;border-right:1px solid rgba(255,255,255,0.1)}
+.proof-stat:last-child{border-right:none}
+.proof-stat strong{display:block;font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:700;color:var(--gold-l);line-height:1;margin-bottom:4px}
+.proof-stat span{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase}
+
+/* ── MEDIA ── */
+.media-sec{position:relative;z-index:2;padding:40px 24px;text-align:center;background:var(--cream2)}
+.media-label{font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+.media-logos{display:flex;justify-content:center;align-items:center;gap:48px;flex-wrap:wrap}
+.media-logo{font-size:14px;font-weight:700;color:var(--muted);opacity:0.4;letter-spacing:0.06em;font-family:'DM Sans',sans-serif;transition:opacity 0.2s}
+.media-logo:hover{opacity:0.7}
+
+/* ── SECTIONS ── */
+.section{position:relative;z-index:2;padding:100px 24px}
+.section.dark{background:var(--ink)}
+.section.tinted{background:var(--cream2)}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--rust);text-align:center;margin-bottom:16px}
+.section.dark .eyebrow{color:var(--gold-l)}
+h2{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,5vw,56px);font-weight:700;color:var(--ink);line-height:1.1;text-align:center;margin-bottom:16px;letter-spacing:-0.02em}
+.section.dark h2{color:#fff}
+.sec-sub{font-size:18px;color:var(--muted);text-align:center;max-width:480px;margin:0 auto 64px}
+.section.dark .sec-sub{color:rgba(255,255,255,0.45)}
+
+/* ── HOW IT WORKS ── */
+.steps-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;max-width:900px;margin:0 auto}
+.step-card{text-align:center;padding:40px 28px;background:var(--white);border-radius:24px;border:1px solid var(--border);position:relative;overflow:hidden;transition:transform 0.35s,box-shadow 0.35s;opacity:0}
+.step-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(196,154,46,0.04) 0%,transparent 60%);pointer-events:none}
+.step-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(15,10,6,0.1)}
+.step-num{font-family:'Cormorant Garamond',serif;font-size:64px;font-weight:700;color:var(--warm);line-height:1;margin-bottom:16px;transition:color 0.3s}
+.step-card:hover .step-num{color:var(--gold-l)}
+.step-card h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:10px}
+.step-card p{font-size:14px;color:var(--muted);line-height:1.75}
+.steps-cta{text-align:center;margin-top:56px}
+
+/* ── TESTIMONIALS ── */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:980px;margin:0 auto}
+.testi-card{background:var(--white);border-radius:20px;padding:30px 26px;border:1px solid var(--border);transition:transform 0.3s,box-shadow 0.3s;opacity:0;position:relative;overflow:hidden}
+.testi-card::after{content:'❝';position:absolute;top:16px;right:20px;font-size:64px;color:var(--warm);font-family:'Cormorant Garamond',serif;line-height:1;pointer-events:none}
+.testi-card:hover{transform:translateY(-5px);box-shadow:0 12px 40px rgba(15,10,6,0.1)}
+.stars{color:var(--rust);font-size:14px;letter-spacing:3px;margin-bottom:14px}
+.testi-song{font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.testi-card blockquote{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink2);line-height:1.65;font-style:italic;margin-bottom:20px;position:relative;z-index:1}
+.testi-card blockquote strong{font-style:normal;color:var(--rust)}
+.testi-author{display:flex;align-items:center;gap:10px}
+.tav{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#fff;flex-shrink:0}
+.tav.c1{background:#C4604A}.tav.c2{background:#4A7A8A}.tav.c3{background:#5B8A6A}
+.tname{font-size:14px;font-weight:500;color:var(--ink)}
+.tdetail{font-size:12px;color:var(--muted)}
+
+/* ── FOR SECTION ── */
+.for-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;max-width:860px;margin:0 auto}
+.for-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:24px 16px;text-align:center;cursor:pointer;transition:all 0.25s;text-decoration:none;display:block;opacity:0;position:relative;overflow:hidden}
+.for-card::before{content:'';position:absolute;inset:0;background:var(--rust);transform:translateY(100%);transition:transform 0.3s ease;border-radius:18px}
+.for-card:hover::before{transform:translateY(0)}
+.for-icon{font-size:30px;margin-bottom:10px;display:block;position:relative;z-index:1;transition:transform 0.3s}
+.for-card:hover .for-icon{transform:scale(1.2)}
+.for-card h3{font-size:13px;font-weight:500;color:var(--ink);position:relative;z-index:1;transition:color 0.3s}
+.for-card:hover h3{color:#fff}
+
+/* ── VALUE SECTION ── */
+.val-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px;max-width:900px;margin:0 auto}
+.val-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:32px 26px;opacity:0;transition:all 0.3s}
+.val-card:hover{background:rgba(255,255,255,0.07);transform:translateY(-4px)}
+.val-icon{font-size:32px;margin-bottom:16px}
+.val-card h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px}
+.val-card p{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.75}
+.val-badge{display:inline-block;margin-top:14px;background:rgba(196,154,46,0.18);color:var(--gold-l);border-radius:100px;padding:4px 14px;font-size:11px;font-weight:500;letter-spacing:0.04em}
+
+/* ── FAQ ── */
+.faq-list{max-width:680px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);cursor:pointer}
+.faq-q{padding:22px 0;font-size:16px;font-weight:500;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:16px;user-select:none;transition:color 0.2s}
+.faq-item:hover .faq-q{color:var(--rust)}
+.faq-icon{font-size:22px;color:var(--muted);flex-shrink:0;transition:transform 0.3s,color 0.2s;width:24px;text-align:center}
+.faq-item.open .faq-icon{transform:rotate(45deg);color:var(--rust)}
+.faq-a{font-size:15px;color:var(--muted);line-height:1.85;max-height:0;overflow:hidden;transition:max-height 0.35s ease,padding 0.25s}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:22px}
+
+/* ── FINAL CTA ── */
+.final-cta{position:relative;z-index:2;background:var(--ink);text-align:center;padding:128px 24px;overflow:hidden}
+.final-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(181,71,28,0.15) 0%,transparent 70%);pointer-events:none}
+.final-cta h2{color:#fff;font-size:clamp(36px,6vw,64px);max-width:660px;margin:0 auto 20px}
+.final-cta p{color:rgba(255,255,255,0.5);font-size:19px;max-width:440px;margin:0 auto 48px}
+.btn-final{background:var(--rust);color:#fff;border:none;padding:20px 60px;border-radius:100px;font-size:18px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-block;transition:all 0.3s;box-shadow:0 8px 40px rgba(181,71,28,0.4);position:relative;overflow:hidden}
+.btn-final::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.12) 0%,transparent 50%);pointer-events:none}
+.btn-final:hover{transform:translateY(-3px);box-shadow:0 16px 60px rgba(181,71,28,0.5);background:var(--rust2)}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:2;background:var(--ink);border-top:1px solid rgba(255,255,255,0.06);padding:40px 24px;text-align:center}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:8px;letter-spacing:-0.02em}
+.footer-logo span{color:var(--rust)}
+footer p{font-size:13px;color:rgba(255,255,255,0.25)}
+.footer-links{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin:16px 0}
+.footer-links a{font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s}
+.footer-links a:hover{color:rgba(255,255,255,0.7)}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.65s ease,transform 0.65s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+/* ── BUTTON BASE ── */
+.btn-sec{display:inline-block;background:none;border:1.5px solid var(--ink);color:var(--ink);padding:16px 44px;border-radius:100px;font-size:16px;font-weight:500;cursor:pointer;text-decoration:none;transition:all 0.25s}
+.btn-sec:hover{background:var(--ink);color:#fff}
+.section.dark .btn-sec{border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.7)}
+.section.dark .btn-sec:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,0.1)}
+
+@media(max-width:640px){
+  nav{padding:0 20px}.nav-links{display:none}
+  .section{padding:72px 16px}
+  .proof-stat{padding:8px 24px}
+  .proof-inner{gap:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- Floating notes -->
+<div class="notes-canvas" id="notesCanvas"></div>
+
+<div class="topbar">🎵 Delivering in <strong>minutes</strong>, not 7 days — <strong>$10 off</strong> your first song this week</div>
+
+<nav>
+  <a href="/" class="logo">Story<span>Sound</span></a>
+  <div class="nav-links">
+    <a href="#reviews">Reviews</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a href="/create" class="nav-btn">Create Your Song →</a>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-ring"></div>
+  <div class="hero-ring2"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">The #1 Custom AI Song Platform</div>
+    <h1>"This Song Made<br>Me <em>Cry Happy Tears."</em></h1>
+    <p class="hero-sub">Tell us your love story. We'll turn it into a custom 3-minute song — real vocals, real music — delivered to your inbox in under 5 minutes.</p>
+    <div class="hero-cta">
+      <a href="/create" class="btn-hero">Start My Custom Song →</a>
+      <span class="hero-trust">🔒 Delivered in minutes · 30-day guarantee · $99</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── AUDIO CARD ── -->
+<div class="audio-section">
+  <div class="audio-card">
+    <div class="audio-thumb" id="playerThumb" onclick="toggleThumb(this)">
+      <div class="thumb-particles" id="thumbParticles"></div>
+      <div class="thumb-glow"></div>
+      <div class="play-outer">
+        <div class="play-inner" id="playArrow"></div>
+      </div>
+      <div class="thumb-label">
+        <p>"The Night We Found Each Other"</p>
+        <p>Listen to a real customer song</p>
+      </div>
+    </div>
+    <div class="audio-info">
+      <div>
+        <div class="song-name">The Night We Found Each Other</div>
+        <div class="song-meta">Sarah & Michael · 10 years · Pop · Romantic</div>
+      </div>
+      <div class="waveform" id="wf"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PROOF STRIP ── -->
+<div class="proof-strip reveal">
+  <div class="proof-inner">
+    <div class="proof-stat"><strong>14,847+</strong><span>Songs Created</span></div>
+    <div class="proof-stat"><strong>4.9 ★</strong><span>Average Rating</span></div>
+    <div class="proof-stat"><strong>< 5 min</strong><span>Delivery Time</span></div>
+    <div class="proof-stat"><strong>100%</strong><span>Money-Back</span></div>
+  </div>
+</div>
+
+<!-- ── MEDIA ── -->
+<div class="media-sec reveal">
+  <p class="media-label">As Seen On</p>
+  <div class="media-logos">
+    <span class="media-logo">CBS NEWS</span>
+    <span class="media-logo">FOX</span>
+    <span class="media-logo">YAHOO LIFE</span>
+    <span class="media-logo">AOL</span>
+    <span class="media-logo">PEOPLE</span>
+  </div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<div class="section tinted">
+  <div class="eyebrow">How It Works</div>
+  <h2 class="reveal">3 Steps to Your Forever Song</h2>
+  <p class="sec-sub reveal">No music skills. No experience. Just your story.</p>
+  <div class="steps-wrap">
+    <div class="step-card reveal">
+      <div class="step-num">01</div>
+      <h3>Tell Your Story</h3>
+      <p>Share how you met, your favorite memories, the moments that defined you. The more detail, the more personal the song.</p>
+    </div>
+    <div class="step-card reveal" style="transition-delay:0.1s">
+      <div class="step-num">02</div>
+      <h3>We Compose It</h3>
+      <p>Our AI songwriter crafts custom lyrics from your story, then produces a full-length studio-quality track with real vocals.</p>
+    </div>
+    <div class="step-card reveal" style="transition-delay:0.2s">
+      <div class="step-num">03</div>
+      <h3>Delivered in Minutes</h3>
+      <p>Your song lands in your inbox — MP3, WAV, and a beautifully formatted lyrics PDF — in under 5 minutes. Not 7 days.</p>
+    </div>
+  </div>
+  <div class="steps-cta reveal">
+    <a href="/create" class="btn-hero">Start My Custom Song →</a>
+  </div>
+</div>
+
+<!-- ── TESTIMONIALS ── -->
+<div class="section" id="reviews">
+  <div class="eyebrow">Real Reactions</div>
+  <h2 class="reveal">They Cried. Then Ordered Another.</h2>
+  <p class="sec-sub reveal">14,000+ songs gifted. These are just three reactions.</p>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-song">♪ The Night We Got Lost in Rome</div>
+      <div class="stars">★★★★★</div>
+      <blockquote>"I played this at our anniversary dinner. My husband went quiet for two full minutes. <strong>Then he cried.</strong> Then I cried. I have never given a gift that hit like this."</blockquote>
+      <div class="testi-author"><div class="tav c1">JM</div><div><div class="tname">Jessica M., 34</div><div class="tdetail">Tampa, FL · Anniversary gift</div></div></div>
+    </div>
+    <div class="testi-card reveal" style="transition-delay:0.1s">
+      <div class="testi-song">♪ Chosen From the Start</div>
+      <div class="stars">★★★★★</div>
+      <blockquote>"We used this as our <strong>first dance song at our wedding.</strong> Nobody knew it was AI. People texted me weeks later still asking who the songwriter was."</blockquote>
+      <div class="testi-author"><div class="tav c2">TR</div><div><div class="tname">Tyler R., 29</div><div class="tdetail">Austin, TX · Wedding first dance</div></div></div>
+    </div>
+    <div class="testi-card reveal" style="transition-delay:0.2s">
+      <div class="testi-song">♪ Thirty Years of You</div>
+      <div class="stars">★★★★★</div>
+      <blockquote>"Ordered this for my parents' 30th anniversary. <strong>My mom called me sobbing.</strong> The song mentioned the exact diner where they had their first date. Unbelievable."</blockquote>
+      <div class="testi-author"><div class="tav c3">AL</div><div><div class="tname">Amanda L., 27</div><div class="tdetail">Nashville, TN · Parents' anniversary</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOR SECTION ── -->
+<div class="section tinted">
+  <div class="eyebrow">Perfect For</div>
+  <h2 class="reveal">Give a Song to Someone You Love</h2>
+  <p class="sec-sub reveal">Or keep it for yourself.</p>
+  <div class="for-grid">
+    <a href="/create" class="for-card reveal"><span class="for-icon">💑</span><h3>Your Partner</h3></a>
+    <a href="/create" class="for-card reveal" style="transition-delay:.05s"><span class="for-icon">💍</span><h3>Wedding Day</h3></a>
+    <a href="/create" class="for-card reveal" style="transition-delay:.1s"><span class="for-icon">🎂</span><h3>Anniversary</h3></a>
+    <a href="/create" class="for-card reveal" style="transition-delay:.15s"><span class="for-icon">👶</span><h3>New Baby</h3></a>
+    <a href="/create" class="for-card reveal" style="transition-delay:.2s"><span class="for-icon">👪</span><h3>For Parents</h3></a>
+    <a href="/create" class="for-card reveal" style="transition-delay:.25s"><span class="for-icon">🕊️</span><h3>In Memory Of</h3></a>
+    <a href="/create" class="for-card reveal" style="transition-delay:.3s"><span class="for-icon">🎓</span><h3>Graduation</h3></a>
+    <a href="/create" class="for-card reveal" style="transition-delay:.35s"><span class="for-icon">🎁</span><h3>Just Because</h3></a>
+    <a href="/create" class="for-card reveal" style="transition-delay:.4s"><span class="for-icon">✨</span><h3>For Yourself</h3></a>
+  </div>
+</div>
+
+<!-- ── WHAT YOU GET ── -->
+<div class="section dark">
+  <div class="eyebrow">What You Receive</div>
+  <h2 class="reveal">More Than a Song.</h2>
+  <p class="sec-sub reveal">A memory they'll replay on every anniversary.</p>
+  <div class="val-grid">
+    <div class="val-card reveal"><div class="val-icon">🎵</div><h3>Full 2–3 Min Song</h3><p>48kHz stereo. Professional structure — intro, verse, chorus, bridge. Powered by Google Lyria 3 Pro.</p><span class="val-badge">MP3 + WAV</span></div>
+    <div class="val-card reveal" style="transition-delay:.08s"><div class="val-icon">📜</div><h3>Personalized Lyrics</h3><p>Every word written for your specific story. Print it, frame it, read it aloud on the big day.</p><span class="val-badge">Print-ready PDF</span></div>
+    <div class="val-card reveal" style="transition-delay:.16s"><div class="val-icon">🎙️</div><h3>Vocals or Instrumental</h3><p>Full song with lead vocals, or a sweeping instrumental for your slideshow. Your choice entirely.</p><span class="val-badge">You decide</span></div>
+    <div class="val-card reveal" style="transition-delay:.24s"><div class="val-icon">⚡</div><h3>In Your Inbox in 5 Min</h3><p>Not days. Not weeks. Other platforms take 7 days. Yours lands in minutes while you're still at the table.</p><span class="val-badge">Instant delivery</span></div>
+  </div>
+  <div style="text-align:center;margin-top:56px" class="reveal">
+    <a href="/create" class="btn-final" style="font-size:17px;padding:18px 52px">Create My Custom Song →</a>
+    <p style="color:rgba(255,255,255,0.25);font-size:13px;margin-top:14px">🔒 30-day money-back guarantee</p>
+  </div>
+</div>
+
+<!-- ── FAQ ── -->
+<div class="section tinted" id="faq">
+  <div class="eyebrow">Questions</div>
+  <h2 class="reveal">Frequently Asked</h2>
+  <div class="faq-list" style="margin-top:48px">
+    <div class="faq-item reveal">
+      <div class="faq-q">How fast will I get my song? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Your custom song is generated and emailed within 3–5 minutes of completing your order. You'll receive the MP3, WAV, and a lyrics PDF — all in one email. No waiting days for a human to finish it.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Will it actually sound like a real song? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes. StorySound uses Google's Lyria 3 Pro — the most advanced AI music model ever built, producing 48kHz professional-grade audio with full structure: intro, verse, chorus, bridge. Customers have used their song as a wedding first dance. Nobody has guessed it was AI.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Can I use this as my wedding first dance? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Absolutely. Many couples have done exactly this. Your song is delivered as both MP3 and WAV — compatible with any venue sound system, DJ setup, or Bluetooth speaker.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">What if I don't love my song? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Full 30-day money-back guarantee. No questions, no hassle. Reply to your delivery email and we'll issue a refund immediately.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Who owns the song after it's made? <span class="faq-icon">+</span></div>
+      <div class="faq-a">You do. Play it, share it, use it in a personal video, play it at a wedding or event — the song is yours. We only ask that you don't commercially resell the audio file itself.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Got more questions? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Email us at <a href="mailto:hello@storysound.ai" style="color:var(--rust)">hello@storysound.ai</a> — we usually respond within a few hours.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FINAL CTA ── -->
+<div class="final-cta">
+  <div class="final-bg"></div>
+  <div class="eyebrow" style="color:var(--gold-l)">Ready?</div>
+  <h2 class="reveal">Their Favorite Song<br>Doesn't Exist Yet.</h2>
+  <p class="reveal">Give them something no one has ever given them — a song that is entirely, completely, only about them.</p>
+  <a href="/create" class="btn-final reveal">Create Our Song — $99 →</a>
+  <p style="color:rgba(255,255,255,0.25);font-size:13px;margin-top:20px">🔒 Secure · Delivered in minutes · 30-day guarantee</p>
+</div>
+
+<footer>
+  <div class="footer-logo">Story<span>Sound</span></div>
+  <p style="margin-bottom:4px">Music has the power to capture what words alone cannot.</p>
+  <div class="footer-links">
+    <a href="/create">Create Your Song</a>
+    <a href="#reviews">Reviews</a>
+    <a href="/terms">Terms</a>
+    <a href="/privacy">Privacy</a>
+    <a href="mailto:hello@storysound.ai">Contact</a>
+  </div>
+  <p>© 2025 StorySound. All rights reserved.</p>
+</footer>
+
+<script>
+// ── FLOATING MUSIC NOTES ──
+(function(){
+  const symbols=['♪','♫','♩','♬','𝄞','𝄢'];
+  const canvas=document.getElementById('notesCanvas');
+  for(let i=0;i<18;i++){
+    const n=document.createElement('div');
+    n.className='note';
+    n.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+    n.style.left=(Math.random()*100)+'vw';
+    n.style.fontSize=(14+Math.random()*16)+'px';
+    n.style.color=Math.random()>0.5?'rgba(181,71,28,0.15)':'rgba(196,154,46,0.12)';
+    const dur=12+Math.random()*20;
+    n.style.animationDuration=dur+'s';
+    n.style.animationDelay=(Math.random()*dur*-1)+'s';
+    canvas.appendChild(n);
+  }
+})();
+
+// ── WAVEFORM ──
+(function(){
+  const wf=document.getElementById('wf');
+  for(let i=0;i<40;i++){
+    const b=document.createElement('div');
+    b.className='wb';
+    b.style.animationDelay=(Math.random()*1.4)+'s';
+    b.style.height=(3+Math.random()*22)+'px';
+    wf.appendChild(b);
+  }
+})();
+
+// ── THUMB PARTICLES ──
+(function(){
+  const p=document.getElementById('thumbParticles');
+  for(let i=0;i<20;i++){
+    const d=document.createElement('div');
+    d.className='thumb-particle';
+    d.style.left=(Math.random()*100)+'%';
+    d.style.top=(20+Math.random()*60)+'%';
+    d.style.animationDuration=(4+Math.random()*6)+'s';
+    d.style.animationDelay=(Math.random()*8)+'s';
+    p.appendChild(d);
+  }
+})();
+
+// ── PLAYER TOGGLE ──
+let playing=false;
+function toggleThumb(el){
+  playing=!playing;
+  document.getElementById('playArrow').style.borderLeftColor=playing?'rgba(255,255,255,0.5)':'#fff';
+}
+
+// ── SCROLL REVEAL ──
+const revealObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('in');revealObs.unobserve(e.target);}
+  });
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+// ── FAQ ──
+document.querySelectorAll('.faq-item').forEach(item=>{
+  item.querySelector('.faq-q').addEventListener('click',()=>{
+    const open=item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if(!open)item.classList.add('open');
+  });
+});
+
+// ── PARALLAX HERO RINGS (subtle) ──
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY;
+  const rings=document.querySelectorAll('.hero-ring,.hero-ring2');
+  rings.forEach((r,i)=>r.style.transform=`translate(-50%,calc(-50% + ${y*(i?0.05:0.03)}px))`);
+},{ passive:true });
+</script>
+</body>
+</html>
