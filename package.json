@@ -1,0 +1,10 @@
+{
+  "name": "storysound",
+  "version": "1.0.0",
+  "description": "Custom AI song platform powered by Google Lyria 3 Pro",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "postmark": "^4.0.5",
+    "stripe": "^16.0.0"
+  }
+}
