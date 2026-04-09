@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StorySound — Your Song is Being Made 🎵</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#FAF8F4;font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{background:#fff;border-radius:28px;padding:56px 48px;max-width:520px;width:100%;text-align:center;border:1px solid rgba(0,0,0,0.07);box-shadow:0 2px 8px rgba(0,0,0,0.04),0 24px 64px rgba(0,0,0,0.07)}
+.icon{font-size:64px;margin-bottom:24px;display:block;animation:bounce 1s ease 0.3s both}
+@keyframes bounce{0%{transform:scale(0.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+h1{font-family:'Playfair Display',serif;font-size:32px;font-weight:600;color:#1A1614;margin-bottom:12px;line-height:1.2}
+p{font-size:16px;color:#7A706C;line-height:1.7;margin-bottom:8px}
+.steps{margin:32px 0;text-align:left;display:flex;flex-direction:column;gap:16px}
+.step{display:flex;align-items:flex-start;gap:14px}
+.step-icon{width:36px;height:36px;border-radius:50%;background:#FAF8F4;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px}
+.step-text strong{display:block;font-size:15px;color:#1A1614;margin-bottom:2px}
+.step-text span{font-size:13px;color:#7A706C}
+.divider{height:1px;background:rgba(0,0,0,0.06);margin:24px 0}
+.email-note{background:#F4F0E8;border-radius:12px;padding:16px;font-size:14px;color:#3D3533}
+.email-note strong{color:#1A1614}
+a{color:#C4922A;text-decoration:none;font-weight:500}
+@media(max-width:500px){.card{padding:36px 24px}}
+</style>
+</head>
+<body>
+<div class="card">
+  <span class="icon">🎵</span>
+  <h1>Your Song is Being Composed</h1>
+  <p>Payment confirmed. Our AI is reading your story and writing your song right now.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-icon">✅</div>
+      <div class="step-text"><strong>Payment received</strong><span>Your order is confirmed</span></div>
+    </div>
+    <div class="step">
+      <div class="step-icon">🤖</div>
+      <div class="step-text"><strong>AI analyzing your story</strong><span>Building your personalized song structure and lyrics</span></div>
+    </div>
+    <div class="step">
+      <div class="step-icon">🎹</div>
+      <div class="step-text"><strong>Lyria 3 Pro composing</strong><span>Generating your full-length song with Google's most advanced music AI</span></div>
+    </div>
+    <div class="step">
+      <div class="step-icon">📧</div>
+      <div class="step-text"><strong>Delivery to your inbox</strong><span>Song + lyrics PDF sent within 3–5 minutes</span></div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="email-note">
+    📬 Check your email in <strong>3–5 minutes</strong>. Your song, lyrics PDF, and download links will all be there. If you don't see it, check your spam folder.
+  </div>
+  <div style="margin-top:24px;font-size:13px;color:#7A706C">
+    Questions? Email us at <a href="mailto:songs@storysound.ai">songs@storysound.ai</a>
+  </div>
+</div>
+</body>
+</html>
