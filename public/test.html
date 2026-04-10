@@ -12,39 +12,50 @@ body{background:#FAF8F4;font-family:"Inter",sans-serif;min-height:100vh;display:
 h1{font-family:"Playfair Display",serif;font-size:26px;color:#18120E;margin-bottom:6px}
 .sub{font-size:14px;color:#8A7D75;margin-bottom:24px}
 label{display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#8A7D75;margin-bottom:6px}
-textarea,input,select{width:100%;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:11px 14px;font-family:"Inter",sans-serif;font-size:14px;color:#18120E;background:#fff;outline:none;margin-bottom:14px}
+textarea,input{width:100%;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:11px 14px;font-family:"Inter",sans-serif;font-size:14px;color:#18120E;background:#fff;outline:none;margin-bottom:14px}
 textarea{min-height:80px;resize:vertical}
 .btn{width:100%;background:#B5471C;color:#fff;border:none;border-radius:100px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s}
 .btn:hover{background:#8E3415}
 .btn:disabled{opacity:0.45;cursor:not-allowed}
-.log{background:#f5f5f5;border-radius:8px;padding:12px;font-size:12px;font-family:monospace;color:#333;margin:12px 0;min-height:24px;line-height:1.8;word-break:break-all}
+.progress{margin:16px 0;display:none}
+.progress-bar{height:4px;background:#F3EDE1;border-radius:2px;overflow:hidden;margin-bottom:8px}
+.progress-fill{height:100%;background:#B5471C;border-radius:2px;width:0%;transition:width 0.5s ease}
+.progress-text{font-size:13px;color:#8A7D75;text-align:center}
 .result{display:none;margin-top:20px;padding-top:20px;border-top:1px solid rgba(0,0,0,0.08)}
-.song-title{font-family:"Playfair Display",serif;font-size:22px;font-style:italic;color:#18120E;margin-bottom:14px}
+.song-title{font-family:"Playfair Display",serif;font-size:22px;font-style:italic;color:#18120E;margin-bottom:4px}
+.song-meta{font-size:12px;color:#8A7D75;margin-bottom:14px}
 audio{width:100%;margin-bottom:10px}
-.dl-btn{display:block;text-align:center;padding:10px;background:#2A6644;color:#fff;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;margin-bottom:14px}
+.dl-btn{display:block;text-align:center;padding:11px;background:#2A6644;color:#fff;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;margin-bottom:14px}
 .lyrics{font-size:13px;color:#666;line-height:1.9;font-style:italic;white-space:pre-wrap;padding-top:14px;border-top:1px solid rgba(0,0,0,0.08)}
+.err{background:#fff3cd;border-radius:8px;padding:12px;font-size:13px;color:#856404;margin-bottom:12px;display:none}
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>🎵 Song Generator</h1>
-  <p class="sub">Yuliana's story is pre-filled. Hit Generate.</p>
+  <h1>🎵 Generate Your Song</h1>
+  <p class="sub">Full 2-minute song with your lyrics — powered by Claude + Lyria 3 Pro</p>
 
   <label>Name</label>
   <input id="recipient" value="Yuliana / Yubito">
 
-  <label>Genre</label>
+  <label>Genre & Style</label>
   <input id="genre" value="Emotional R&B, Daniel Caesar Giveon style, 70 BPM">
 
   <label>Their Story</label>
   <textarea id="story">Met on Bumble. The moment he saw her he was shocked by her beauty. Their start was not perfect, both made mistakes. But their love grew stronger. She is the nicest and most caring person he ever met. He loves her eyes especially when she looks at him. Abu Dhabi trip was unforgettable, he took care of her. First time she cooked it was burned but he loved it from her hands. She gets angry sometimes just like him. But the way she is growing and improving makes him incredibly proud. She listens and takes action. She is the only one he imagines as the mother of his children. He loves her and is sorry for his mistakes. Nickname: Yubito.</textarea>
 
-  <div class="log" id="log">Ready. Click Generate to start.</div>
+  <div class="err" id="err"></div>
 
-  <button class="btn" id="btn" onclick="generate()">🎵 Generate Song</button>
+  <button class="btn" id="btn" onclick="generate()">🎵 Generate 2-Min Song</button>
+
+  <div class="progress" id="progress">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">Starting...</div>
+  </div>
 
   <div class="result" id="result">
     <div class="song-title" id="sTitle"></div>
+    <div class="song-meta" id="sMeta"></div>
     <audio id="player" controls></audio>
     <a class="dl-btn" id="dlLink" download="song.mp3">⬇ Download MP3</a>
     <div class="lyrics" id="lyrics"></div>
@@ -52,76 +63,103 @@ audio{width:100%;margin-bottom:10px}
 </div>
 
 <script>
-function log(msg) {
-  document.getElementById('log').textContent = msg;
-  console.log(msg);
+let pollTimer = null;
+
+function showProgress(pct, msg) {
+  document.getElementById('progress').style.display = 'block';
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = msg;
 }
 
 async function generate() {
   const btn = document.getElementById('btn');
-  btn.disabled = true;
+  const err = document.getElementById('err');
+  err.style.display = 'none';
+  document.getElementById('result').style.display = 'none';
 
-  const payload = {
-    names: document.getElementById('recipient').value.trim(),
-    story: document.getElementById('story').value.trim(),
-    genre: document.getElementById('genre').value.trim(),
-    mood: 'Romantic', vocals: 'vocals', forWhom: 'girlfriend'
-  };
+  const story = document.getElementById('story').value.trim();
+  if (!story) { err.textContent = 'Please enter a story'; err.style.display='block'; return; }
+
+  btn.disabled = true;
+  showProgress(5, 'Starting song generation...');
 
   try {
-    log('Step 1: Calling song generator...');
-    const res = await fetch('/.netlify/functions/test-lyria', {
+    // Start the background job
+    const startRes = await fetch('/.netlify/functions/start-song', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        names: document.getElementById('recipient').value.trim(),
+        story: story,
+        genre: document.getElementById('genre').value.trim(),
+        mood: 'Romantic',
+        vocals: 'vocals',
+        forWhom: 'girlfriend'
+      })
     });
 
-    log('Step 2: Got response. Status: ' + res.status + '. Parsing JSON...');
+    const { jobId } = await startRes.json();
+    showProgress(15, 'Claude writing your lyrics...');
 
-    let d;
-    try {
-      d = await res.json();
-    } catch(parseErr) {
-      log('ERROR: JSON parse failed. Status was ' + res.status);
-      btn.disabled = false;
-      return;
-    }
+    // Poll for result
+    let attempts = 0;
+    const maxAttempts = 40; // ~2 minutes
 
-    log('Step 3: Keys in response: ' + Object.keys(d).join(', '));
+    pollTimer = setInterval(async () => {
+      attempts++;
+      const pct = Math.min(15 + (attempts / maxAttempts) * 80, 90);
 
-    if (d.error) { log('ERROR: ' + d.error); btn.disabled = false; return; }
-    if (d.lyria_error) { log('LYRIA ERROR: ' + d.lyria_error.substring(0,200)); btn.disabled = false; return; }
-    if (d.no_audio) { log('No audio: ' + JSON.stringify(d)); btn.disabled = false; return; }
+      if (attempts < 5) showProgress(pct, 'Claude writing lyrics...');
+      else if (attempts < 15) showProgress(pct, 'Lyria 3 Pro composing music...');
+      else showProgress(pct, 'Almost done... finalizing your song...');
 
-    if (!d.audio_b64) {
-      log('No audio_b64 in response. Response: ' + JSON.stringify(d).substring(0,300));
-      btn.disabled = false;
-      return;
-    }
+      try {
+        const pollRes = await fetch('/.netlify/functions/check-song?jobId=' + jobId);
+        const data = await pollRes.json();
 
-    log('Step 4: Got audio! ' + d.audio_size_kb + 'KB. Decoding...');
-
-    try {
-      const bytes = Uint8Array.from(atob(d.audio_b64), c => c.charCodeAt(0));
-      const blob = new Blob([bytes], { type: d.audio_mime || 'audio/mpeg' });
-      const url = URL.createObjectURL(blob);
-
-      document.getElementById('sTitle').textContent = '"' + d.song_title + '"';
-      document.getElementById('player').src = url;
-      document.getElementById('dlLink').href = url;
-      document.getElementById('dlLink').download = d.song_title + '.mp3';
-      if (d.lyrics) document.getElementById('lyrics').textContent = d.lyrics;
-      document.getElementById('result').style.display = 'block';
-      log('✅ Done! Song "' + d.song_title + '" — ' + d.audio_size_kb + 'KB');
-    } catch(audioErr) {
-      log('Audio decode error: ' + audioErr.message);
-    }
+        if (data.status === 'done') {
+          clearInterval(pollTimer);
+          showProgress(100, '✅ Song ready!');
+          displayResult(data);
+        } else if (data.status === 'error') {
+          clearInterval(pollTimer);
+          err.textContent = 'Error: ' + (data.error || 'Unknown error');
+          err.style.display = 'block';
+          document.getElementById('progress').style.display = 'none';
+          btn.disabled = false;
+        } else if (attempts >= maxAttempts) {
+          clearInterval(pollTimer);
+          err.textContent = 'Generation timed out. Please try again.';
+          err.style.display = 'block';
+          document.getElementById('progress').style.display = 'none';
+          btn.disabled = false;
+        }
+      } catch(e) {
+        console.log('Poll error:', e);
+      }
+    }, 3000);
 
   } catch(e) {
-    log('FETCH ERROR: ' + e.message);
+    err.textContent = 'Error: ' + e.message;
+    err.style.display = 'block';
+    document.getElementById('progress').style.display = 'none';
+    btn.disabled = false;
   }
+}
 
-  btn.disabled = false;
+function displayResult(data) {
+  const bytes = Uint8Array.from(atob(data.audio_b64), c => c.charCodeAt(0));
+  const blob = new Blob([bytes], { type: data.audio_mime || 'audio/mpeg' });
+  const url = URL.createObjectURL(blob);
+
+  document.getElementById('sTitle').textContent = '"' + data.song_title + '"';
+  document.getElementById('sMeta').textContent = data.audio_size_kb + 'KB · 2 minutes · Lyria 3 Pro · With your lyrics';
+  document.getElementById('player').src = url;
+  document.getElementById('dlLink').href = url;
+  document.getElementById('dlLink').download = data.song_title + '.mp3';
+  if (data.lyrics) document.getElementById('lyrics').textContent = data.lyrics;
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('btn').disabled = false;
 }
 </script>
 </body>
