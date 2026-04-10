@@ -5,6 +5,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "postmark": "^4.0.5",
-    "stripe": "^16.0.0"
+    "stripe": "^16.0.0",
+    "@netlify/blobs": "^8.0.0"
   }
 }
