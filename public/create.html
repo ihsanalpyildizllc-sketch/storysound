@@ -276,8 +276,13 @@ body{background:var(--cream);font-family:'Inter',sans-serif;color:var(--ink);min
 
     <div class="order-card">
       <input class="email-input" id="f-email" type="email" placeholder="Your email address">
-      <button class="btn-order" id="payBtn" onclick="submitOrder()">🎁 Create My Song</button>
-      <div class="gmoney">✓ 30-Day Money Back Guarantee</div>
+      
+    <button class="btn-order" id="testBtn" onclick="testGenerate()" style="background:#2A6644;margin-bottom:8px">
+      🎵 Generate Song (Free Test)
+    </button>
+      <button class="btn-order" id="payBtn" onclick="submitOrder()">🎁 Create My Song & Pay →</button>
+      <div id="audioResultWrap" style="display:none"></div>
+    <div class="gmoney">✓ 30-Day Money Back Guarantee</div>
     </div>
 
     <div class="order-card">
@@ -447,6 +452,49 @@ async function submitOrder(){
     btn.disabled=false;btn.textContent='🎁 Create My Song';
   }
 }
+
+async function testGenerate() {
+  const email = document.getElementById('f-email').value.trim();
+  if (!email || !email.includes('@')) { alert('Please enter your email first'); return; }
+  const btn = document.getElementById('testBtn');
+  btn.disabled = true; btn.textContent = 'Generating your song... (~20 seconds)';
+  const metadata = {
+    names: data.recipient || 'You',
+    story: (data.memories || '') + ' ' + (data.message || ''),
+    moments: data.qualities || '',
+    genre: data.genre || 'Pop',
+    mood: 'Romantic',
+    vocals: 'vocals',
+    forWhom: data.forWhom || 'partner'
+  };
+  try {
+    const res = await fetch('/.netlify/functions/test-lyria', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(metadata)
+    });
+    const d = await res.json();
+    if (d.audio_b64) {
+      const bytes = Uint8Array.from(atob(d.audio_b64), c => c.charCodeAt(0));
+      const blob = new Blob([bytes], { type: d.audio_mime || 'audio/mpeg' });
+      const url = URL.createObjectURL(blob);
+      const wrap = document.getElementById('audioResultWrap');
+      wrap.style.display = 'block';
+      wrap.innerHTML = `<div style="background:#f5f5f0;border-radius:12px;padding:16px;margin-bottom:16px">
+        <div style="font-family:Georgia,serif;font-size:17px;font-weight:700;margin-bottom:4px">🎵 "${d.song_title}"</div>
+        <audio controls style="width:100%;margin:10px 0" src="${url}"></audio>
+        <a href="${url}" download="${d.song_title}.mp3" style="display:block;text-align:center;font-size:13px;color:#2A6644">⬇ Download MP3</a>
+        ${d.lyrics ? '<pre style="font-size:12px;color:#666;white-space:pre-wrap;line-height:1.8;margin-top:12px;border-top:1px solid #ddd;padding-top:10px;font-style:italic">' + d.lyrics + '</pre>' : ''}
+      </div>`;
+    } else if (d.lyrics) {
+      document.getElementById('audioResultWrap').style.display = 'block';
+      document.getElementById('audioResultWrap').innerHTML = '<div style="background:#fff3cd;border-radius:8px;padding:12px;font-size:13px">' + (d.lyria_error || 'Audio generation issue') + '</div>';
+    } else {
+      alert('Error: ' + (d.error || 'Unknown error'));
+    }
+  } catch(e) { alert('Error: ' + e.message); }
+  btn.disabled = false; btn.textContent = '🎵 Generate Song (Free Test)';
+}
+
 </script>
 </body>
 </html>
