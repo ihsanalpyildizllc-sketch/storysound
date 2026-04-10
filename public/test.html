@@ -3,53 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Generate Song — StorySound Test</title>
+<title>Generate Song — StorySound</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#FAF8F4;font-family:"Inter",sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.card{background:#fff;border-radius:20px;padding:40px 36px;max-width:540px;width:100%;border:1px solid rgba(0,0,0,0.08);box-shadow:0 4px 24px rgba(0,0,0,0.08)}
-h1{font-family:"Playfair Display",serif;font-size:26px;font-weight:600;color:#18120E;margin-bottom:6px}
-p{font-size:14px;color:#8A7D75;margin-bottom:24px}
+.card{background:#fff;border-radius:20px;padding:36px 32px;max-width:540px;width:100%;border:1px solid rgba(0,0,0,0.08);box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+h1{font-family:"Playfair Display",serif;font-size:26px;color:#18120E;margin-bottom:6px}
+.sub{font-size:14px;color:#8A7D75;margin-bottom:24px}
 label{display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#8A7D75;margin-bottom:6px}
-textarea,input{width:100%;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:11px 14px;font-family:"Inter",sans-serif;font-size:14px;color:#18120E;background:#fff;outline:none;margin-bottom:14px}
+textarea,input,select{width:100%;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:11px 14px;font-family:"Inter",sans-serif;font-size:14px;color:#18120E;background:#fff;outline:none;margin-bottom:14px}
 textarea{min-height:80px;resize:vertical}
-input:focus,textarea:focus{border-color:#B5471C}
-.btn{width:100%;background:#B5471C;color:#fff;border:none;border-radius:100px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-bottom:8px}
+.btn{width:100%;background:#B5471C;color:#fff;border:none;border-radius:100px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s}
 .btn:hover{background:#8E3415}
 .btn:disabled{opacity:0.45;cursor:not-allowed}
-.status{text-align:center;font-size:13px;color:#8A7D75;min-height:20px;margin-bottom:12px}
+.log{background:#f5f5f5;border-radius:8px;padding:12px;font-size:12px;font-family:monospace;color:#333;margin:12px 0;min-height:24px;line-height:1.8;word-break:break-all}
 .result{display:none;margin-top:20px;padding-top:20px;border-top:1px solid rgba(0,0,0,0.08)}
-.song-title{font-family:"Playfair Display",serif;font-size:22px;font-weight:600;font-style:italic;color:#18120E;margin-bottom:4px}
-.song-meta{font-size:12px;color:#8A7D75;margin-bottom:14px}
+.song-title{font-family:"Playfair Display",serif;font-size:22px;font-style:italic;color:#18120E;margin-bottom:14px}
 audio{width:100%;margin-bottom:10px}
 .dl-btn{display:block;text-align:center;padding:10px;background:#2A6644;color:#fff;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;margin-bottom:14px}
 .lyrics{font-size:13px;color:#666;line-height:1.9;font-style:italic;white-space:pre-wrap;padding-top:14px;border-top:1px solid rgba(0,0,0,0.08)}
-.err{background:#fff3cd;border-radius:8px;padding:12px;font-size:13px;color:#856404;margin-bottom:12px;display:none}
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>🎵 Generate Your Song</h1>
-  <p>Enter the story and we'll create a custom song using Claude + Google Lyria 3</p>
+  <h1>🎵 Song Generator</h1>
+  <p class="sub">Yuliana's story is pre-filled. Hit Generate.</p>
 
-  <label>Who is this song for?</label>
-  <input id="recipient" placeholder="e.g. Yuliana" value="Yuliana">
+  <label>Name</label>
+  <input id="recipient" value="Yuliana / Yubito">
 
-  <label>Their genre / mood</label>
-  <input id="genre" placeholder="e.g. Emotional R&B" value="Emotional R&B ballad, Daniel Caesar style">
+  <label>Genre</label>
+  <input id="genre" value="Emotional R&B, Daniel Caesar Giveon style, 70 BPM">
 
-  <label>Tell the story (the more detail the better)</label>
-  <textarea id="story">Met on Bumble. The first moment he saw her he was shocked by her beauty. Their start was not perfect, both made mistakes. But their love grew stronger. She is the nicest and most caring person he has ever met. He loves her eyes especially when she looks at him. Abu Dhabi trip was unforgettable, he took care of her. First time she cooked it was burned but he loved it. She gets angry sometimes just like him. But the way she is growing and improving makes him incredibly proud. She listens and takes action. She is the only one he imagines as the mother of his children. He loves her and is sorry for his mistakes. Her nickname is Yubito.</textarea>
+  <label>Their Story</label>
+  <textarea id="story">Met on Bumble. The moment he saw her he was shocked by her beauty. Their start was not perfect, both made mistakes. But their love grew stronger. She is the nicest and most caring person he ever met. He loves her eyes especially when she looks at him. Abu Dhabi trip was unforgettable, he took care of her. First time she cooked it was burned but he loved it from her hands. She gets angry sometimes just like him. But the way she is growing and improving makes him incredibly proud. She listens and takes action. She is the only one he imagines as the mother of his children. He loves her and is sorry for his mistakes. Nickname: Yubito.</textarea>
 
-  <div class="err" id="err"></div>
-  <div class="status" id="status"></div>
+  <div class="log" id="log">Ready. Click Generate to start.</div>
 
-  <button class="btn" id="genBtn" onclick="generate()">🎵 Generate Song Now</button>
+  <button class="btn" id="btn" onclick="generate()">🎵 Generate Song</button>
 
   <div class="result" id="result">
-    <div class="song-title" id="songTitle"></div>
-    <div class="song-meta">Powered by Claude + Google Lyria 3 · 30-second preview</div>
+    <div class="song-title" id="sTitle"></div>
     <audio id="player" controls></audio>
     <a class="dl-btn" id="dlLink" download="song.mp3">⬇ Download MP3</a>
     <div class="lyrics" id="lyrics"></div>
@@ -57,55 +52,73 @@ audio{width:100%;margin-bottom:10px}
 </div>
 
 <script>
+function log(msg) {
+  document.getElementById('log').textContent = msg;
+  console.log(msg);
+}
+
 async function generate() {
-  const btn = document.getElementById("genBtn");
-  const status = document.getElementById("status");
-  const err = document.getElementById("err");
-  err.style.display = "none";
-
-  const recipient = document.getElementById("recipient").value.trim();
-  const genre = document.getElementById("genre").value.trim();
-  const story = document.getElementById("story").value.trim();
-
-  if (!story) { err.textContent = "Please enter a story."; err.style.display="block"; return; }
-
+  const btn = document.getElementById('btn');
   btn.disabled = true;
-  status.textContent = "Writing lyrics with Claude... ✍️";
+
+  const payload = {
+    names: document.getElementById('recipient').value.trim(),
+    story: document.getElementById('story').value.trim(),
+    genre: document.getElementById('genre').value.trim(),
+    mood: 'Romantic', vocals: 'vocals', forWhom: 'girlfriend'
+  };
 
   try {
-    const res = await fetch("/.netlify/functions/test-lyria", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ names: recipient, story: story, genre: genre, mood: "Romantic", vocals: "vocals", forWhom: "girlfriend" })
+    log('Step 1: Calling song generator...');
+    const res = await fetch('/.netlify/functions/test-lyria', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
     });
 
-    if (!res.ok) throw new Error("Server error " + res.status);
+    log('Step 2: Got response. Status: ' + res.status + '. Parsing JSON...');
 
-    status.textContent = "Lyria 3 composing music... 🎵";
-    const d = await res.json();
+    let d;
+    try {
+      d = await res.json();
+    } catch(parseErr) {
+      log('ERROR: JSON parse failed. Status was ' + res.status);
+      btn.disabled = false;
+      return;
+    }
 
-    if (d.error) throw new Error(d.error);
-    if (d.lyria_error) throw new Error("Lyria: " + d.lyria_error.substring(0,120));
+    log('Step 3: Keys in response: ' + Object.keys(d).join(', '));
 
-    if (d.audio_b64) {
+    if (d.error) { log('ERROR: ' + d.error); btn.disabled = false; return; }
+    if (d.lyria_error) { log('LYRIA ERROR: ' + d.lyria_error.substring(0,200)); btn.disabled = false; return; }
+    if (d.no_audio) { log('No audio: ' + JSON.stringify(d)); btn.disabled = false; return; }
+
+    if (!d.audio_b64) {
+      log('No audio_b64 in response. Response: ' + JSON.stringify(d).substring(0,300));
+      btn.disabled = false;
+      return;
+    }
+
+    log('Step 4: Got audio! ' + d.audio_size_kb + 'KB. Decoding...');
+
+    try {
       const bytes = Uint8Array.from(atob(d.audio_b64), c => c.charCodeAt(0));
-      const blob = new Blob([bytes], { type: d.audio_mime || "audio/mpeg" });
+      const blob = new Blob([bytes], { type: d.audio_mime || 'audio/mpeg' });
       const url = URL.createObjectURL(blob);
 
-      document.getElementById("songTitle").textContent = "\"" + d.song_title + "\"";
-      document.getElementById("player").src = url;
-      document.getElementById("dlLink").href = url;
-      document.getElementById("dlLink").download = d.song_title + ".mp3";
-      if (d.lyrics) document.getElementById("lyrics").textContent = d.lyrics;
-      document.getElementById("result").style.display = "block";
-      status.textContent = "✅ Song ready! " + d.audio_size_kb + "KB";
-    } else {
-      throw new Error("No audio returned");
+      document.getElementById('sTitle').textContent = '"' + d.song_title + '"';
+      document.getElementById('player').src = url;
+      document.getElementById('dlLink').href = url;
+      document.getElementById('dlLink').download = d.song_title + '.mp3';
+      if (d.lyrics) document.getElementById('lyrics').textContent = d.lyrics;
+      document.getElementById('result').style.display = 'block';
+      log('✅ Done! Song "' + d.song_title + '" — ' + d.audio_size_kb + 'KB');
+    } catch(audioErr) {
+      log('Audio decode error: ' + audioErr.message);
     }
+
   } catch(e) {
-    err.textContent = e.message;
-    err.style.display = "block";
-    status.textContent = "";
+    log('FETCH ERROR: ' + e.message);
   }
 
   btn.disabled = false;
