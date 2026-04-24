@@ -254,7 +254,7 @@ textarea.input-field{min-height:140px;resize:none;line-height:1.65}
     <span class="g-check">✓</span>
     <div><div class="g-title">30-Day Money-Back Guarantee</div><p class="g-text">If you don't love your song, we'll refund you fully. No questions.</p></div>
   </div>
-  <button class="btn-continue" onclick="goTo(7)">Continue to Checkout →</button>
+  <button class="btn-continue" onclick="goTo(7)">Continue to Checkout — From $29 →</button>
   <div class="media-row">
     <span class="ml">CBS</span><span class="ml">FOX</span><span class="ml">AOL</span><span class="ml">YAHOO LIFE</span>
   </div>
@@ -266,10 +266,65 @@ textarea.input-field{min-height:140px;resize:none;line-height:1.65}
   <p class="order-sub">One click away from a song made just for <strong id="recipientName" style="color:var(--rust)">them</strong></p>
   <div class="delivery-pill">📅 Delivered within 5 minutes</div>
 
+  <!-- TIER SELECTOR -->
+  <div class="ocard" style="padding:16px">
+    <div class="ocard-title">🎵 Choose Your Plan</div>
+    <div id="tierGrid" style="display:flex;flex-direction:column;gap:10px">
+
+      <div class="tier-card" id="tier-29" onclick="selectTier(29)" style="border:2px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all 0.2s;background:#fff;position:relative">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px">🎵 Clip</div>
+            <div style="font-size:12px;color:var(--muted)">30-second preview song</div>
+          </div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--ink)">$29</div>
+        </div>
+        <ul style="list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:4px">
+          <li style="font-size:12px;color:var(--muted);display:flex;gap:6px"><span style="color:var(--green);font-weight:700">✓</span>30-second custom clip</li>
+          <li style="font-size:12px;color:var(--muted);display:flex;gap:6px"><span style="color:var(--green);font-weight:700">✓</span>Personalized lyrics</li>
+          <li style="font-size:12px;color:var(--muted);display:flex;gap:6px"><span style="color:var(--green);font-weight:700">✓</span>MP3 download</li>
+        </ul>
+      </div>
+
+      <div class="tier-card" id="tier-49" onclick="selectTier(49)" style="border:2px solid var(--rust);border-radius:14px;padding:16px;cursor:pointer;transition:all 0.2s;background:#FEF8F5;position:relative">
+        <div style="position:absolute;top:-10px;left:16px;background:var(--rust);color:#fff;font-size:11px;font-weight:700;padding:3px 12px;border-radius:100px;letter-spacing:0.04em">⭐ MOST POPULAR</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px">🎵 Full Song</div>
+            <div style="font-size:12px;color:var(--muted)">2-minute complete song</div>
+          </div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--rust)">$49</div>
+        </div>
+        <ul style="list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:4px">
+          <li style="font-size:12px;color:var(--ink2);display:flex;gap:6px"><span style="color:var(--green);font-weight:700">✓</span><strong>Full 2-minute song</strong></li>
+          <li style="font-size:12px;color:var(--ink2);display:flex;gap:6px"><span style="color:var(--green);font-weight:700">✓</span>Your lyrics sung exactly</li>
+          <li style="font-size:12px;color:var(--ink2);display:flex;gap:6px"><span style="color:var(--green);font-weight:700">✓</span>MP3 + WAV download</li>
+          <li style="font-size:12px;color:var(--ink2);display:flex;gap:6px"><span style="color:var(--green);font-weight:700">✓</span>Lyrics PDF</li>
+        </ul>
+      </div>
+
+      <div class="tier-card" id="tier-69" onclick="selectTier(69)" style="border:2px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all 0.2s;background:#fff;position:relative">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px">🎵 Premium</div>
+            <div style="font-size:12px;color:var(--muted)">Full song + revisions</div>
+          </div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--ink)">$69</div>
+        </div>
+        <ul style="list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:4px">
+          <li style="font-size:12px;color:var(--muted);display:flex;gap:6px"><span style="color:var(--green);font-weight:700">✓</span>Everything in Full Song</li>
+          <li style="font-size:12px;color:var(--muted);display:flex;gap:6px"><span style="color:var(--green);font-weight:700">✓</span>3 free revisions</li>
+          <li style="font-size:12px;color:var(--muted);display:flex;gap:6px"><span style="color:var(--green);font-weight:700">✓</span>WAV studio file</li>
+          <li style="font-size:12px;color:var(--muted);display:flex;gap:6px"><span style="color:var(--green);font-weight:700">✓</span>Priority delivery</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
   <!-- Email + Pay -->
   <div class="ocard">
-    <input class="email-field" id="f-email" type="email" placeholder="Your email address — song delivered here">
-    <button class="btn-pay" id="payBtn" onclick="submitOrder()">🎁 Create My Song</button>
+    <input class="email-field" id="f-email" type="email" placeholder="Your email — song delivered here">
+    <button class="btn-pay" id="payBtn" onclick="submitOrder()">🎁 Create My Song — <span id="payPrice">$49</span></button>
     <div class="secure-row">🔒 Stripe-secured · 30-day guarantee</div>
   </div>
 
@@ -278,19 +333,9 @@ textarea.input-field{min-height:140px;resize:none;line-height:1.65}
     <div class="ocard-title">🎵 Your Order</div>
     <div class="order-row"><span>Song for:</span><strong id="orderFor" style="color:var(--rust)">—</strong></div>
     <div class="order-row"><span>Genre:</span><strong id="orderGenre">—</strong></div>
-    <div class="order-row"><span>Delivery:</span><strong>Within 5 minutes</strong></div>
-    <div class="price-wrap">
-      <span class="badge-off">50% OFF</span>
-      <span class="price-orig">$199</span>
-      <span class="price-now">$99</span>
-    </div>
+    <div class="order-row"><span>Plan:</span><strong id="orderPlan">Full Song</strong></div>
+    <div class="order-row" style="border-bottom:none"><span>Delivery:</span><strong>Within 5 minutes</strong></div>
     <button onclick="goTo(1)" style="width:100%;border:1.5px solid var(--border);background:none;border-radius:10px;padding:11px;font-size:13px;color:var(--muted);cursor:pointer;margin-top:12px;font-family:'DM Sans',sans-serif">✏️ Edit My Survey</button>
-  </div>
-
-  <!-- Limited offer -->
-  <div class="offer-box">
-    <div class="offer-title">🎁 Limited Time Offer</div>
-    <p class="offer-text">Songs typically cost <strong>$199</strong>, but for a limited time you get the same studio-quality song for just <strong>$99</strong>.</p>
   </div>
 
   <!-- Sample songs -->
@@ -323,32 +368,48 @@ textarea.input-field{min-height:140px;resize:none;line-height:1.65}
   <div class="ocard">
     <div class="ocard-title">🎁 What You'll Get</div>
     <ul class="wlist">
-      <li class="wli"><div class="wdot"></div><div><div class="gt">2-Minute Custom Song</div><div class="gs">With your exact story sung in the lyrics</div></div></li>
-      <li class="wli"><div class="wdot"></div><div><div class="gt">MP3 + WAV Download</div><div class="gs">Studio quality, 48kHz stereo</div></div></li>
+      <li class="wli"><div class="wdot"></div><div><div class="gt">Custom Song With Your Story</div><div class="gs">Your exact lyrics sung by real vocals</div></div></li>
+      <li class="wli"><div class="wdot"></div><div><div class="gt">MP3 Download</div><div class="gs">Studio quality, 48kHz stereo</div></div></li>
       <li class="wli"><div class="wdot"></div><div><div class="gt">Personalized Lyrics PDF</div><div class="gs">Print it, frame it, gift it</div></div></li>
       <li class="wli"><div class="wdot"></div><div><div class="gt">Delivered in 5 Minutes</div><div class="gs">Not 7 days like other platforms</div></div></li>
     </ul>
   </div>
 
-  <button class="btn-continue" onclick="document.getElementById('f-email').focus();document.getElementById('f-email').scrollIntoView({behavior:'smooth'})">🎁 Create My Song — $99</button>
+  <button class="btn-continue" onclick="document.getElementById('f-email').focus();document.getElementById('f-email').scrollIntoView({behavior:'smooth'})">🎁 Create My Song — From $29</button>
   <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">Ready to create something special for <span id="recipientFinal">them</span>?</p>
-</div>
-
-<!-- BOTTOM NAV -->
-<div class="btm-nav" id="btmNav">
-  <button class="btn-back" id="backBtn" onclick="goBack()">← Back</button>
-  <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-    <button class="btn-next" id="nextBtn" onclick="goNext()">Next →</button>
-    <p class="tos" id="tosLine">By continuing you agree to our <a href="/terms">Terms</a> & <a href="/privacy">Privacy</a></p>
-  </div>
 </div>
 
 <script>
 const STEPS=5; let cur=1;
+let selectedTier = 49; // default to Full Song
+
+const TIER_CONFIG = {
+  29: { label:'Clip', priceId:'DODO_PRICE_STORYSOUND_CLIP', plan:'clip' },
+  49: { label:'Full Song', priceId:'DODO_PRICE_STORYSOUND_FULL', plan:'full' },
+  69: { label:'Premium', priceId:'DODO_PRICE_STORYSOUND_PREMIUM', plan:'premium' }
+};
+
+function selectTier(price) {
+  selectedTier = price;
+  // Update borders
+  [29,49,69].forEach(p => {
+    const el = document.getElementById('tier-'+p);
+    if(p === price) {
+      el.style.border = '2px solid var(--rust)';
+      el.style.background = '#FEF8F5';
+    } else {
+      el.style.border = '2px solid var(--border)';
+      el.style.background = '#fff';
+    }
+  });
+  document.getElementById('payPrice').textContent = '$'+price;
+  document.getElementById('payBtn').innerHTML = '🎁 Create My Song — $'+price;
+  document.getElementById('orderPlan').textContent = TIER_CONFIG[price].label;
+}
 const data={forWhom:'',name:'',genre:'',qualities:'',memories:'',message:''};
 
 const PROGRESS={1:[20,'Step 1 of 5'],2:[40,'Step 2 of 5'],3:[60,'Step 3 of 5'],4:[80,'Step 4 of 5'],5:[100,'Step 5 of 5'],6:[100,'Almost done!'],7:[100,'Final step']};
-const PRICE_ID='STRIPE_PRICE_STORYSOUND_STANDARD';
+// price set by selectTier()
 
 function showStep(n){
   // Hide all
@@ -428,11 +489,11 @@ async function submitOrder(){
     story:(data.memories||'')+(data.message?' '+data.message:''),
     moments:data.qualities||'',
     genre:data.genre||'Pop',
-    mood:'Romantic', vocals:'vocals', plan:'standard',
+    mood:'Romantic', vocals:'vocals', plan:TIER_CONFIG[selectedTier].plan,
     forWhom:data.forWhom
   };
   try{
-    const res=await fetch('/.netlify/functions/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({priceId:PRICE_ID,email,metadata})});
+    const res=await fetch('/.netlify/functions/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({priceId:TIER_CONFIG[selectedTier].priceId,email,metadata})});
     const d=await res.json();
     if(d.url) window.location.href=d.url;
     else throw new Error(d.error||'Checkout failed');
