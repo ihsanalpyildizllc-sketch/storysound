@@ -338,21 +338,54 @@ textarea.input-field{min-height:140px;resize:none;line-height:1.65}
     <button onclick="goTo(1)" style="width:100%;border:1.5px solid var(--border);background:none;border-radius:10px;padding:11px;font-size:13px;color:var(--muted);cursor:pointer;margin-top:12px;font-family:'DM Sans',sans-serif">✏️ Edit My Survey</button>
   </div>
 
-  <!-- Sample songs -->
-  <div class="ocard">
+  <!-- Sample songs - REAL AUDIO -->
+  <div class="ocard" style="padding:20px">
     <div class="ocard-title">🎵 Hear Songs We've Made</div>
-    <ul class="sample-list">
-      <li class="sample-item">
-        <div class="play-dot"><svg width="12" height="14" viewBox="0 0 12 14"><path d="M0 0l12 7L0 14V0z"/></svg></div>
-        <div><div class="si-name">The Night We Found Each Other</div><div class="si-by">Ordered by Jessica M.</div></div>
-      </li>
-      <li class="si-quote">"I am literally shaking. My husband cried." — Jessica M.</li>
-      <li class="sample-item">
-        <div class="play-dot"><svg width="12" height="14" viewBox="0 0 12 14"><path d="M0 0l12 7L0 14V0z"/></svg></div>
-        <div><div class="si-name">Chosen From the Start</div><div class="si-by">Ordered by Tyler R.</div></div>
-      </li>
-      <li class="si-quote">"Used as our wedding first dance." — Tyler R.</li>
-    </ul>
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <div class="sample-player" id="sp1">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <button class="play-btn-real" onclick="togglePlay('sp1','/audio/yubito-desert-rose.mp3',this)" style="width:44px;height:44px;background:var(--rust);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 4px 12px rgba(181,71,28,0.3);transition:transform 0.15s">
+            <svg id="sp1-icon" width="12" height="14" viewBox="0 0 12 14" fill="white"><path d="M0 0l12 7L0 14V0z"/></svg>
+          </button>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">"Yubito (Desert Rose)"</div>
+            <div style="font-size:11px;color:var(--muted)">Yuliana & Cansin · R&B · Made with StorySound</div>
+          </div>
+        </div>
+        <div style="background:var(--cream2);border-radius:8px;height:4px;overflow:hidden;cursor:pointer" onclick="seekAudio('sp1',event)">
+          <div id="sp1-prog" style="background:var(--rust);height:100%;width:0%;transition:width 0.3s;border-radius:8px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:11px;color:var(--muted)" id="sp1-time">0:00</span>
+          <span style="font-size:11px;color:var(--muted)">0:30</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);font-style:italic;margin-top:8px;line-height:1.5">"From Bumble to Abu Dhabi — this song made her cry happy tears." — Cansin</p>
+      </div>
+
+      <div style="height:1px;background:var(--border)"></div>
+
+      <div class="sample-player" id="sp2">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <button class="play-btn-real" onclick="togglePlay('sp2','/audio/storysound-sample.mp3',this)" style="width:44px;height:44px;background:var(--ink);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.2);transition:transform 0.15s">
+            <svg id="sp2-icon" width="12" height="14" viewBox="0 0 12 14" fill="white"><path d="M0 0l12 7L0 14V0z"/></svg>
+          </button>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">"The Night We Found Each Other"</div>
+            <div style="font-size:11px;color:var(--muted)">Sarah & Michael · Pop · Made with StorySound</div>
+          </div>
+        </div>
+        <div style="background:var(--cream2);border-radius:8px;height:4px;overflow:hidden;cursor:pointer" onclick="seekAudio('sp2',event)">
+          <div id="sp2-prog" style="background:var(--ink);height:100%;width:0%;transition:width 0.3s;border-radius:8px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:11px;color:var(--muted)" id="sp2-time">0:00</span>
+          <span style="font-size:11px;color:var(--muted)">0:30</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);font-style:italic;margin-top:8px;line-height:1.5">"We met at a coffee shop in Chicago. He spilled his drink trying to impress me." — Jessica M.</p>
+      </div>
+
+    </div>
   </div>
 
   <!-- Guarantee -->
@@ -512,6 +545,58 @@ async function submitOrder(){
     btn.disabled=false; btn.innerHTML='🎁 Create My Song';
   }
 }
+
+// ── AUDIO PLAYERS ──
+const audioInstances = {};
+
+function togglePlay(id, src, btn) {
+  // Stop all others
+  Object.entries(audioInstances).forEach(([k, a]) => {
+    if(k !== id) {
+      a.pause();
+      document.getElementById(k+'-icon').innerHTML = '<path d="M0 0l12 7L0 14V0z"/>';
+      document.getElementById(k+'-prog').style.width = '0%';
+    }
+  });
+
+  if(!audioInstances[id]) {
+    const audio = new Audio(src);
+    audioInstances[id] = audio;
+    audio.addEventListener('timeupdate', () => {
+      const pct = (audio.currentTime / audio.duration) * 100;
+      document.getElementById(id+'-prog').style.width = pct + '%';
+      const m = Math.floor(audio.currentTime/60);
+      const s = Math.floor(audio.currentTime%60).toString().padStart(2,'0');
+      document.getElementById(id+'-time').textContent = m+':'+s;
+    });
+    audio.addEventListener('ended', () => {
+      document.getElementById(id+'-icon').innerHTML = '<path d="M0 0l12 7L0 14V0z"/>';
+      document.getElementById(id+'-prog').style.width = '0%';
+      document.getElementById(id+'-time').textContent = '0:00';
+    });
+  }
+
+  const audio = audioInstances[id];
+  if(audio.paused) {
+    audio.play();
+    btn.style.transform = 'scale(0.95)';
+    setTimeout(() => btn.style.transform = 'scale(1)', 150);
+    document.getElementById(id+'-icon').innerHTML = '<rect x="0" y="0" width="3.5" height="14"/><rect x="7" y="0" width="3.5" height="14"/>';
+  } else {
+    audio.pause();
+    document.getElementById(id+'-icon').innerHTML = '<path d="M0 0l12 7L0 14V0z"/>';
+  }
+}
+
+function seekAudio(id, event) {
+  const audio = audioInstances[id];
+  if(!audio || !audio.duration) return;
+  const bar = event.currentTarget;
+  const rect = bar.getBoundingClientRect();
+  const pct = (event.clientX - rect.left) / rect.width;
+  audio.currentTime = pct * audio.duration;
+}
+
 </script>
 </body>
 </html>
