@@ -379,6 +379,16 @@ textarea.input-field{min-height:140px;resize:none;line-height:1.65}
   <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">Ready to create something special for <span id="recipientFinal">them</span>?</p>
 </div>
 
+
+<!-- BOTTOM NAV -->
+<div class="btm-nav" id="btmNav">
+  <button class="btn-back" id="backBtn" onclick="goBack()">← Back</button>
+  <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+    <button class="btn-next" id="nextBtn" onclick="goNext()">Next →</button>
+    <p class="tos" id="tosLine">By continuing you agree to our <a href="/terms">Terms</a> & <a href="/privacy">Privacy</a></p>
+  </div>
+</div>
+
 <script>
 const STEPS=5; let cur=1;
 let selectedTier = 49; // default to Full Song
