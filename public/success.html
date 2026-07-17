@@ -474,6 +474,11 @@ window.addEventListener('load', () => {
       loadSong(DEMO_SONG);
     } catch(e) {
       console.error('Demo load error:', e);
+    } finally {
+      // Always show song page in demo mode regardless of errors
+      document.getElementById('loadingWrap').style.display = 'none';
+      document.getElementById('songWrap').style.display = 'block';
+      document.getElementById('stickyEmail').style.display = 'block';
     }
   } else {
     animateLoadingSteps();
@@ -607,15 +612,17 @@ function loadSong(data) {
   document.getElementById('emailBtn').href = `mailto:?subject=${encodeURIComponent('Your custom song is ready!')}&body=${encodeURIComponent(shareText+'\n\n'+listenUrl)}`;
 
   // Build waveform
-  buildWaveform();
+  try { buildWaveform(); } catch(e) { console.log("waveform error", e); }
 
-  // Show song page
-  document.getElementById('loadingWrap').style.display = 'none';
-  document.getElementById('songWrap').style.display = 'block';
-  document.getElementById('stickyEmail').style.display = 'block';
+  // Show song page - do this first, everything else can fail gracefully
+  try {
+    document.getElementById('loadingWrap').style.display = 'none';
+    document.getElementById('songWrap').style.display = 'block';
+    document.getElementById('stickyEmail').style.display = 'block';
+  } catch(e) {}
 
   // Check unlock status
-  checkUnlock();
+  try { checkUnlock(); } catch(e) { console.log('unlock error', e); }
 
   // Auto-play attempt
   setTimeout(() => {
