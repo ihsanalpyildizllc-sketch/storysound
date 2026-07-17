@@ -94,6 +94,17 @@ canvas#preview{width:100%;height:100%;display:block}
     </div>
   </div>
 
+
+  <!-- Paywall (shown when not paid) -->
+  <div id="paywall" style="display:none;background:linear-gradient(150deg,#0F0A06,#2C1A0A);border-radius:18px;padding:24px;text-align:center;margin-bottom:20px">
+    <div style="font-size:36px;margin-bottom:10px">🎬</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px">Memory Video Creator</div>
+    <p style="font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:16px;line-height:1.6">Upload your photos and we'll create a beautiful video with your custom song playing throughout.</p>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:700;color:#F0D898;margin-bottom:16px">$39</div>
+    <a href="/success" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#B5471C;color:#fff;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;margin-bottom:8px">← Go back to get started</a>
+    <p style="font-size:11px;color:rgba(255,255,255,0.3)">Purchase from your song delivery page</p>
+  </div>
+
   <!-- Upload zone -->
   <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
     ondragover="event.preventDefault();this.classList.add('drag')"
@@ -180,17 +191,27 @@ let songUrl = null;
 let previewAnim = null;
 let previewRunning = false;
 
-// Get song from URL params
-const params = new URLSearchParams(window.location.search);
-const songParam = params.get('song_url');
-const songName = params.get('song_name') || 'Your Custom Song';
-const orderId = params.get('order_id');
+
+const mvParams = new URLSearchParams(window.location.search);
+const songParam = mvParams.get('song_url');
+const songName = mvParams.get('song_name') || 'Your Custom Song';
+const orderId = mvParams.get('order_id');
+const isPaid = mvParams.get('paid') === 'true';
 
 if (songParam) {
   songUrl = decodeURIComponent(songParam);
   document.getElementById('songNameDisplay').textContent = songName;
   document.getElementById('songRow').style.display = 'flex';
 }
+
+// Show paywall if not paid
+if (!isPaid) {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('uploadZone').style.display = 'none';
+    document.getElementById('paywall').style.display = 'block';
+  });
+}
+
 
 function handleDrop(e) {
   e.preventDefault();
