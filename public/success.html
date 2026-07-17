@@ -418,17 +418,22 @@ const demoMode = !orderId;
 // ── INIT ──
 window.addEventListener('load', () => {
   if (demoMode) {
-    // Demo mode — load sample song instantly
-    setTimeout(() => loadSong({
-      song_title: 'Yubito (Desert Rose)',
-      song_meta: 'For Yuliana · Anniversary · R&B',
-      audio_url: '/audio/yubito-desert-rose.mp3',
-      lyrics: 'VERSE 1\nSwiped right on a screen that night\nYour face took my breath away\nWe stumbled through our early fights\nBut love found its own way\n\nCHORUS\nYuliana, those eyes when you look at me\nMelt my heart completely\nYou\'re the only one I see\nMother of my dreams, baby\n\nVERSE 2\nAbu Dhabi sunsets, taking care of you\nFirst meal you cooked was burned but love came shining through\nWe both get angry, we both got fire inside\nBut watching you grow fills me with so much pride\n\nBRIDGE\nYou listen, you change, you make me believe\nMother of my children, that\'s what I see\nSorry for my wrongs, but grateful for your love\n\nFINAL CHORUS\nYubito, when you look at me that way\nI see forever in your eyes, night and day\nFrom that Bumble match to now, my heart stays true\nYuliana, my everything, I\'m lost in you'
-    }), 100);
+    // Demo: hide loading immediately, show song page
+    try {
+      const DEMO_SONG = {
+        song_title: 'Yubito (Desert Rose)',
+        song_meta: 'For Yuliana · Anniversary · R&B',
+        audio_url: '/audio/yubito-desert-rose.mp3',
+        lyrics: 'VERSE 1\nSwiped right on a screen that night\nYour face took my breath away\nWe stumbled through our early fights\nBut love found its own way\n\nCHORUS\nYuliana, those eyes when you look at me\nMelt my heart completely\nYou are the only one I see\nMother of my dreams, baby\n\nVERSE 2\nAbu Dhabi sunsets, taking care of you\nFirst meal you cooked was burned but love came shining through\nWe both get angry, we both got fire inside\nBut watching you grow fills me with so much pride\n\nBRIDGE\nYou listen, you change, you make me believe\nMother of my children, that is what I see\nSorry for my wrongs, but grateful for your love\n\nFINAL CHORUS\nYubito, when you look at me that way\nI see forever in your eyes, night and day\nFrom that Bumble match to now, my heart stays true\nYuliana, my everything, I am lost in you'
+      };
+      loadSong(DEMO_SONG);
+    } catch(e) {
+      console.error('Demo load error:', e);
+    }
   } else {
+    animateLoadingSteps();
     pollForSong();
   }
-  animateLoadingSteps();
 });
 
 // ── LOADING STEPS ANIMATION ──
