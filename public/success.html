@@ -3,58 +3,487 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StorySound — Your Song is Being Made 🎵</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<title>Your Song is Ready — StorySound</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#FAF8F4;font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.card{background:#fff;border-radius:28px;padding:56px 48px;max-width:520px;width:100%;text-align:center;border:1px solid rgba(0,0,0,0.07);box-shadow:0 2px 8px rgba(0,0,0,0.04),0 24px 64px rgba(0,0,0,0.07)}
-.icon{font-size:64px;margin-bottom:24px;display:block;animation:bounce 1s ease 0.3s both}
-@keyframes bounce{0%{transform:scale(0.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
-h1{font-family:'Playfair Display',serif;font-size:32px;font-weight:600;color:#1A1614;margin-bottom:12px;line-height:1.2}
-p{font-size:16px;color:#7A706C;line-height:1.7;margin-bottom:8px}
-.steps{margin:32px 0;text-align:left;display:flex;flex-direction:column;gap:16px}
-.step{display:flex;align-items:flex-start;gap:14px}
-.step-icon{width:36px;height:36px;border-radius:50%;background:#FAF8F4;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px}
-.step-text strong{display:block;font-size:15px;color:#1A1614;margin-bottom:2px}
-.step-text span{font-size:13px;color:#7A706C}
-.divider{height:1px;background:rgba(0,0,0,0.06);margin:24px 0}
-.email-note{background:#F4F0E8;border-radius:12px;padding:16px;font-size:14px;color:#3D3533}
-.email-note strong{color:#1A1614}
-a{color:#C4922A;text-decoration:none;font-weight:500}
-@media(max-width:500px){.card{padding:36px 24px}}
+:root{
+  --cream:#FAF7F2;--cream2:#F2EBE0;--ink:#0F0A06;--ink2:#2C1F14;
+  --muted:#7A6A5A;--rust:#B5471C;--rust2:#8E3415;--gold:#C49A2E;
+  --gold-l:#F0D898;--border:rgba(15,10,6,0.09);--green:#2A6644;--white:#fff;
+}
+html,body{min-height:100%;background:var(--cream)}
+body{font-family:'DM Sans',sans-serif;color:var(--ink)}
+
+/* NAV */
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink);text-decoration:none}
+.logo span{color:var(--rust)}
+
+/* LOADING STATE */
+.loading-wrap{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center}
+.music-anim{display:flex;gap:5px;align-items:flex-end;height:48px;margin-bottom:28px}
+.bar{width:6px;border-radius:3px;background:linear-gradient(to top,var(--rust),var(--gold));animation:barAnim 1.2s ease-in-out infinite}
+.bar:nth-child(1){animation-delay:0s;height:20px}
+.bar:nth-child(2){animation-delay:0.15s;height:35px}
+.bar:nth-child(3){animation-delay:0.3s;height:48px}
+.bar:nth-child(4){animation-delay:0.15s;height:30px}
+.bar:nth-child(5){animation-delay:0s;height:18px}
+@keyframes barAnim{0%,100%{transform:scaleY(0.4);opacity:0.5}50%{transform:scaleY(1);opacity:1}}
+.loading-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--ink);margin-bottom:10px}
+.loading-sub{font-size:15px;color:var(--muted);max-width:300px;line-height:1.6;margin-bottom:28px}
+.progress-track{width:260px;height:4px;background:rgba(181,71,28,0.12);border-radius:2px;overflow:hidden}
+.progress-anim{height:4px;background:linear-gradient(90deg,var(--rust),var(--gold));border-radius:2px;animation:progAnim 2.5s ease-in-out infinite}
+@keyframes progAnim{0%{width:0%;opacity:1}70%{width:85%;opacity:1}100%{width:95%;opacity:0.6}}
+.loading-steps{margin-top:24px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.ls{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.ls.done{color:var(--green)}
+.ls.active{color:var(--ink);font-weight:500}
+.ls-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:all 0.3s}
+.ls.done .ls-dot{background:var(--green)}
+.ls.active .ls-dot{background:var(--rust);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.5;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
+
+/* SONG PAGE */
+.song-wrap{display:none;padding:0 0 120px}
+.song-hero{background:linear-gradient(160deg,#1A0A04 0%,#3D1A0A 50%,#1A0A04 100%);padding:40px 24px 48px;text-align:center;position:relative;overflow:hidden}
+.song-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(196,154,46,0.18) 0%,transparent 70%)}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:100px;padding:5px 14px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;position:relative;z-index:1}
+.song-title{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,6vw,44px);font-weight:700;color:#fff;line-height:1.1;letter-spacing:-0.02em;margin-bottom:8px;position:relative;z-index:1}
+.song-meta{font-size:14px;color:rgba(255,255,255,0.55);position:relative;z-index:1;margin-bottom:32px}
+
+/* PLAYER */
+.player-card{background:rgba(255,255,255,0.08);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:20px;max-width:400px;margin:0 auto;position:relative;z-index:1}
+.waveform{display:flex;align-items:center;gap:2px;height:40px;margin-bottom:12px;cursor:pointer}
+.wv{border-radius:2px;background:rgba(255,255,255,0.3);width:3px;transition:background 0.2s;flex-shrink:0}
+.wv.played{background:var(--gold-l)}
+.player-controls{display:flex;align-items:center;gap:14px}
+.play-btn{width:52px;height:52px;background:var(--rust);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 4px 16px rgba(181,71,28,0.45);transition:all 0.2s}
+.play-btn:hover{transform:scale(1.06);background:var(--rust2)}
+.play-btn svg{fill:#fff;margin-left:2px}
+.time-info{flex:1}
+.time-current{font-size:13px;color:#fff;font-weight:600;font-family:monospace}
+.time-total{font-size:12px;color:rgba(255,255,255,0.45)}
+
+/* CONTENT CARDS */
+.content-section{padding:20px 20px 0;max-width:520px;margin:0 auto}
+.ccard{background:var(--white);border-radius:18px;padding:20px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.04),0 8px 24px rgba(0,0,0,0.04);margin-bottom:14px}
+.ccard-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+
+/* QR CODE */
+.qr-wrap{display:flex;align-items:center;gap:16px}
+.qr-img{width:90px;height:90px;border-radius:10px;border:3px solid var(--cream2);flex-shrink:0}
+.qr-info h3{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.qr-info p{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.copy-link{display:inline-flex;align-items:center;gap:5px;background:var(--cream2);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--ink2);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.copy-link:active{transform:scale(0.97)}
+
+/* LYRICS */
+.lyrics-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.lyrics-toggle span{font-size:15px;font-weight:600;color:var(--ink)}
+.lyrics-toggle svg{transition:transform 0.3s;color:var(--muted)}
+.lyrics-body{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
+.lyrics-body.open{max-height:600px}
+.lyrics-text{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--ink2);line-height:2.2;font-style:italic;white-space:pre-wrap;padding-top:14px;border-top:1px solid var(--border);margin-top:12px}
+
+/* ACTIONS */
+.action-grid{display:flex;flex-direction:column;gap:10px}
+.btn-dl{width:100%;background:var(--ink);color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;text-decoration:none}
+.btn-dl:hover{background:var(--rust)}
+.btn-share{width:100%;background:var(--cream2);color:var(--ink);border:1.5px solid var(--border);border-radius:14px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}
+.btn-share:hover{border-color:var(--ink)}
+.share-options{display:none;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.share-options.open{display:grid}
+.share-btn{border:1.5px solid var(--border);border-radius:12px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;background:var(--white);color:var(--ink2);display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;text-decoration:none;font-family:'DM Sans',sans-serif}
+.share-btn:hover{border-color:var(--ink)}
+
+/* UPSELL */
+.upsell{background:linear-gradient(135deg,var(--ink) 0%,#2C1505 100%);border-radius:20px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden}
+.upsell::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(196,154,46,0.2) 0%,transparent 70%);border-radius:50%}
+.upsell-badge{display:inline-flex;align-items:center;gap:5px;background:var(--rust);color:#fff;border-radius:100px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:0.04em;margin-bottom:10px}
+.upsell-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.2}
+.upsell-sub{font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:16px;line-height:1.5}
+.upsell-price{display:flex;align-items:baseline;gap:8px;margin-bottom:16px}
+.upsell-orig{font-size:16px;color:rgba(255,255,255,0.35);text-decoration:line-through}
+.upsell-now{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:var(--gold-l)}
+.upsell-save{font-size:12px;font-weight:600;color:var(--gold-l);background:rgba(196,154,46,0.15);border-radius:100px;padding:3px 10px}
+.btn-upsell{width:100%;background:#fff;color:var(--ink);border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-upsell:hover{background:var(--gold-l)}
+.upsell-features{list-style:none;margin-bottom:16px;display:flex;flex-direction:column;gap:6px}
+.upsell-features li{font-size:13px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:7px}
+.upsell-features li::before{content:'✓';color:var(--gold-l);font-weight:700;flex-shrink:0}
+
+/* STICKY EMAIL BAR */
+.sticky-email{position:fixed;bottom:0;left:0;right:0;background:rgba(250,247,242,0.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:12px 20px;z-index:100}
+.sticky-email-inner{max-width:520px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.sticky-email input{flex:1;border:1.5px solid var(--border);border-radius:100px;padding:11px 16px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--white);outline:none;transition:all 0.2s}
+.sticky-email input:focus{border-color:var(--rust)}
+.sticky-email-btn{background:var(--rust);color:#fff;border:none;border-radius:100px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.2s}
+.sticky-email-btn:hover{background:var(--rust2)}
+
+@media(min-width:520px){
+  .content-section{padding:20px 0 0}
+  .player-card{max-width:380px}
+}
 </style>
 </head>
 <body>
-<div class="card">
-  <span class="icon">🎵</span>
-  <h1>Your Song is Being Composed</h1>
-  <p>Payment confirmed. Our AI is reading your story and writing your song right now.</p>
-  <div class="steps">
-    <div class="step">
-      <div class="step-icon">✅</div>
-      <div class="step-text"><strong>Payment received</strong><span>Your order is confirmed</span></div>
-    </div>
-    <div class="step">
-      <div class="step-icon">🤖</div>
-      <div class="step-text"><strong>AI analyzing your story</strong><span>Building your personalized song structure and lyrics</span></div>
-    </div>
-    <div class="step">
-      <div class="step-icon">🎹</div>
-      <div class="step-text"><strong>Lyria 3 Pro composing</strong><span>Generating your full-length song with Google's most advanced music AI</span></div>
-    </div>
-    <div class="step">
-      <div class="step-icon">📧</div>
-      <div class="step-text"><strong>Delivery to your inbox</strong><span>Song + lyrics PDF sent within 3–5 minutes</span></div>
-    </div>
+
+<nav>
+  <a href="/" class="logo">Story<span>Sound</span></a>
+  <span style="font-size:13px;color:var(--muted)">🔒 Secure</span>
+</nav>
+
+<!-- LOADING STATE -->
+<div class="loading-wrap" id="loadingWrap">
+  <div class="music-anim">
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <div class="bar"></div><div class="bar"></div>
   </div>
-  <div class="divider"></div>
-  <div class="email-note">
-    📬 Check your email in <strong>3–5 minutes</strong>. Your song, lyrics PDF, and download links will all be there. If you don't see it, check your spam folder.
-  </div>
-  <div style="margin-top:24px;font-size:13px;color:#7A706C">
-    Questions? Email us at <a href="mailto:songs@storysound.ai">songs@storysound.ai</a>
+  <div class="loading-title">Creating Your Song...</div>
+  <p class="loading-sub">Claude is writing your lyrics and Lyria 3 Pro is composing your music. This takes about 60 seconds.</p>
+  <div class="progress-track"><div class="progress-anim"></div></div>
+  <div class="loading-steps" id="loadingSteps">
+    <div class="ls active" id="ls1"><div class="ls-dot"></div>Analyzing your story...</div>
+    <div class="ls" id="ls2"><div class="ls-dot"></div>Writing personalized lyrics...</div>
+    <div class="ls" id="ls3"><div class="ls-dot"></div>Composing with Lyria 3 Pro...</div>
+    <div class="ls" id="ls4"><div class="ls-dot"></div>Finalizing your song...</div>
   </div>
 </div>
+
+<!-- SONG PAGE -->
+<div class="song-wrap" id="songWrap">
+
+  <!-- Hero with player -->
+  <div class="song-hero">
+    <div class="hero-badge">🎵 Your Song is Ready</div>
+    <div class="song-title" id="songTitle">"Yubito (Desert Rose)"</div>
+    <p class="song-meta" id="songMeta">For Yuliana · Anniversary · R&B</p>
+
+    <div class="player-card">
+      <div class="waveform" id="waveform" onclick="seekAudio(event)"></div>
+      <div class="player-controls">
+        <button class="play-btn" id="playBtn" onclick="togglePlay()">
+          <svg id="playIcon" width="18" height="20" viewBox="0 0 18 20"><path d="M0 0l18 10L0 20V0z"/></svg>
+        </button>
+        <div class="time-info">
+          <div class="time-current" id="timeCurrent">0:00</div>
+          <div class="time-total" id="timeTotal">0:30</div>
+        </div>
+        <a id="dlBtnHero" href="#" download="song.mp3" style="color:rgba(255,255,255,0.6);font-size:20px;text-decoration:none">⬇</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-section">
+
+    <!-- QR Code -->
+    <div class="ccard">
+      <div class="ccard-title">📱 Listen Anywhere</div>
+      <div class="qr-wrap">
+        <img class="qr-img" id="qrCode" src="" alt="QR Code">
+        <div class="qr-info">
+          <h3>Scan to Listen</h3>
+          <p>Share this QR code and anyone can hear your song instantly. No app needed.</p>
+          <button class="copy-link" onclick="copyLink()">🔗 Copy Link</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lyrics -->
+    <div class="ccard">
+      <div class="lyrics-toggle" onclick="toggleLyrics()">
+        <div class="ccard-title" style="margin-bottom:0">📜 View Lyrics</div>
+        <svg id="lyricsArrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="lyrics-body" id="lyricsBody">
+        <div class="lyrics-text" id="lyricsText">Loading lyrics...</div>
+      </div>
+    </div>
+
+    <!-- Download & Share -->
+    <div class="ccard">
+      <div class="ccard-title">⬇ Download & Share</div>
+      <div class="action-grid">
+        <a class="btn-dl" id="dlBtn" href="#" download="your-song.mp3">⬇ Download Your Song (MP3)</a>
+        <button class="btn-share" onclick="toggleShare()">📤 Share with Anyone ›</button>
+        <div class="share-options" id="shareOptions">
+          <a class="share-btn" id="whatsappBtn" href="#" target="_blank">💬 WhatsApp</a>
+          <button class="share-btn" onclick="copyLink()">🔗 Copy Link</button>
+          <button class="share-btn" onclick="shareNative()">📱 More...</button>
+          <a class="share-btn" id="emailBtn" href="#">✉️ Email</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upsell -->
+    <div class="upsell" id="upsellCard">
+      <div class="upsell-badge">🎵 Special Offer — One Time Only</div>
+      <div class="upsell-title">Get a Second Version in a Different Style</div>
+      <p class="upsell-sub">Love your song? Imagine it in a completely different genre — Country, R&B, Pop, whatever speaks to you. Same story, totally new sound.</p>
+      <ul class="upsell-features">
+        <li>Same personalized lyrics, new musical style</li>
+        <li>Perfect for gifting to both of you separately</li>
+        <li>Generated instantly, delivered in minutes</li>
+        <li>Unlimited redos included</li>
+      </ul>
+      <div class="upsell-price">
+        <span class="upsell-orig">$99</span>
+        <span class="upsell-now">$49</span>
+        <span class="upsell-save">Save $50</span>
+      </div>
+      <button class="btn-upsell" onclick="goUpsell()">🎵 Yes! Get My Second Version — $49</button>
+    </div>
+
+    <!-- Guarantee -->
+    <div class="ccard" style="text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">💧</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px">Happy Tears Guarantee</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6">If you're not moved by your song, we'll redo it until you are — or give you a full refund. No questions asked.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Sticky re-send email bar (shown after song loads) -->
+<div class="sticky-email" id="stickyEmail" style="display:none">
+  <div class="sticky-email-inner">
+    <input type="email" id="resendEmail" placeholder="Send song to email...">
+    <button class="sticky-email-btn" onclick="resendEmail()">Send 📧</button>
+  </div>
+</div>
+
+<audio id="audioEl" style="display:none"></audio>
+
+<script>
+// ── CONFIG ──
+const UPSELL_VARIANT = '43257750978637';
+const SHOPIFY_STORE = 'makesongai.myshopify.com';
+const POLL_INTERVAL = 4000;
+
+// ── STATE ──
+let audioEl = document.getElementById('audioEl');
+let isPlaying = false;
+let songUrl = null;
+let songData = null;
+let pollTimer = null;
+let lyricsOpen = false;
+let shareOpen = false;
+
+// ── URL PARAMS ──
+const params = new URLSearchParams(window.location.search);
+const orderId = params.get('order_id') || params.get('orderId');
+const demoMode = !orderId;
+
+// ── INIT ──
+window.addEventListener('load', () => {
+  if (demoMode) {
+    // Demo mode — load sample song
+    setTimeout(() => loadSong({
+      song_title: 'Yubito (Desert Rose)',
+      song_meta: 'For Yuliana · Anniversary · R&B',
+      audio_url: '/audio/yubito-desert-rose.mp3',
+      lyrics: 'VERSE 1\nSwiped right on a screen that night\nYour face took my breath away\nWe stumbled through our early fights\nBut love found its own way\n\nCHORUS\nYuliana, those eyes when you look at me\nMelt my heart completely\nYou\'re the only one I see\nMother of my dreams, baby\n\nVERSE 2\nAbu Dhabi sunsets, taking care of you\nFirst meal you cooked was burned but love came shining through\nWe both get angry, we both got fire inside\nBut watching you grow fills me with so much pride\n\nBRIDGE\nYou listen, you change, you make me believe\nMother of my children, that\'s what I see\nSorry for my wrongs, but grateful for your love\n\nFINAL CHORUS\nYubito, when you look at me that way\nI see forever in your eyes, night and day\nFrom that Bumble match to now, my heart stays true\nYuliana, my everything, I\'m lost in you'
+    }), 1500);
+  } else {
+    pollForSong();
+  }
+  animateLoadingSteps();
+});
+
+// ── LOADING STEPS ANIMATION ──
+function animateLoadingSteps() {
+  const steps = ['ls1','ls2','ls3','ls4'];
+  let idx = 0;
+  const timer = setInterval(() => {
+    if (idx > 0) {
+      document.getElementById(steps[idx-1]).classList.remove('active');
+      document.getElementById(steps[idx-1]).classList.add('done');
+    }
+    if (idx < steps.length) {
+      document.getElementById(steps[idx]).classList.add('active');
+      idx++;
+    } else {
+      clearInterval(timer);
+    }
+  }, 12000);
+}
+
+// ── POLL FOR SONG ──
+async function pollForSong() {
+  try {
+    const res = await fetch(`/.netlify/functions/get-song?orderId=${orderId}`);
+    const data = await res.json();
+
+    if (data.status === 'done') {
+      loadSong(data);
+    } else if (data.status === 'error') {
+      document.querySelector('.loading-sub').textContent = 'There was an issue generating your song. Please contact support.';
+    } else {
+      pollTimer = setTimeout(pollForSong, POLL_INTERVAL);
+    }
+  } catch(e) {
+    pollTimer = setTimeout(pollForSong, POLL_INTERVAL);
+  }
+}
+
+// ── LOAD SONG ──
+function loadSong(data) {
+  songData = data;
+
+  // Update UI
+  document.getElementById('songTitle').textContent = '"' + data.song_title + '"';
+  if (data.song_meta) document.getElementById('songMeta').textContent = data.song_meta;
+  if (data.lyrics) document.getElementById('lyricsText').textContent = data.lyrics;
+
+  // Set up audio
+  if (data.audio_url) {
+    songUrl = data.audio_url;
+    audioEl.src = songUrl;
+  } else if (data.audio_b64) {
+    const bytes = Uint8Array.from(atob(data.audio_b64), c => c.charCodeAt(0));
+    const blob = new Blob([bytes], {type: data.audio_mime || 'audio/mpeg'});
+    songUrl = URL.createObjectURL(blob);
+    audioEl.src = songUrl;
+  }
+
+  // Audio events
+  audioEl.addEventListener('timeupdate', updateProgress);
+  audioEl.addEventListener('loadedmetadata', () => {
+    const m = Math.floor(audioEl.duration/60);
+    const s = Math.floor(audioEl.duration%60).toString().padStart(2,'0');
+    document.getElementById('timeTotal').textContent = m+':'+s;
+  });
+  audioEl.addEventListener('ended', () => {
+    isPlaying = false;
+    document.getElementById('playIcon').innerHTML = '<path d="M0 0l18 10L0 20V0z"/>';
+  });
+
+  // Download links
+  if (songUrl) {
+    document.getElementById('dlBtn').href = songUrl;
+    document.getElementById('dlBtnHero').href = songUrl;
+    document.getElementById('dlBtn').download = (data.song_title||'your-song') + '.mp3';
+  }
+
+  // QR Code — links to a listen page
+  const listenUrl = `${window.location.origin}/listen?order_id=${orderId || 'demo'}&title=${encodeURIComponent(data.song_title||'')}`;
+  document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(listenUrl)}&bgcolor=FAF7F2&color=0F0A06&margin=10`;
+
+  // Share links
+  const shareText = `🎵 Listen to "${data.song_title}" — a custom song made just for me!`;
+  document.getElementById('whatsappBtn').href = `https://wa.me/?text=${encodeURIComponent(shareText+' '+listenUrl)}`;
+  document.getElementById('emailBtn').href = `mailto:?subject=${encodeURIComponent('Your custom song is ready!')}&body=${encodeURIComponent(shareText+'\n\n'+listenUrl)}`;
+
+  // Build waveform
+  buildWaveform();
+
+  // Show song page
+  document.getElementById('loadingWrap').style.display = 'none';
+  document.getElementById('songWrap').style.display = 'block';
+  document.getElementById('stickyEmail').style.display = 'block';
+
+  // Auto-play attempt
+  setTimeout(() => {
+    audioEl.play().then(()=>{
+      isPlaying=true;
+      document.getElementById('playIcon').innerHTML = '<rect x="0" y="0" width="5" height="20"/><rect x="13" y="0" width="5" height="20"/>';
+    }).catch(()=>{});
+  }, 500);
+}
+
+// ── WAVEFORM ──
+function buildWaveform() {
+  const wf = document.getElementById('waveform');
+  wf.innerHTML = '';
+  for(let i=0;i<60;i++){
+    const b=document.createElement('div');
+    b.className='wv';
+    b.id='wv'+i;
+    const h=8+Math.sin(i*0.4)*10+Math.random()*16;
+    b.style.height=h+'px';
+    b.style.flexShrink='0';
+    wf.appendChild(b);
+  }
+}
+
+function updateProgress() {
+  const pct = audioEl.currentTime / (audioEl.duration||1);
+  const bars = document.querySelectorAll('.wv');
+  const played = Math.floor(pct * bars.length);
+  bars.forEach((b,i) => b.classList.toggle('played', i < played));
+  const m=Math.floor(audioEl.currentTime/60);
+  const s=Math.floor(audioEl.currentTime%60).toString().padStart(2,'0');
+  document.getElementById('timeCurrent').textContent=m+':'+s;
+}
+
+function seekAudio(e) {
+  if(!audioEl.duration) return;
+  const wf=document.getElementById('waveform');
+  const rect=wf.getBoundingClientRect();
+  const pct=(e.clientX-rect.left)/rect.width;
+  audioEl.currentTime=pct*audioEl.duration;
+}
+
+function togglePlay() {
+  if(!audioEl.src) return;
+  if(isPlaying){
+    audioEl.pause();
+    document.getElementById('playIcon').innerHTML='<path d="M0 0l18 10L0 20V0z"/>';
+  } else {
+    audioEl.play();
+    document.getElementById('playIcon').innerHTML='<rect x="0" y="0" width="5" height="20"/><rect x="13" y="0" width="5" height="20"/>';
+  }
+  isPlaying=!isPlaying;
+}
+
+// ── LYRICS ──
+function toggleLyrics() {
+  lyricsOpen=!lyricsOpen;
+  document.getElementById('lyricsBody').classList.toggle('open',lyricsOpen);
+  document.getElementById('lyricsArrow').style.transform=lyricsOpen?'rotate(180deg)':'rotate(0deg)';
+}
+
+// ── SHARE ──
+function toggleShare(){
+  shareOpen=!shareOpen;
+  document.getElementById('shareOptions').classList.toggle('open',shareOpen);
+}
+
+function copyLink(){
+  const url=`${window.location.origin}/listen?order_id=${orderId||'demo'}`;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=event.target;
+    btn.textContent='✅ Copied!';
+    setTimeout(()=>btn.textContent='🔗 Copy Link',2000);
+  });
+}
+
+function shareNative(){
+  if(navigator.share&&songData){
+    navigator.share({title:`"${songData.song_title}"`,text:`Listen to my custom song!`,url:window.location.href});
+  }
+}
+
+// ── UPSELL ──
+function goUpsell(){
+  const url=`https://${SHOPIFY_STORE}/cart/${UPSELL_VARIANT}:1?attributes[Original_Order]=${encodeURIComponent(orderId||'demo')}&note=Second+version+upsell`;
+  window.location.href=url;
+}
+
+// ── RESEND EMAIL ──
+async function resendEmail(){
+  const email=document.getElementById('resendEmail').value.trim();
+  if(!email||!email.includes('@')){alert('Enter a valid email');return;}
+  const btn=document.querySelector('.sticky-email-btn');
+  btn.textContent='Sending...';btn.disabled=true;
+  try{
+    await fetch('/.netlify/functions/resend-song',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({orderId,email})});
+    btn.textContent='✅ Sent!';
+    setTimeout(()=>{btn.textContent='Send 📧';btn.disabled=false;},3000);
+  }catch(e){btn.textContent='Send 📧';btn.disabled=false;}
+}
+</script>
 </body>
 </html>
