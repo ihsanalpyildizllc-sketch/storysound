@@ -29,16 +29,18 @@ exports.handler = async (event) => {
     message   ? "Message: " + message : ""
   ].filter(Boolean).join(". ");
 
+  // Use SETEX command: set key with expiry (86400s = 24h)
   async function save(id, data) {
-    await fetch(`${REDIS_URL}/set/song_${id}`, {
+    await fetch(`${REDIS_URL}/setex/song_${id}/86400/${encodeURIComponent(JSON.stringify(data))}`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ value: JSON.stringify(data), ex: 86400 })
+      headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
     });
   }
 
   try {
-    // Step 1: Claude writes lyrics
+    await save(orderId, { status: "processing", stage: "writing", created: Date.now() });
+
+    // Claude writes lyrics
     const cr = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
@@ -60,7 +62,7 @@ Return ONLY valid JSON:
     const song = JSON.parse(cd.content[0].text.replace(/```json|```/g, "").trim());
     await save(orderId, { status: "processing", stage: "composing", song_title: song.song_title, lyrics: song.lyrics });
 
-    // Step 2: Lyria 3 Pro generates audio
+    // Lyria generates audio
     const lyriaPrompt = song.music_style + "\n\nLyrics:\n" + song.lyrics;
     const lr = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/lyria-3-pro-preview:generateContent?key=${GEMINI_KEY}`,
@@ -73,7 +75,7 @@ Return ONLY valid JSON:
     const audioPart = parts.find(p => p.inlineData?.mimeType?.includes("audio"));
     if (!audioPart) throw new Error("No audio from Lyria");
 
-    // Step 3: Save to Upstash
+    // Save completed song to Upstash (24h expiry)
     await save(orderId, {
       status: "done",
       song_title: song.song_title,
@@ -84,7 +86,7 @@ Return ONLY valid JSON:
       audio_b64: audioPart.inlineData.data
     });
 
-    // Step 4: Email customer
+    // Email customer
     if (email && process.env.POSTMARK_SERVER_TOKEN) {
       const siteUrl = process.env.SITE_URL || "https://storysound.netlify.app";
       await fetch("https://api.postmarkapp.com/email", {
@@ -94,16 +96,15 @@ Return ONLY valid JSON:
           From: process.env.FROM_EMAIL || "songs@storysound.ai",
           To: email,
           Subject: `"${song.song_title}" is ready! 🎵`,
-          HtmlBody: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">"${song.song_title}"</h1><p style="color:#7A6A5A;margin:12px 0 24px">Your custom song is ready! Click below to listen.</p><a href="${siteUrl}/success?order_id=${orderId}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">🎵 Listen to My Song</a><p style="color:#7A6A5A;font-size:12px;margin-top:24px">Not happy? Reply and we will redo it free. — StorySound</p></div>`,
-          TextBody: `Your song "${song.song_title}" is ready!\n\nListen: ${siteUrl}/success?order_id=${orderId}`
+          HtmlBody: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">"${song.song_title}"</h1><p style="color:#7A6A5A;margin:12px 0 24px">Your song is ready! Click to listen.</p><a href="${process.env.SITE_URL||"https://storysound.netlify.app"}/success?order_id=${orderId}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">🎵 Listen to My Song</a></div>`,
+          TextBody: `Your song "${song.song_title}" is ready!\n\nListen: ${process.env.SITE_URL||"https://storysound.netlify.app"}/success?order_id=${orderId}`
         })
       });
     }
 
-    return { statusCode: 200, body: "Song generated: " + song.song_title };
-
+    return { statusCode: 200, body: "Done: " + song.song_title };
   } catch(err) {
-    console.error("Generation error:", err.message);
+    console.error("Error:", err.message);
     try { await save(orderId, { status: "error", error: err.message }); } catch(e) {}
     return { statusCode: 500, body: err.message };
   }
