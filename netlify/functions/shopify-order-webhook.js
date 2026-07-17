@@ -1,20 +1,18 @@
-const { getStore } = require("@netlify/blobs");
-
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method not allowed" };
 
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
+  const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
+  const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   let order;
   try { order = JSON.parse(event.body); } catch(e) { return { statusCode: 400, body: "Invalid JSON" }; }
-
   const orderId = String(order.id || "");
   if (!orderId) return { statusCode: 400, body: "Missing order ID" };
 
   const attrs = {};
   (order.note_attributes || []).forEach(a => { attrs[a.name] = a.value; });
-
   const songFor   = attrs["Song For"] || "them";
   const occasion  = attrs["Occasion"] || "Anniversary";
   const genre     = attrs["Genre"] || "Pop";
@@ -30,72 +28,71 @@ exports.handler = async (event) => {
     occasion  ? "Occasion: " + occasion : "",
     qualities ? "Their qualities: " + qualities : "",
     memories  ? "Memories: " + memories : "",
-    message   ? "Special message: " + message : ""
+    message   ? "Message: " + message : ""
   ].filter(Boolean).join(". ");
 
-  function getBlobs() {
-    try {
-      return getStore("songs");
-    } catch(e) {
-      return getStore({
-        name: "songs",
-        siteID: process.env.NETLIFY_SITE_ID || "14e2b75e-7529-4781-a013-1965699a901e",
-        token: process.env.NETLIFY_AUTH_TOKEN
-      });
-    }
-  }
-
-  const store = getBlobs();
-
-  try {
-    await store.setJSON(orderId, { status: "processing", created: Date.now() });
-  } catch(e) {
-    console.error("Blobs init error:", e.message);
-  }
-
-  try {
-    // Step 1: Claude writes lyrics
-    const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
+  async function save(id, data) {
+    const value = JSON.stringify(data);
+    await fetch(`${REDIS_URL}/set/song_${id}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514", max_tokens: 1500,
-        messages: [{ role: "user", content: "Write a deeply personal love song.\n\nStory: " + story + "\nGenre: " + genre + "\nLanguage: " + language + "\nVoice: " + voice + "\nOccasion: " + occasion + "\n\nReturn ONLY valid JSON:\n{\"song_title\":\"...\",\"song_meta\":\"For " + songFor + " · " + occasion + " · " + genre + "\",\"music_style\":\"" + genre + " song, " + voice.toLowerCase() + " vocals, 70 BPM, emotional\",\"lyrics\":\"[Verse 1]\\n[4 lines]\\n\\n[Chorus]\\n[4 lines]\\n\\n[Verse 2]\\n[4 lines]\\n\\n[Chorus]\\n[4 lines]\\n\\n[Bridge]\\n[3 lines]\\n\\n[Final Chorus]\\n[4 lines]\"}" }]
-      })
+      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ value, ex: 86400 })
     });
-    const claudeData = await claudeRes.json();
-    const song = JSON.parse(claudeData.content[0].text.replace(/```json|```/g, "").trim());
+  }
 
-    await store.setJSON(orderId, { status: "processing", stage: "composing", song_title: song.song_title, lyrics: song.lyrics });
+  // Return 200 immediately so Shopify doesn't retry
+  (async () => {
+    try {
+      await save(orderId, { status: "processing", created: Date.now() });
 
-    // Step 2: Lyria generates audio
-    const lyriaPrompt = song.music_style + "\n\nLyrics:\n" + song.lyrics;
-    const lyriaRes = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/lyria-3-pro-preview:generateContent?key=" + GEMINI_KEY,
-      { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: lyriaPrompt }] }], generationConfig: { responseModalities: ["AUDIO"] } }) }
-    );
-    const lyriaData = await lyriaRes.json();
-    if (lyriaData.error) throw new Error(lyriaData.error.message);
+      // Claude writes lyrics
+      const cr = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514", max_tokens: 1500,
+          messages: [{ role: "user", content: `Write a deeply personal love song.
 
-    const parts = (lyriaData.candidates || [{}])[0].content?.parts || [];
-    const audioPart = parts.find(p => p.inlineData?.mimeType?.includes("audio"));
-    if (!audioPart) throw new Error("No audio from Lyria");
+Story: ${story}
+Genre: ${genre}
+Language: ${language}
+Voice: ${voice}
+Occasion: ${occasion}
 
-    // Step 3: Store completed song
-    await store.setJSON(orderId, {
-      status: "done",
-      song_title: song.song_title,
-      song_meta: song.song_meta,
-      lyrics: song.lyrics,
-      audio_mime: audioPart.inlineData.mimeType,
-      audio_size_kb: Math.round(audioPart.inlineData.data.length * 0.75 / 1024),
-      audio_b64: audioPart.inlineData.data
-    });
+Return ONLY valid JSON:
+{"song_title":"...","song_meta":"For ${songFor} - ${occasion} - ${genre}","music_style":"${genre} song, ${voice.toLowerCase()} vocals, 70 BPM, emotional and personal","lyrics":"[Verse 1]\\n[4 short singable lines]\\n\\n[Chorus]\\n[4 lines - include the name]\\n\\n[Verse 2]\\n[4 lines]\\n\\n[Chorus]\\n[4 lines]\\n\\n[Bridge]\\n[3 emotional lines]\\n\\n[Final Chorus]\\n[4 lines]"}` }]
+        })
+      });
+      const cd = await cr.json();
+      const song = JSON.parse(cd.content[0].text.replace(/```json|```/g, "").trim());
+      await save(orderId, { status: "processing", stage: "composing", song_title: song.song_title, lyrics: song.lyrics });
 
-    // Step 4: Send email if Postmark configured
-    if (email && process.env.POSTMARK_SERVER_TOKEN) {
-      try {
+      // Lyria 3 Pro generates audio with lyrics
+      const lyriaPrompt = song.music_style + "\n\nLyrics:\n" + song.lyrics;
+      const lr = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/lyria-3-pro-preview:generateContent?key=${GEMINI_KEY}`,
+        { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: lyriaPrompt }] }], generationConfig: { responseModalities: ["AUDIO"] } }) }
+      );
+      const ld = await lr.json();
+      if (ld.error) throw new Error(ld.error.message);
+      const parts = (ld.candidates || [{}])[0].content?.parts || [];
+      const audioPart = parts.find(p => p.inlineData?.mimeType?.includes("audio"));
+      if (!audioPart) throw new Error("No audio from Lyria");
+
+      // Save completed song (stored 24h)
+      await save(orderId, {
+        status: "done",
+        song_title: song.song_title,
+        song_meta: song.song_meta || `For ${songFor} - ${occasion} - ${genre}`,
+        lyrics: song.lyrics,
+        audio_mime: audioPart.inlineData.mimeType,
+        audio_size_kb: Math.round(audioPart.inlineData.data.length * 0.75 / 1024),
+        audio_b64: audioPart.inlineData.data
+      });
+
+      // Send email
+      if (email && process.env.POSTMARK_SERVER_TOKEN) {
         const siteUrl = process.env.SITE_URL || "https://storysound.netlify.app";
         await fetch("https://api.postmarkapp.com/email", {
           method: "POST",
@@ -103,19 +100,18 @@ exports.handler = async (event) => {
           body: JSON.stringify({
             From: process.env.FROM_EMAIL || "songs@storysound.ai",
             To: email,
-            Subject: "Your song \"" + song.song_title + "\" is ready! 🎵",
-            HtmlBody: "<div style='font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#FAF7F2'><h1 style='font-size:28px;color:#0F0A06;font-style:italic'>\"" + song.song_title + "\"</h1><p style='color:#7A6A5A;font-size:15px;margin:12px 0 24px'>Your song is ready! Click below to listen and unlock the full experience.</p><a href='" + siteUrl + "/success?order_id=" + orderId + "' style='display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700;margin-bottom:24px'>🎵 Listen to My Song</a></div>",
-            TextBody: "Your song \"" + song.song_title + "\" is ready!\n\nListen: " + siteUrl + "/success?order_id=" + orderId
+            Subject: `"${song.song_title}" is ready! 🎵`,
+            HtmlBody: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">"${song.song_title}"</h1><p style="color:#7A6A5A;margin:12px 0 24px">Your custom song is ready! Click below to listen.</p><a href="${siteUrl}/success?order_id=${orderId}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">🎵 Listen to My Song</a><p style="color:#7A6A5A;font-size:12px;margin-top:24px">Not happy? Reply and we will redo it free. — StorySound</p></div>`,
+            TextBody: `Your song "${song.song_title}" is ready!\n\nListen here: ${siteUrl}/success?order_id=${orderId}`
           })
         });
-      } catch(emailErr) { console.error("Email error:", emailErr.message); }
+      }
+
+    } catch(err) {
+      console.error("Generation error:", err.message);
+      try { await save(orderId, { status: "error", error: err.message }); } catch(e) {}
     }
+  })();
 
-    return { statusCode: 200, body: "Song generated: " + song.song_title };
-
-  } catch(err) {
-    console.error("Error:", err.message);
-    try { await store.setJSON(orderId, { status: "error", error: err.message }); } catch(e) {}
-    return { statusCode: 500, body: err.message };
-  }
+  return { statusCode: 200, body: "Processing started for order " + orderId };
 };
