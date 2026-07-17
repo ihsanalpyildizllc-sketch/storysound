@@ -621,7 +621,8 @@ function loadSong(data) {
     document.getElementById('stickyEmail').style.display = 'block';
   } catch(e) {}
 
-  // Check unlock status
+  // Check unlock — either from URL param OR from Upstash (server-side unlock)
+  if (data.unlocked) isUnlocked = true;
   try { checkUnlock(); } catch(e) { console.log('unlock error', e); }
 
   // Auto-play attempt
@@ -710,7 +711,7 @@ function shareNative(){
 // ── UNLOCK / PAYWALL ──
 const UNLOCK_VARIANT = '43257750978637';
 const forceLockedPreview = params.get('locked') === '1';
-const isUnlocked = !forceLockedPreview && (params.get('unlocked') === 'true' || params.get('access') === 'full');
+let isUnlocked = !forceLockedPreview && (params.get('unlocked') === 'true' || params.get('access') === 'full');
 
 function checkUnlock() {
   const paywall = document.getElementById('paywallCard');
