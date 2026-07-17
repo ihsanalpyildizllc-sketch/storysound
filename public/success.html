@@ -114,6 +114,29 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .upsell-features li{font-size:13px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:7px}
 .upsell-features li::before{content:'✓';color:var(--gold-l);font-weight:700;flex-shrink:0}
 
+
+/* ANNIVERSARY CLUB */
+.anni-card{background:linear-gradient(160deg,#0A1A0A 0%,#0F2A10 50%,#0A1A0A 100%);border-radius:20px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;border:1px solid rgba(42,102,68,0.3)}
+.anni-card::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,rgba(42,102,68,0.25) 0%,transparent 70%);border-radius:50%}
+.anni-card::after{content:'';position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(240,216,152,0.1) 0%,transparent 70%);border-radius:50%}
+.anni-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green);color:#fff;border-radius:100px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:0.04em;margin-bottom:10px;position:relative;z-index:1}
+.anni-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.2;position:relative;z-index:1}
+.anni-sub{font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:14px;line-height:1.6;position:relative;z-index:1}
+.anni-features{list-style:none;margin-bottom:16px;display:flex;flex-direction:column;gap:7px;position:relative;z-index:1}
+.anni-features li{font-size:13px;color:rgba(255,255,255,0.65);display:flex;align-items:flex-start;gap:7px}
+.anni-features li::before{content:'✓';color:var(--gold-l);font-weight:700;flex-shrink:0}
+.anni-price{display:flex;align-items:baseline;gap:8px;margin-bottom:16px;position:relative;z-index:1}
+.anni-amount{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:700;color:var(--gold-l);line-height:1}
+.anni-per{font-size:13px;color:rgba(255,255,255,0.45);align-self:flex-end;margin-bottom:4px}
+.anni-per-month{font-size:12px;color:rgba(255,255,255,0.35);margin-left:2px}
+.btn-anni{width:100%;background:var(--green);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;z-index:1}
+.btn-anni:hover{background:#1E5533;transform:translateY(-1px)}
+.anni-trial{font-size:11px;color:rgba(255,255,255,0.35);text-align:center;margin-top:8px;position:relative;z-index:1}
+.anni-how{background:rgba(255,255,255,0.04);border-radius:10px;padding:12px;margin-bottom:14px;position:relative;z-index:1}
+.anni-how-title{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px}
+.anni-step{display:flex;gap:10px;padding:6px 0;font-size:12px;color:rgba(255,255,255,0.5);align-items:flex-start}
+.anni-step-num{width:20px;height:20px;background:rgba(42,102,68,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold-l);flex-shrink:0;margin-top:1px}
+
 /* STICKY EMAIL BAR */
 .sticky-email{position:fixed;bottom:0;left:0;right:0;background:rgba(250,247,242,0.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:12px 20px;z-index:100}
 .sticky-email-inner{max-width:520px;margin:0 auto;display:flex;align-items:center;gap:10px}
@@ -234,6 +257,39 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
         <span class="upsell-save">Save $50</span>
       </div>
       <button class="btn-upsell" onclick="goUpsell()">🎵 Yes! Get My Second Version — $49</button>
+    </div>
+
+
+    <!-- Anniversary Club Subscription -->
+    <div class="anni-card" id="anniCard">
+      <div class="anni-badge">🔄 Annual Subscription</div>
+      <div class="anni-title">Anniversary Club</div>
+      <p class="anni-sub">Never miss an anniversary again. Every year, we email you 2 weeks before — you send us updates — we deliver a brand new song. Automatically.</p>
+
+      <div class="anni-how">
+        <div class="anni-how-title">How it works</div>
+        <div class="anni-step"><div class="anni-step-num">1</div><span>We remember your anniversary date every year</span></div>
+        <div class="anni-step"><div class="anni-step-num">2</div><span>14 days before, we email you: "Any updates to your story?"</span></div>
+        <div class="anni-step"><div class="anni-step-num">3</div><span>We generate a brand new song — automatically delivered</span></div>
+      </div>
+
+      <ul class="anni-features">
+        <li>A new custom song every year — set it and forget it</li>
+        <li>We remind YOU — no chance of forgetting again</li>
+        <li>Each song captures that specific year's memories</li>
+        <li>Full MP3 + WAV + lyrics PDF every time</li>
+        <li>Cancel any time — no lock-in</li>
+      </ul>
+
+      <div class="anni-price">
+        <span class="anni-amount">$14.99</span>
+        <span class="anni-per">/year<span class="anni-per-month"> — just $1.25/month</span></span>
+      </div>
+
+      <button class="btn-anni" onclick="joinAnniClub()">
+        🔄 Join Anniversary Club — $14.99/year
+      </button>
+      <p class="anni-trial">Cancel any time · First song already included · Renews annually</p>
     </div>
 
     <!-- Guarantee -->
@@ -470,6 +526,29 @@ function shareNative(){
 function goUpsell(){
   const url=`https://${SHOPIFY_STORE}/cart/${UPSELL_VARIANT}:1?attributes[Original_Order]=${encodeURIComponent(orderId||'demo')}&note=Second+version+upsell`;
   window.location.href=url;
+}
+
+
+// ── ANNIVERSARY CLUB ──
+const ANNI_VARIANT = 'ANNI_VARIANT_ID'; // ← Update after creating Shopify subscription product
+
+function joinAnniClub() {
+  // Build cart with anniversary subscription + pass order data
+  const attrs = [
+    ['Song_Title', songData ? songData.song_title : ''],
+    ['Original_Order', orderId || 'demo'],
+    ['Anniversary_Email', document.getElementById('resendEmail')?.value || ''],
+  ];
+  const qs = attrs.filter(([k,v])=>v).map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
+  
+  // If no Shopify variant yet, show alert
+  if (ANNI_VARIANT === 'ANNI_VARIANT_ID') {
+    alert('Anniversary Club coming soon! Check back shortly.');
+    return;
+  }
+  
+  const url = `https://${SHOPIFY_STORE}/cart/${ANNI_VARIANT}:1?${qs}`;
+  window.location.href = url;
 }
 
 // ── RESEND EMAIL ──
