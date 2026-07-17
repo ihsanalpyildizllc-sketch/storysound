@@ -33,3 +33,5 @@
   from = "/test"
   to = "/test.html"
   status = 200
+
+# rebuild trigger
