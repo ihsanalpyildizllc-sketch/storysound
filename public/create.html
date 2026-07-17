@@ -714,6 +714,72 @@ function saveModalChanges() {
   // Show confirmation tip
   tip('✓ Changes saved!');
 }
+
+// ── EDIT MODAL ──
+let mData = {}; // tracks modal pill selections
+
+function openEditModal() {
+  const modal = document.getElementById('editModal');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Pre-fill with current data
+  if(D.name) document.getElementById('m-name').value = D.name;
+  if(D.qualities) document.getElementById('m-qualities').value = D.qualities;
+  if(D.memories) document.getElementById('m-memories').value = D.memories;
+  if(D.message) document.getElementById('m-message').value = D.message;
+
+  // Pre-select current pills
+  if(D.forWhom) preSel('mp1', D.forWhom);
+  if(D.occasion) preSel('mp2', D.occasion);
+  if(D.genre) preSel('mp3', D.genre);
+  if(D.voice) preSel('mp4', D.voice);
+
+  mData = { forWhom: D.forWhom, occasion: D.occasion, genre: D.genre, voice: D.voice };
+}
+
+function preSel(groupId, val) {
+  document.querySelectorAll('#'+groupId+' .mpill').forEach(p => {
+    p.classList.toggle('sel', p.textContent.trim() === val);
+  });
+}
+
+function closeEditModal(e) {
+  if(e.target.id === 'editModal') closeEditModalBtn();
+}
+function closeEditModalBtn() {
+  document.getElementById('editModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function mPick(groupId, el, field) {
+  document.querySelectorAll('#'+groupId+' .mpill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  mData[field] = el.textContent.trim();
+}
+
+function saveModalChanges() {
+  // Apply changes to D
+  if(mData.forWhom) D.forWhom = mData.forWhom;
+  if(mData.occasion) D.occasion = mData.occasion;
+  if(mData.genre) D.genre = mData.genre;
+  if(mData.voice) D.voice = mData.voice;
+  const name = document.getElementById('m-name').value.trim();
+  if(name) D.name = name;
+  const qual = document.getElementById('m-qualities').value.trim();
+  if(qual) D.qualities = qual;
+  const mem = document.getElementById('m-memories').value.trim();
+  if(mem) D.memories = mem;
+  const msg = document.getElementById('m-message').value.trim();
+  if(msg) D.message = msg;
+
+  // Update all displayed order summaries
+  updateBumps();
+  updateReview();
+
+  closeEditModalBtn();
+  tip('Changes saved ✓');
+}
 </script>
 
 <!-- STICKY PAY BAR (shows on bump + review pages) -->
@@ -812,6 +878,114 @@ function saveModalChanges() {
       </div>
 
       <button class="btn-save-changes" onclick="saveModalChanges()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- EDIT ORDER MODAL -->
+<div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h2>Edit Order Details</h2>
+      <button class="modal-close" onclick="closeEditModalBtn()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section">
+        <label class="modal-label">Who's this for?</label>
+        <div class="modal-pills" id="mp1">
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Husband</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Wife</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Partner</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Girlfriend</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Boyfriend</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Son</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Daughter</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Fianc&eacute;</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Father</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Mother</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Grandparent</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Grandson</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Granddaughter</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Sibling</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Friend</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Myself</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Other</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Their name</label>
+        <input class="modal-input" id="m-name" placeholder="Enter their first name">
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Occasion</label>
+        <div class="modal-pills" id="mp2">
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Just Because</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Graduation</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">I Love You</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Missing You</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Anniversary</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Father's Day</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">In Memory</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Milestone</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Birthday</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Retirement</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Wedding</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Proposal</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Friendship</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Thank You</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Apology</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Something else...</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Genre</label>
+        <div class="modal-pills" id="mp3">
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Pop</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Country</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Rock</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">R&amp;B</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Jazz</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Acoustic</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Rap / Hip-Hop</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Indie</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Latin</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Worship</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Reggaeton</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Reggae</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Singer voice</label>
+        <div class="modal-pills" id="mp4">
+          <div class="mpill" onclick="mPick('mp4',this,'voice')">Male</div>
+          <div class="mpill" onclick="mPick('mp4',this,'voice')">Female</div>
+          <div class="mpill" onclick="mPick('mp4',this,'voice')">Surprise Me</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">What makes them special?</label>
+        <textarea class="modal-input" id="m-qualities" placeholder="Their qualities, what you love about them..."></textarea>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Your favorite memories</label>
+        <textarea class="modal-input" id="m-memories" placeholder="How you met, special moments, inside jokes..."></textarea>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Message from your heart</label>
+        <textarea class="modal-input" id="m-message" placeholder="What you want them to know..."></textarea>
+      </div>
+
+      <button class="btn-save" onclick="saveModalChanges()">Save Changes</button>
     </div>
   </div>
 </div>
