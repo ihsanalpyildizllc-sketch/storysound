@@ -576,7 +576,10 @@ function togglePhone(){
 
 function goToShopify(){
   const btn=document.getElementById('payBtn');
-  btn.disabled=true;btn.textContent='Redirecting to checkout...';
+  if(btn){btn.disabled=true;btn.textContent='Redirecting...';}
+  // Also update sticky button
+  const sBtn=document.querySelector('.sticky-pay .btn-pay');
+  if(sBtn){sBtn.disabled=true;sBtn.textContent='Redirecting...';}
   
   // Build the full story for Lyria/Claude
   const fullStory=[
