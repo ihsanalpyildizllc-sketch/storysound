@@ -1,117 +1,28 @@
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method not allowed" };
 
-  const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
-  const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
   const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const SITE_URL = process.env.SITE_URL || "https://storysound.netlify.app";
 
   let order;
   try { order = JSON.parse(event.body); } catch(e) { return { statusCode: 400, body: "Invalid JSON" }; }
   const orderId = String(order.id || "");
   if (!orderId) return { statusCode: 400, body: "Missing order ID" };
 
-  const attrs = {};
-  (order.note_attributes || []).forEach(a => { attrs[a.name] = a.value; });
-  const songFor   = attrs["Song For"] || "them";
-  const occasion  = attrs["Occasion"] || "Anniversary";
-  const genre     = attrs["Genre"] || "Pop";
-  const language  = attrs["Language"] || "English";
-  const voice     = attrs["Singer Voice"] || "Male";
-  const qualities = attrs["Their Qualities"] || "";
-  const memories  = attrs["Memories"] || "";
-  const message   = attrs["Special Message"] || "";
-  const email     = attrs["Customer Email"] || order.email || "";
+  // Save pending status immediately
+  await fetch(`${REDIS_URL}/set/song_${orderId}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ value: JSON.stringify({ status: "processing", created: Date.now() }), ex: 86400 })
+  });
 
-  const story = [
-    "Song for: " + songFor,
-    occasion  ? "Occasion: " + occasion : "",
-    qualities ? "Their qualities: " + qualities : "",
-    memories  ? "Memories: " + memories : "",
-    message   ? "Message: " + message : ""
-  ].filter(Boolean).join(". ");
+  // Fire background function (runs up to 15 minutes, no timeout issue)
+  fetch(`${SITE_URL}/.netlify/functions/generate-song-background`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: event.body
+  }).catch(e => console.log("BG trigger:", e.message));
 
-  async function save(id, data) {
-    const value = JSON.stringify(data);
-    await fetch(`${REDIS_URL}/set/song_${id}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ value, ex: 86400 })
-    });
-  }
-
-  // Return 200 immediately so Shopify doesn't retry
-  (async () => {
-    try {
-      await save(orderId, { status: "processing", created: Date.now() });
-
-      // Claude writes lyrics
-      const cr = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514", max_tokens: 1500,
-          messages: [{ role: "user", content: `Write a deeply personal love song.
-
-Story: ${story}
-Genre: ${genre}
-Language: ${language}
-Voice: ${voice}
-Occasion: ${occasion}
-
-Return ONLY valid JSON:
-{"song_title":"...","song_meta":"For ${songFor} - ${occasion} - ${genre}","music_style":"${genre} song, ${voice.toLowerCase()} vocals, 70 BPM, emotional and personal","lyrics":"[Verse 1]\\n[4 short singable lines]\\n\\n[Chorus]\\n[4 lines - include the name]\\n\\n[Verse 2]\\n[4 lines]\\n\\n[Chorus]\\n[4 lines]\\n\\n[Bridge]\\n[3 emotional lines]\\n\\n[Final Chorus]\\n[4 lines]"}` }]
-        })
-      });
-      const cd = await cr.json();
-      const song = JSON.parse(cd.content[0].text.replace(/```json|```/g, "").trim());
-      await save(orderId, { status: "processing", stage: "composing", song_title: song.song_title, lyrics: song.lyrics });
-
-      // Lyria 3 Pro generates audio with lyrics
-      const lyriaPrompt = song.music_style + "\n\nLyrics:\n" + song.lyrics;
-      const lr = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/lyria-3-pro-preview:generateContent?key=${GEMINI_KEY}`,
-        { method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: lyriaPrompt }] }], generationConfig: { responseModalities: ["AUDIO"] } }) }
-      );
-      const ld = await lr.json();
-      if (ld.error) throw new Error(ld.error.message);
-      const parts = (ld.candidates || [{}])[0].content?.parts || [];
-      const audioPart = parts.find(p => p.inlineData?.mimeType?.includes("audio"));
-      if (!audioPart) throw new Error("No audio from Lyria");
-
-      // Save completed song (stored 24h)
-      await save(orderId, {
-        status: "done",
-        song_title: song.song_title,
-        song_meta: song.song_meta || `For ${songFor} - ${occasion} - ${genre}`,
-        lyrics: song.lyrics,
-        audio_mime: audioPart.inlineData.mimeType,
-        audio_size_kb: Math.round(audioPart.inlineData.data.length * 0.75 / 1024),
-        audio_b64: audioPart.inlineData.data
-      });
-
-      // Send email
-      if (email && process.env.POSTMARK_SERVER_TOKEN) {
-        const siteUrl = process.env.SITE_URL || "https://storysound.netlify.app";
-        await fetch("https://api.postmarkapp.com/email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Postmark-Server-Token": process.env.POSTMARK_SERVER_TOKEN },
-          body: JSON.stringify({
-            From: process.env.FROM_EMAIL || "songs@storysound.ai",
-            To: email,
-            Subject: `"${song.song_title}" is ready! 🎵`,
-            HtmlBody: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">"${song.song_title}"</h1><p style="color:#7A6A5A;margin:12px 0 24px">Your custom song is ready! Click below to listen.</p><a href="${siteUrl}/success?order_id=${orderId}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">🎵 Listen to My Song</a><p style="color:#7A6A5A;font-size:12px;margin-top:24px">Not happy? Reply and we will redo it free. — StorySound</p></div>`,
-            TextBody: `Your song "${song.song_title}" is ready!\n\nListen here: ${siteUrl}/success?order_id=${orderId}`
-          })
-        });
-      }
-
-    } catch(err) {
-      console.error("Generation error:", err.message);
-      try { await save(orderId, { status: "error", error: err.message }); } catch(e) {}
-    }
-  })();
-
-  return { statusCode: 200, body: "Processing started for order " + orderId };
+  return { statusCode: 200, body: "OK" };
 };
