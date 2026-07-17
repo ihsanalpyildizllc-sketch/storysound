@@ -10,14 +10,14 @@ exports.handler = async (event) => {
   const orderId = String(order.id || "");
   if (!orderId) return { statusCode: 400, body: "Missing order ID" };
 
-  // Save pending status immediately
-  await fetch(`${REDIS_URL}/set/song_${orderId}`, {
+  // Save pending status using SETEX (key, seconds, value)
+  const pendingValue = encodeURIComponent(JSON.stringify({ status: "processing", created: Date.now() }));
+  await fetch(`${REDIS_URL}/setex/song_${orderId}/86400/${pendingValue}`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ value: JSON.stringify({ status: "processing", created: Date.now() }), ex: 86400 })
+    headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
   });
 
-  // Fire background function (runs up to 15 minutes, no timeout issue)
+  // Trigger background function (15min timeout)
   fetch(`${SITE_URL}/.netlify/functions/generate-song-background`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
