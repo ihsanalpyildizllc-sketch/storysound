@@ -116,6 +116,11 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 .sticky-pay.show{display:block}
 .sticky-pay .btn-pay{margin-bottom:4px;padding:15px}
 .sticky-pay .sec-row{margin-bottom:0}
+
+/* STICKY PULSE ANIMATION */
+@keyframes stickyPulse{0%,100%{box-shadow:0 4px 20px rgba(181,71,28,0.3)}50%{box-shadow:0 4px 32px rgba(181,71,28,0.7),0 0 0 4px rgba(181,71,28,0.15)}}
+.sticky-pay .btn-pay.pulse{animation:stickyPulse 2s ease-in-out infinite}
+
 /* REVIEW PAGE */
 .rev-wrap{padding:40px 20px 24px;max-width:560px;margin:0 auto}
 .rev-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:4px}
@@ -448,9 +453,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
       <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px">+ Unlimited Song Redos <span style="color:var(--green);font-weight:600">FREE</span></div>
     </div>
 
-    <div class="trust-row">🔒 Trusted by 400,000+ customers</div>
-    <button class="btn-pay" id="payBtn" onclick="goToShopify()">Get My Song Now — <span id="btnTot">$39</span></button>
-    <div class="sec-row"><span>🔒 Secure checkout</span><span>✓ 100% Money-Back Guarantee</span></div>
+    <div class="trust-row">🔒 Trusted by 400,000+ customers · 100% Money-Back Guarantee</div>
   </div>
 </div>
 
@@ -649,10 +652,7 @@ function updateStickyBar(){
   const isOnReview = document.getElementById('s8') && document.getElementById('s8').classList.contains('active');
   const bar = document.getElementById('stickyPay');
   bar.classList.toggle('show', isOnBumps || isOnReview);
-  // Sync total
-  const tot = document.getElementById('totPrice');
-  const sticky = document.getElementById('stickyTotal');
-  if(tot && sticky) sticky.textContent = tot.textContent;
+  // No price sync needed - clean button
 }
 
 function handleStickyBtn(){
@@ -780,11 +780,30 @@ function saveModalChanges() {
   closeEditModalBtn();
   tip('Changes saved ✓');
 }
+
+// ── STICKY BUTTON PULSE ON SCROLL ──
+let pulseTimer = null;
+window.addEventListener('scroll', () => {
+  const btn = document.querySelector('.sticky-pay .btn-pay');
+  if (!btn) return;
+  // Clear existing pulse timer
+  clearTimeout(pulseTimer);
+  btn.classList.remove('pulse');
+  // Add pulse after user stops scrolling for 800ms
+  pulseTimer = setTimeout(() => {
+    const bar = document.getElementById('stickyPay');
+    if (bar && bar.classList.contains('show')) {
+      btn.classList.add('pulse');
+      // Remove after 6s
+      setTimeout(() => btn.classList.remove('pulse'), 6000);
+    }
+  }, 800);
+}, { passive: true });
 </script>
 
 <!-- STICKY PAY BAR (shows on bump + review pages) -->
 <div class="sticky-pay" id="stickyPay">
-  <button class="btn-pay" onclick="handleStickyBtn()">Get My Song Now — <span id="stickyTotal">$39</span></button>
+  <button class="btn-pay" onclick="handleStickyBtn()">Get My Song Now →</button>
   <div class="sec-row"><span>🔒 Secure checkout</span><span>✓ 100% Money-Back</span></div>
 </div>
 
