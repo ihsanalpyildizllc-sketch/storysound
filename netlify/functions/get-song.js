@@ -10,7 +10,11 @@ exports.handler = async (event) => {
       headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
     });
     const data = await res.json();
+
+    // Upstash returns {"result": "string_value"} or {"result": null}
     if (!data.result) return { statusCode: 200, body: JSON.stringify({ status: "pending" }) };
+
+    // Parse the stored JSON string
     const song = JSON.parse(data.result);
     return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify(song) };
   } catch(e) {
