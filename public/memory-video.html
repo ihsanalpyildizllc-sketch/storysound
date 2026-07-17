@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Video — StorySound</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#FAF7F2;--cream2:#F2EBE0;--ink:#0F0A06;--ink2:#2C1F14;
+  --muted:#7A6A5A;--rust:#B5471C;--rust2:#8E3415;--gold:#C49A2E;
+  --gold-l:#F0D898;--border:rgba(15,10,6,0.09);--green:#2A6644;--white:#fff;
+}
+html,body{min-height:100%;background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--ink)}
+body{padding-bottom:100px}
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--ink);text-decoration:none}
+.logo span{color:var(--rust)}
+.wrap{max-width:520px;margin:0 auto;padding:32px 20px}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,6vw,40px);font-weight:700;color:var(--ink);line-height:1.1;margin-bottom:8px}
+.hero-sub{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6}
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed rgba(181,71,28,0.3);border-radius:18px;padding:32px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(181,71,28,0.03);margin-bottom:16px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--rust);background:rgba(181,71,28,0.06)}
+.upload-icon{font-size:40px;margin-bottom:10px}
+.upload-title{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.upload-sub{font-size:13px;color:var(--muted)}
+/* PHOTO GRID */
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.photo-item{aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative;background:var(--cream2)}
+.photo-item img{width:100%;height:100%;object-fit:cover}
+.photo-remove{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(0,0,0,0.6);border-radius:50%;border:none;color:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.photo-add{aspect-ratio:1;border-radius:10px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:24px;color:var(--muted);transition:all 0.2s;background:var(--white)}
+.photo-add:hover{border-color:var(--rust);color:var(--rust)}
+/* CONTROLS */
+.card{background:var(--white);border-radius:16px;padding:18px;border:1px solid var(--border);margin-bottom:14px}
+.card-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px}
+.select-row{display:flex;gap:8px;flex-wrap:wrap}
+.sel-pill{border:1.5px solid var(--border);border-radius:100px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;background:var(--white);color:var(--ink2);transition:all 0.18s;font-family:'DM Sans',sans-serif}
+.sel-pill.sel{background:var(--rust);color:#fff;border-color:var(--rust)}
+/* PREVIEW CANVAS */
+.preview-wrap{background:#000;border-radius:16px;overflow:hidden;aspect-ratio:1;margin-bottom:14px;position:relative;display:none}
+.preview-wrap.show{display:block}
+canvas#preview{width:100%;height:100%;display:block}
+.preview-overlay{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.prev-btn{background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);border-radius:100px;padding:8px 18px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.prev-btn:hover{background:rgba(255,255,255,0.25)}
+.prev-btn.primary{background:var(--rust);border-color:var(--rust)}
+/* PROGRESS */
+.progress-wrap{display:none;margin-bottom:14px}
+.progress-wrap.show{display:block}
+.prog-bar{height:6px;background:rgba(181,71,28,0.12);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:6px;background:linear-gradient(90deg,var(--rust),var(--gold));border-radius:3px;width:0%;transition:width 0.3s}
+.prog-text{font-size:13px;color:var(--muted);text-align:center}
+/* RESULT */
+.result-wrap{display:none;margin-bottom:14px}
+.result-wrap.show{display:block}
+.result-video{width:100%;border-radius:16px;margin-bottom:12px}
+.btn-dl-video{width:100%;background:var(--ink);color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;margin-bottom:8px}
+/* MAIN BTNS */
+.btn-preview{width:100%;background:var(--cream2);color:var(--ink);border:1.5px solid var(--border);border-radius:100px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px;transition:all 0.2s}
+.btn-preview:hover{border-color:var(--ink)}
+.btn-generate{width:100%;background:var(--rust);color:#fff;border:none;border-radius:100px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;box-shadow:0 4px 16px rgba(181,71,28,0.28);position:relative;overflow:hidden;margin-bottom:8px}
+.btn-generate::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent 55%)}
+.btn-generate:disabled{opacity:0.45;cursor:not-allowed}
+.tip{font-size:12px;color:var(--muted);text-align:center}
+/* SONG LINK */
+.song-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--cream2);border-radius:10px;margin-bottom:14px}
+.song-dot{width:8px;height:8px;background:var(--green);border-radius:50%;flex-shrink:0;animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:0.4}50%{opacity:1}}
+.song-name{font-size:13px;font-weight:500;color:var(--ink)}
+.song-sub{font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Story<span>Sound</span></a>
+  <span style="font-size:12px;color:var(--muted)">Memory Video</span>
+</nav>
+
+<div class="wrap">
+  <div class="hero-title">Turn Your Song Into a Memory Video</div>
+  <p class="hero-sub">Upload your photos and we'll create a beautiful video slideshow with your custom song playing in the background. Perfect for sharing on Instagram, WhatsApp, or playing at events.</p>
+
+  <!-- Song indicator -->
+  <div class="song-row" id="songRow" style="display:none">
+    <div class="song-dot"></div>
+    <div>
+      <div class="song-name" id="songNameDisplay">Your song</div>
+      <div class="song-sub">Will play in the background of your video</div>
+    </div>
+  </div>
+
+  <!-- Upload zone -->
+  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
+    ondragover="event.preventDefault();this.classList.add('drag')"
+    ondragleave="this.classList.remove('drag')"
+    ondrop="handleDrop(event)">
+    <div class="upload-icon">📸</div>
+    <div class="upload-title">Upload your photos</div>
+    <p class="upload-sub">Tap to choose · drag & drop · up to 15 photos<br>JPG, PNG, HEIC supported</p>
+  </div>
+  <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)">
+
+  <!-- Photo grid -->
+  <div class="photo-grid" id="photoGrid" style="display:none"></div>
+
+  <!-- Style controls -->
+  <div class="card" id="controls" style="display:none">
+    <div class="card-title">Transition Style</div>
+    <div class="select-row" id="transPills">
+      <div class="sel-pill sel" onclick="selTrans(this,'kenburns')">Ken Burns</div>
+      <div class="sel-pill" onclick="selTrans(this,'fade')">Soft Fade</div>
+      <div class="sel-pill" onclick="selTrans(this,'slide')">Slide</div>
+    </div>
+
+    <div class="card-title" style="margin-top:16px">Photo Duration</div>
+    <div class="select-row" id="durPills">
+      <div class="sel-pill" onclick="selDur(this,3)">3s</div>
+      <div class="sel-pill sel" onclick="selDur(this,4)">4s</div>
+      <div class="sel-pill" onclick="selDur(this,5)">5s</div>
+    </div>
+
+    <div class="card-title" style="margin-top:16px">Video Format</div>
+    <div class="select-row" id="fmtPills">
+      <div class="sel-pill sel" onclick="selFmt(this,'square')">Square (1:1)</div>
+      <div class="sel-pill" onclick="selFmt(this,'portrait')">Portrait (9:16)</div>
+      <div class="sel-pill" onclick="selFmt(this,'landscape')">Landscape (16:9)</div>
+    </div>
+  </div>
+
+  <!-- Preview canvas -->
+  <div class="preview-wrap" id="previewWrap">
+    <canvas id="preview" width="720" height="720"></canvas>
+    <div class="preview-overlay">
+      <button class="prev-btn" onclick="stopPreview()">Stop</button>
+      <button class="prev-btn primary" onclick="startGenerate()">Create Video →</button>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-text" id="progText">Preparing your photos...</div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-wrap" id="resultWrap">
+    <video class="result-video" id="resultVideo" controls playsinline></video>
+    <a class="btn-dl-video" id="dlVideoBtn" href="#" download="memory-video.webm">⬇ Download Memory Video</a>
+    <div class="tip">Share on WhatsApp, Instagram, or play at your event</div>
+  </div>
+
+  <!-- Action buttons -->
+  <div id="actionBtns" style="display:none">
+    <button class="btn-preview" onclick="startPreview()">👁 Preview Slideshow</button>
+    <button class="btn-generate" id="generateBtn" onclick="startGenerate()">🎬 Create My Memory Video</button>
+    <p class="tip">Your song plays automatically in the video</p>
+  </div>
+
+</div>
+
+<script>
+const PHOTO_DURATION = {val: 4};
+const TRANSITION = {val: 'kenburns'};
+const FORMAT = {
+  val: 'square',
+  sizes: {
+    square:    {w: 720, h: 720},
+    portrait:  {w: 720, h: 1280},
+    landscape: {w: 1280, h: 720}
+  }
+};
+
+let photos = []; // {url, img} objects
+let songUrl = null;
+let previewAnim = null;
+let previewRunning = false;
+
+// Get song from URL params
+const params = new URLSearchParams(window.location.search);
+const songParam = params.get('song_url');
+const songName = params.get('song_name') || 'Your Custom Song';
+const orderId = params.get('order_id');
+
+if (songParam) {
+  songUrl = decodeURIComponent(songParam);
+  document.getElementById('songNameDisplay').textContent = songName;
+  document.getElementById('songRow').style.display = 'flex';
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  handleFiles(e.dataTransfer.files);
+}
+
+function handleFiles(files) {
+  const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+  const remaining = 15 - photos.length;
+  arr.slice(0, remaining).forEach(file => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      photos.push({url, img});
+      renderGrid();
+    };
+    img.src = url;
+  });
+}
+
+function renderGrid() {
+  const grid = document.getElementById('photoGrid');
+  grid.style.display = photos.length > 0 ? 'grid' : 'none';
+  document.getElementById('controls').style.display = photos.length > 0 ? 'block' : 'none';
+  document.getElementById('actionBtns').style.display = photos.length >= 2 ? 'block' : 'none';
+
+  grid.innerHTML = '';
+  photos.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'photo-item';
+    item.innerHTML = `<img src="${p.url}"><button class="photo-remove" onclick="removePhoto(${i})">×</button>`;
+    grid.appendChild(item);
+  });
+
+  if (photos.length < 15) {
+    const add = document.createElement('div');
+    add.className = 'photo-add';
+    add.textContent = '+';
+    add.onclick = () => document.getElementById('fileInput').click();
+    grid.appendChild(add);
+  }
+}
+
+function removePhoto(i) {
+  photos.splice(i, 1);
+  renderGrid();
+}
+
+function selTrans(el, val) {
+  document.querySelectorAll('#transPills .sel-pill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  TRANSITION.val = val;
+}
+
+function selDur(el, val) {
+  document.querySelectorAll('#durPills .sel-pill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  PHOTO_DURATION.val = val;
+}
+
+function selFmt(el, val) {
+  document.querySelectorAll('#fmtPills .sel-pill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  FORMAT.val = val;
+  const {w, h} = FORMAT.sizes[val];
+  document.getElementById('preview').width = w;
+  document.getElementById('preview').height = h;
+}
+
+// ── PREVIEW ──
+function startPreview() {
+  if (photos.length < 2) return;
+  const pw = document.getElementById('previewWrap');
+  pw.classList.add('show');
+  pw.scrollIntoView({behavior:'smooth', block:'start'});
+  previewRunning = true;
+  let idx = 0;
+  const canvas = document.getElementById('preview');
+  const {w, h} = FORMAT.sizes[FORMAT.val];
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  const FPS = 30;
+  const FRAMES = PHOTO_DURATION.val * FPS;
+  let frame = 0;
+
+  function tick() {
+    if (!previewRunning) return;
+    const photo = photos[idx % photos.length];
+    const t = frame / FRAMES;
+
+    ctx.clearRect(0, 0, w, h);
+    drawPhoto(ctx, photo.img, t, w, h);
+
+    frame++;
+    if (frame >= FRAMES) {
+      frame = 0;
+      idx = (idx + 1) % photos.length;
+    }
+
+    previewAnim = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function stopPreview() {
+  previewRunning = false;
+  if (previewAnim) cancelAnimationFrame(previewAnim);
+  document.getElementById('previewWrap').classList.remove('show');
+}
+
+function drawPhoto(ctx, img, t, w, h) {
+  ctx.save();
+  const style = TRANSITION.val;
+
+  if (style === 'kenburns') {
+    const scale = 1 + t * 0.08;
+    const sx = w * scale;
+    const sy = h * scale;
+    const ox = (sx - w) * 0.5;
+    const oy = (sy - h) * 0.5;
+    ctx.drawImage(img, 0, 0, img.width, img.height, -ox, -oy, sx, sy);
+  } else if (style === 'fade') {
+    ctx.globalAlpha = t < 0.1 ? t * 10 : t > 0.9 ? (1 - t) * 10 : 1;
+    ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, w, h);
+  } else if (style === 'slide') {
+    const offset = t < 0.15 ? w * (1 - t / 0.15) : 0;
+    ctx.drawImage(img, 0, 0, img.width, img.height, offset, 0, w, h);
+  }
+  ctx.restore();
+}
+
+// ── GENERATE VIDEO ──
+async function startGenerate() {
+  if (photos.length < 2) return;
+  stopPreview();
+
+  document.getElementById('actionBtns').style.display = 'none';
+  document.getElementById('progressWrap').classList.add('show');
+  document.getElementById('resultWrap').classList.remove('show');
+
+  const {w, h} = FORMAT.sizes[FORMAT.val];
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+
+  const FPS = 30;
+  const FRAMES_PER_PHOTO = PHOTO_DURATION.val * FPS;
+  const TOTAL_FRAMES = photos.length * FRAMES_PER_PHOTO;
+
+  // Set up audio
+  let audioCtx = null, audioSource = null, audioDest = null;
+  let stream = canvas.captureStream(FPS);
+
+  if (songUrl) {
+    try {
+      audioCtx = new AudioContext();
+      const res = await fetch(songUrl);
+      const buf = await res.arrayBuffer();
+      const decoded = await audioCtx.decodeAudioData(buf);
+      audioSource = audioCtx.createBufferSource();
+      audioSource.buffer = decoded;
+      audioDest = audioCtx.createMediaStreamDestination();
+      audioSource.connect(audioDest);
+      audioSource.start();
+      const audioTracks = audioDest.stream.getAudioTracks();
+      audioTracks.forEach(t => stream.addTrack(t));
+    } catch(e) { console.log('Audio skip:', e.message); }
+  }
+
+  const mimeType = MediaRecorder.isTypeSupported('video/mp4') ? 'video/mp4' :
+                   MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, {mimeType, videoBitsPerSecond: 4000000});
+  const chunks = [];
+  recorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
+  recorder.start();
+
+  let frame = 0;
+  let photoIdx = 0;
+  let frameInPhoto = 0;
+
+  function nextFrame() {
+    if (frame >= TOTAL_FRAMES) {
+      recorder.stop();
+      return;
+    }
+
+    const t = frameInPhoto / FRAMES_PER_PHOTO;
+    const photo = photos[photoIdx];
+    ctx.clearRect(0, 0, w, h);
+    drawPhoto(ctx, photo.img, t, w, h);
+
+    frame++;
+    frameInPhoto++;
+
+    if (frameInPhoto >= FRAMES_PER_PHOTO) {
+      frameInPhoto = 0;
+      photoIdx++;
+    }
+
+    const pct = Math.round((frame / TOTAL_FRAMES) * 100);
+    document.getElementById('progFill').style.width = pct + '%';
+    document.getElementById('progText').textContent =
+      pct < 30 ? 'Placing your photos...' :
+      pct < 60 ? 'Adding transitions...' :
+      pct < 90 ? 'Mixing in your song...' :
+      'Wrapping up...';
+
+    setTimeout(nextFrame, 1000 / FPS);
+  }
+
+  recorder.onstop = () => {
+    if (audioSource) audioSource.stop();
+    if (audioCtx) audioCtx.close();
+
+    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+    const blob = new Blob(chunks, {type: mimeType});
+    const url = URL.createObjectURL(blob);
+
+    document.getElementById('resultVideo').src = url;
+    document.getElementById('dlVideoBtn').href = url;
+    document.getElementById('dlVideoBtn').download = 'memory-video.' + ext;
+    document.getElementById('progressWrap').classList.remove('show');
+    document.getElementById('resultWrap').classList.add('show');
+    document.getElementById('actionBtns').style.display = 'block';
+    document.getElementById('actionBtns').querySelector('.btn-generate').textContent = '🎬 Regenerate Video';
+  };
+
+  nextFrame();
+}
+</script>
+</body>
+</html>
