@@ -294,9 +294,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 
     <!-- PAYWALL — shown when locked -->
     <div class="paywall-card" id="paywallCard" style="display:none">
-      <span class="paywall-lock">🔐</span>
-      <div class="paywall-title">Unlock Your Song</div>
-      <p class="paywall-sub">Your song is playing — now own it forever. Unlock your full lyrics and download the MP3 to keep, share, and play anywhere.</p>
+      <div style="text-align:center;position:relative;z-index:1;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--gold-l);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">One More Step</div><div class="paywall-title">Get Your Song — Keep It Forever</div><p class="paywall-sub" style="margin-top:6px">You can hear it. Now own it. Download the MP3, read every lyric, share it with anyone.</p></div>
       <ul class="paywall-features">
         <li>📜 Full personalized lyrics — print & frame them</li>
         <li>⬇️ Download MP3 + WAV — yours forever</li>
@@ -306,9 +304,9 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       <div class="paywall-price">
         <span class="paywall-orig">$99</span>
         <span class="paywall-now">$49</span>
-        <div class="paywall-save">Save $50 — Today Only</div>
+        <div class="paywall-save">50% off · today only</div>
       </div>
-      <button class="btn-unlock" onclick="goUnlock()">🔓 Unlock Lyrics + Download — $49</button>
+      <button class="btn-unlock" onclick="goUnlock()" style="font-size:17px;padding:17px">⬇️ Yes — Give Me My Song for $49</button>
       <p class="paywall-trust">Secure checkout · Instant access · 30-day money-back guarantee</p>
     </div>
 
