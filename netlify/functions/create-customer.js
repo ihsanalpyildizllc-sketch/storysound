@@ -63,6 +63,10 @@ exports.handler = async (event) => {
             tags: "prospect, song-funnel",
             note,
             accepts_marketing: true,
+            email_marketing_consent: {
+              state: "subscribed",
+              opt_in_level: "single_opt_in"
+            },
             send_email_welcome: false
           }
         })
