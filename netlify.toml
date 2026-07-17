@@ -8,17 +8,20 @@
 [functions]
   node_bundler = "esbuild"
 
+[functions."shopify-order-webhook"]
+  timeout = 900
+
 [[redirects]]
   from = "/create"
   to = "/create.html"
   status = 200
 
 [[redirects]]
-  from = "/test"
-  to = "/test.html"
+  from = "/success"
+  to = "/success.html"
   status = 200
 
 [[redirects]]
-  from = "/success"
-  to = "/success.html"
+  from = "/test"
+  to = "/test.html"
   status = 200
