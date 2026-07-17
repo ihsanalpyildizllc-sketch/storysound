@@ -522,6 +522,22 @@ function goToBumps(){
   const em=document.getElementById('f-email').value.trim();
   if(!em||!em.includes('@')){tip('Enter a valid email address');return;}
   D.email=em;D.phone=document.getElementById('f-phone').value.trim();
+  
+  // Create/update Shopify customer in background (fire and forget)
+  fetch('/.netlify/functions/create-customer', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      email: D.email,
+      name: D.name || D.forWhom,
+      forWhom: D.forWhom,
+      occasion: D.occasion,
+      genre: D.genre
+    })
+  }).then(r=>r.json()).then(d=>{
+    console.log('Customer:', d.action, d.customerId);
+  }).catch(e=>console.log('Customer create skipped:', e.message));
+
   showStep('bumps');
 }
 
