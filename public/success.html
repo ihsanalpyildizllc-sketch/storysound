@@ -499,14 +499,15 @@ function animateLoadingSteps() {
 
 // ── POLL FOR SONG ──
 let pollAttempts = 0;
-const MAX_POLL_ATTEMPTS = 30; // 2 minutes at 4s intervals
+const MAX_POLL_ATTEMPTS = 15; // 60 seconds at 4s intervals
 
 async function pollForSong() {
   pollAttempts++;
 
   // After 2 minutes, load demo song with a note
   if (pollAttempts > MAX_POLL_ATTEMPTS) {
-    document.querySelector('.loading-sub').textContent = 'Our team is still working on your song — it will arrive in your inbox shortly. Sit tight!';
+    document.querySelector('.loading-sub').textContent = 'Almost ready — check your email in a moment. Your song will be delivered there shortly.';
+    document.querySelector('.loading-title').textContent = 'Just a Few More Seconds...';
     loadSong({
       song_title: 'Your Song is Being Composed',
       song_meta: 'Preview — your actual song will arrive by email',
