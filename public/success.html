@@ -736,15 +736,25 @@ function goUpsell(){
 
 
 // ── MEMORY VIDEO ──
-const MV_VARIANT = 'MV_VARIANT_ID'; // ← Create $39 Shopify product, add variant ID here
+const MV_VARIANT = '43258163920973'; // ← Create $39 Shopify product, add variant ID here
 
 function goMemoryVideo(e) {
   e.preventDefault();
-  // Pass song URL to memory video page so it auto-loads the song
-  const base = '/memory-video';
   const songSrc = songUrl || '';
   const title = songData ? songData.song_title : '';
-  const url = base + '?order_id=' + (orderId||'') + '&song_url=' + encodeURIComponent(songSrc) + '&song_name=' + encodeURIComponent(title);
+  // Build success redirect URL — after Shopify purchase, send to /memory-video with song
+  const successRedirect = encodeURIComponent(
+    window.location.origin + '/memory-video?order_id=' + (orderId||'') +
+    '&song_url=' + encodeURIComponent(songSrc) +
+    '&song_name=' + encodeURIComponent(title) +
+    '&paid=true'
+  );
+  const attrs = [
+    ['Original_Order', orderId||''],
+    ['Song_Title', title],
+    ['Song_URL', songSrc]
+  ].map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
+  const url = `https://${SHOPIFY_STORE}/cart/${MV_VARIANT}:1?${attrs}&return_url=${successRedirect}`;
   window.location.href = url;
 }
 
@@ -764,15 +774,25 @@ function joinVault() {
 
 
 // ── MEMORY VIDEO ──
-const MV_VARIANT = 'MV_VARIANT_ID'; // ← Create $39 Shopify product, add variant ID here
+const MV_VARIANT = '43258163920973'; // ← Create $39 Shopify product, add variant ID here
 
 function goMemoryVideo(e) {
   e.preventDefault();
-  // Pass song URL to memory video page so it auto-loads the song
-  const base = '/memory-video';
   const songSrc = songUrl || '';
   const title = songData ? songData.song_title : '';
-  const url = base + '?order_id=' + (orderId||'') + '&song_url=' + encodeURIComponent(songSrc) + '&song_name=' + encodeURIComponent(title);
+  // Build success redirect URL — after Shopify purchase, send to /memory-video with song
+  const successRedirect = encodeURIComponent(
+    window.location.origin + '/memory-video?order_id=' + (orderId||'') +
+    '&song_url=' + encodeURIComponent(songSrc) +
+    '&song_name=' + encodeURIComponent(title) +
+    '&paid=true'
+  );
+  const attrs = [
+    ['Original_Order', orderId||''],
+    ['Song_Title', title],
+    ['Song_URL', songSrc]
+  ].map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
+  const url = `https://${SHOPIFY_STORE}/cart/${MV_VARIANT}:1?${attrs}&return_url=${successRedirect}`;
   window.location.href = url;
 }
 
