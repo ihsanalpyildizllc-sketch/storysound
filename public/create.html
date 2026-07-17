@@ -473,6 +473,7 @@ function showStep(n){
   document.getElementById('pp').textContent=pct+'% Complete';
   window.scrollTo({top:0,behavior:'smooth'});
   cur=n;
+  if(typeof updateStickyBar==='function') updateStickyBar();
 }
 
 function goTo(n){showStep(n);}
@@ -524,6 +525,7 @@ function updateBumps(){
 }
 
 function toggleBump(cardId,lineId,amt){
+  if(typeof updateStickyBar==='function') setTimeout(updateStickyBar,10);
   const card=document.getElementById(cardId);
   const key=cardId==='bc1'?'b1':'b2';
   bumps[key]=!bumps[key];
@@ -636,19 +638,6 @@ function handleStickyBtn(){
   else { goToShopify(); }
 }
 
-// Patch showStep to update sticky bar
-const _origShowStep = showStep;
-function showStep(n){
-  _origShowStep(n);
-  updateStickyBar();
-}
-
-// Patch toggleBump to sync sticky total
-const _origToggleBump = toggleBump;
-function toggleBump(cardId,lineId,amt){
-  _origToggleBump(cardId,lineId,amt);
-  updateStickyBar();
-}
 
 </script>
 
