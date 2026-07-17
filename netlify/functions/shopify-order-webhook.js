@@ -10,19 +10,23 @@ exports.handler = async (event) => {
   const orderId = String(order.id || "");
   if (!orderId) return { statusCode: 400, body: "Missing order ID" };
 
-  // Save pending status using SETEX (key, seconds, value)
+  // Save pending to Upstash
   const pendingValue = encodeURIComponent(JSON.stringify({ status: "processing", created: Date.now() }));
   await fetch(`${REDIS_URL}/setex/song_${orderId}/86400/${pendingValue}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
   });
 
-  // Trigger background function (15min timeout)
-  fetch(`${SITE_URL}/.netlify/functions/generate-song-background`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: event.body
-  }).catch(e => console.log("BG trigger:", e.message));
+  // AWAIT the background function — it returns 202 immediately, runs for up to 15 mins
+  try {
+    await fetch(`${SITE_URL}/.netlify/functions/generate-song-background`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: event.body
+    });
+  } catch(e) {
+    console.log("BG trigger error:", e.message);
+  }
 
   return { statusCode: 200, body: "OK" };
 };
