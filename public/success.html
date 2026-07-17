@@ -611,7 +611,8 @@ function shareNative(){
 
 // ── UNLOCK / PAYWALL ──
 const UNLOCK_VARIANT = '43257750978637';
-const isUnlocked = params.get('unlocked') === 'true' || params.get('access') === 'full';
+const forceLockedPreview = params.get('locked') === '1';
+const isUnlocked = !forceLockedPreview && (params.get('unlocked') === 'true' || params.get('access') === 'full');
 
 function checkUnlock() {
   const paywall = document.getElementById('paywallCard');
@@ -619,7 +620,7 @@ function checkUnlock() {
   const lyricsText = document.getElementById('lyricsText');
   const unlockedBadge = document.getElementById('unlockedBadge');
 
-  if (isUnlocked || demoMode) {
+  if (isUnlocked || (demoMode && !forceLockedPreview)) {
     // Unlocked — show everything
     if (paywall) paywall.style.display = 'none';
     if (dlBtn) { dlBtn.classList.remove('dl-locked'); dlBtn.textContent = '⬇ Download Your Song (MP3)'; }
