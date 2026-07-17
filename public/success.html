@@ -433,36 +433,76 @@ window.addEventListener('load', () => {
 
 // ── LOADING STEPS ANIMATION ──
 function animateLoadingSteps() {
+  // Only run visual animation if we have a real order being processed
+  // Steps advance every 18s: analyze(0s) -> write(18s) -> compose(36s) -> finalize(54s)
   const steps = ['ls1','ls2','ls3','ls4'];
   let idx = 0;
   const timer = setInterval(() => {
-    if (idx > 0) {
+    if (idx > 0 && document.getElementById(steps[idx-1])) {
       document.getElementById(steps[idx-1]).classList.remove('active');
       document.getElementById(steps[idx-1]).classList.add('done');
     }
-    if (idx < steps.length) {
+    if (idx < steps.length && document.getElementById(steps[idx])) {
       document.getElementById(steps[idx]).classList.add('active');
       idx++;
     } else {
       clearInterval(timer);
     }
-  }, 12000);
+  }, 18000);
 }
 
 // ── POLL FOR SONG ──
+let pollAttempts = 0;
+const MAX_POLL_ATTEMPTS = 30; // 2 minutes at 4s intervals
+
 async function pollForSong() {
+  pollAttempts++;
+
+  // After 2 minutes, load demo song with a note
+  if (pollAttempts > MAX_POLL_ATTEMPTS) {
+    document.querySelector('.loading-sub').textContent = 'Taking longer than expected. Loading a preview — your real song will be emailed to you shortly.';
+    loadSong({
+      song_title: 'Your Song is Being Composed',
+      song_meta: 'Preview — your actual song will arrive by email',
+      audio_url: '/audio/yubito-desert-rose.mp3',
+      lyrics: 'Your personalized lyrics are being written and will be delivered to your email shortly.
+
+Thank you for your patience!'
+    });
+    return;
+  }
+
   try {
     const res = await fetch(`/.netlify/functions/get-song?orderId=${orderId}`);
+    
+    if (!res.ok) {
+      // Server error — keep polling
+      pollTimer = setTimeout(pollForSong, POLL_INTERVAL);
+      return;
+    }
+
     const data = await res.json();
 
     if (data.status === 'done') {
       loadSong(data);
     } else if (data.status === 'error') {
-      document.querySelector('.loading-sub').textContent = 'There was an issue generating your song. Please contact support.';
+      document.querySelector('.loading-sub').textContent = 'There was an issue composing your song. We'll email it to you shortly — or reply to your confirmation email.';
+      document.querySelector('.loading-title').textContent = 'Hang Tight...';
+    } else if (data.stage === 'composing') {
+      // Update step indicators
+      document.getElementById('ls1').classList.remove('active'); document.getElementById('ls1').classList.add('done');
+      document.getElementById('ls2').classList.remove('active'); document.getElementById('ls2').classList.add('done');
+      document.getElementById('ls3').classList.add('active');
+      pollTimer = setTimeout(pollForSong, POLL_INTERVAL);
+    } else if (data.stage === 'lyria') {
+      document.getElementById('ls1').classList.remove('active'); document.getElementById('ls1').classList.add('done');
+      document.getElementById('ls2').classList.add('active');
+      pollTimer = setTimeout(pollForSong, POLL_INTERVAL);
     } else {
       pollTimer = setTimeout(pollForSong, POLL_INTERVAL);
     }
   } catch(e) {
+    console.log('Poll error:', e.message);
     pollTimer = setTimeout(pollForSong, POLL_INTERVAL);
   }
 }
