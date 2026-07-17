@@ -173,6 +173,26 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .btn-vault:hover{background:#4A3A9A;transform:translateY(-1px)}
 .vault-note{font-size:11px;color:rgba(255,255,255,0.3);text-align:center;margin-top:8px;position:relative;z-index:1}
 
+
+/* MEMORY VIDEO UPSELL */
+.mv-card{background:linear-gradient(160deg,#1A0810 0%,#2A0D1A 50%,#1A0810 100%);border-radius:20px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;border:1px solid rgba(212,83,126,0.25)}
+.mv-card::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(212,83,126,0.15) 0%,transparent 70%);border-radius:50%}
+.mv-badge{display:inline-flex;align-items:center;gap:5px;background:#D4537E;color:#fff;border-radius:100px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:0.04em;margin-bottom:10px;position:relative;z-index:1}
+.mv-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.2;position:relative;z-index:1}
+.mv-sub{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:14px;line-height:1.6;position:relative;z-index:1}
+.mv-preview{border-radius:10px;overflow:hidden;margin-bottom:14px;position:relative;z-index:1;background:rgba(0,0,0,0.3);aspect-ratio:1;display:flex;align-items:center;justify-content:center}
+.mv-preview-icons{display:flex;gap:-4px;flex-direction:row;justify-content:center;align-items:center}
+.mv-frame{width:60px;height:60px;border-radius:8px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin:-4px}
+.mv-features{list-style:none;margin-bottom:16px;display:flex;flex-direction:column;gap:6px;position:relative;z-index:1}
+.mv-features li{font-size:13px;color:rgba(255,255,255,0.6);display:flex;align-items:flex-start;gap:7px}
+.mv-features li::before{content:'✓';color:#F4C0D1;font-weight:700;flex-shrink:0}
+.mv-price{display:flex;align-items:baseline;gap:8px;margin-bottom:16px;position:relative;z-index:1}
+.mv-amount{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:700;color:#F4C0D1;line-height:1}
+.mv-per{font-size:13px;color:rgba(255,255,255,0.4);align-self:flex-end;margin-bottom:4px}
+.btn-mv{width:100%;background:#D4537E;color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;z-index:1;text-decoration:none}
+.btn-mv:hover{background:#B33A65;transform:translateY(-1px)}
+.mv-note{font-size:11px;color:rgba(255,255,255,0.3);text-align:center;margin-top:8px;position:relative;z-index:1}
+
 /* ANNIVERSARY CLUB */
 .anni-card{background:linear-gradient(160deg,#0A1A0A 0%,#0F2A10 50%,#0A1A0A 100%);border-radius:20px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;border:1px solid rgba(42,102,68,0.3)}
 .anni-card::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,rgba(42,102,68,0.25) 0%,transparent 70%);border-radius:50%}
@@ -319,6 +339,27 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
           <a class="share-btn" id="emailBtn" href="#">✉️ Email</a>
         </div>
       </div>
+    </div>
+
+
+    <!-- Memory Video Upsell -->
+    <div class="mv-card">
+      <div class="mv-badge">🎬 New</div>
+      <div class="mv-title">Turn Your Song Into a Memory Video</div>
+      <p class="mv-sub">Upload your photos and we'll create a beautiful video slideshow with your song playing. Perfect for Instagram, WhatsApp, or playing at events.</p>
+      <ul class="mv-features">
+        <li>Upload up to 15 photos</li>
+        <li>Ken Burns effect — cinematic slow zoom on each photo</li>
+        <li>Your custom song plays throughout</li>
+        <li>Download as MP4 — share anywhere</li>
+        <li>Square, portrait, or landscape format</li>
+      </ul>
+      <div class="mv-price">
+        <span class="mv-amount">$39</span>
+        <span class="mv-per">one time</span>
+      </div>
+      <a class="btn-mv" id="mvBtn" href="/memory-video" onclick="goMemoryVideo(event)">🎬 Create My Memory Video — $39</a>
+      <p class="mv-note">Delivered as a downloadable MP4 · Share instantly</p>
     </div>
 
     <!-- Anniversary Club Subscription -->
@@ -693,6 +734,20 @@ function goUpsell(){
 
 
 
+
+// ── MEMORY VIDEO ──
+const MV_VARIANT = 'MV_VARIANT_ID'; // ← Create $39 Shopify product, add variant ID here
+
+function goMemoryVideo(e) {
+  e.preventDefault();
+  // Pass song URL to memory video page so it auto-loads the song
+  const base = '/memory-video';
+  const songSrc = songUrl || '';
+  const title = songData ? songData.song_title : '';
+  const url = base + '?order_id=' + (orderId||'') + '&song_url=' + encodeURIComponent(songSrc) + '&song_name=' + encodeURIComponent(title);
+  window.location.href = url;
+}
+
 // ── SONG VAULT ──
 const VAULT_VARIANT = '43257776603213';
 
@@ -706,6 +761,20 @@ function joinVault() {
   window.location.href = url;
 }
 
+
+
+// ── MEMORY VIDEO ──
+const MV_VARIANT = 'MV_VARIANT_ID'; // ← Create $39 Shopify product, add variant ID here
+
+function goMemoryVideo(e) {
+  e.preventDefault();
+  // Pass song URL to memory video page so it auto-loads the song
+  const base = '/memory-video';
+  const songSrc = songUrl || '';
+  const title = songData ? songData.song_title : '';
+  const url = base + '?order_id=' + (orderId||'') + '&song_url=' + encodeURIComponent(songSrc) + '&song_name=' + encodeURIComponent(title);
+  window.location.href = url;
+}
 
 // ── SONG VAULT ──
 const VAULT_VARIANT = '43257776603213';
