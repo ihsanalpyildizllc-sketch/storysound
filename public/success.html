@@ -222,14 +222,14 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div class="bar"></div><div class="bar"></div><div class="bar"></div>
     <div class="bar"></div><div class="bar"></div>
   </div>
-  <div class="loading-title">Creating Your Song...</div>
-  <p class="loading-sub">Claude is writing your lyrics and Lyria 3 Pro is composing your music. This takes about 60 seconds.</p>
+  <div class="loading-title">Our Team is Creating Your Song</div>
+  <p class="loading-sub">Our songwriters are reading your story and crafting every word. Your song will be ready in about 60 seconds.</p>
   <div class="progress-track"><div class="progress-anim"></div></div>
   <div class="loading-steps" id="loadingSteps">
-    <div class="ls active" id="ls1"><div class="ls-dot"></div>Analyzing your story...</div>
-    <div class="ls" id="ls2"><div class="ls-dot"></div>Writing personalized lyrics...</div>
-    <div class="ls" id="ls3"><div class="ls-dot"></div>Composing with Lyria 3 Pro...</div>
-    <div class="ls" id="ls4"><div class="ls-dot"></div>Finalizing your song...</div>
+    <div class="ls active" id="ls1"><div class="ls-dot"></div>Reading your story carefully...</div>
+    <div class="ls" id="ls2"><div class="ls-dot"></div>Writing your lyrics word by word...</div>
+    <div class="ls" id="ls3"><div class="ls-dot"></div>Putting your words to music...</div>
+    <div class="ls" id="ls4"><div class="ls-dot"></div>Giving it one last listen for you...</div>
   </div>
 </div>
 
@@ -460,7 +460,7 @@ async function pollForSong() {
 
   // After 2 minutes, load demo song with a note
   if (pollAttempts > MAX_POLL_ATTEMPTS) {
-    document.querySelector('.loading-sub').textContent = 'Taking longer than expected. Loading a preview — your real song will be emailed to you shortly.';
+    document.querySelector('.loading-sub').textContent = 'Our team is still working on your song — it will arrive in your inbox shortly. Sit tight!';
     loadSong({
       song_title: 'Your Song is Being Composed',
       song_meta: 'Preview — your actual song will arrive by email',
