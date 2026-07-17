@@ -9,6 +9,9 @@
   node_bundler = "esbuild"
 
 [functions."shopify-order-webhook"]
+  timeout = 10
+
+[functions."generate-song-background"]
   timeout = 900
 
 [[redirects]]
