@@ -116,6 +116,30 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 
 
 
+
+/* PAYWALL */
+.locked-overlay{position:relative}
+.locked-overlay::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 20%,var(--cream) 70%);pointer-events:none;border-radius:18px;z-index:2}
+.lyrics-locked{filter:blur(4px);user-select:none;pointer-events:none;opacity:0.6}
+.paywall-card{background:linear-gradient(160deg,var(--ink) 0%,#2C1A0A 100%);border-radius:20px;padding:24px;margin:0 0 14px;border:1px solid rgba(181,71,28,0.3);position:relative;overflow:hidden}
+.paywall-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(196,154,46,0.15) 0%,transparent 70%);border-radius:50%}
+.paywall-lock{font-size:36px;margin-bottom:10px;display:block;text-align:center}
+.paywall-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:#fff;text-align:center;margin-bottom:6px;position:relative;z-index:1}
+.paywall-sub{font-size:14px;color:rgba(255,255,255,0.55);text-align:center;margin-bottom:18px;line-height:1.6;position:relative;z-index:1}
+.paywall-features{list-style:none;margin-bottom:20px;display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+.paywall-features li{font-size:14px;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:8px}
+.paywall-features li::before{content:'✓';color:var(--gold-l);font-weight:700;flex-shrink:0}
+.paywall-price{text-align:center;margin-bottom:18px;position:relative;z-index:1}
+.paywall-orig{font-size:16px;color:rgba(255,255,255,0.3);text-decoration:line-through;margin-right:8px}
+.paywall-now{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:var(--gold-l);line-height:1}
+.paywall-save{display:inline-block;background:rgba(196,154,46,0.2);color:var(--gold-l);border-radius:100px;padding:3px 12px;font-size:12px;font-weight:600;margin-top:4px}
+.btn-unlock{width:100%;background:var(--rust);color:#fff;border:none;border-radius:14px;padding:17px;font-size:17px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;box-shadow:0 4px 20px rgba(181,71,28,0.4);position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-unlock:hover{background:var(--rust2);transform:translateY(-1px)}
+.paywall-trust{font-size:11px;color:rgba(255,255,255,0.3);text-align:center;margin-top:8px;position:relative;z-index:1}
+.dl-locked{opacity:0.4;cursor:not-allowed;pointer-events:none;position:relative}
+.dl-lock-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;z-index:3}
+.unlocked-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green);color:#fff;border-radius:100px;padding:4px 14px;font-size:12px;font-weight:600;margin-bottom:12px}
+
 /* SONG VAULT */
 .vault-card{background:linear-gradient(160deg,#0A0A1A 0%,#12102A 50%,#0A0A1A 100%);border-radius:20px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;border:1px solid rgba(124,100,200,0.25)}
 .vault-card::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(124,100,200,0.18) 0%,transparent 70%);border-radius:50%}
@@ -231,22 +255,45 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       </div>
     </div>
 
-    <!-- Lyrics -->
-    <div class="ccard">
+    <!-- PAYWALL — shown when locked -->
+    <div class="paywall-card" id="paywallCard" style="display:none">
+      <span class="paywall-lock">🔐</span>
+      <div class="paywall-title">Unlock Your Song</div>
+      <p class="paywall-sub">Your song is playing — now own it forever. Unlock your full lyrics and download the MP3 to keep, share, and play anywhere.</p>
+      <ul class="paywall-features">
+        <li>📜 Full personalized lyrics — print & frame them</li>
+        <li>⬇️ Download MP3 + WAV — yours forever</li>
+        <li>📤 Share with anyone — no expiry</li>
+        <li>🔄 1 free revision if you want changes</li>
+      </ul>
+      <div class="paywall-price">
+        <span class="paywall-orig">$99</span>
+        <span class="paywall-now">$49</span>
+        <div class="paywall-save">Save $50 — Today Only</div>
+      </div>
+      <button class="btn-unlock" onclick="goUnlock()">🔓 Unlock Lyrics + Download — $49</button>
+      <p class="paywall-trust">Secure checkout · Instant access · 30-day money-back guarantee</p>
+    </div>
+
+    <!-- Lyrics — locked by default -->
+    <div class="ccard" id="lyricsCard">
+      <div id="unlockedBadge" style="display:none"><span class="unlocked-badge">✓ Unlocked</span></div>
       <div class="lyrics-toggle" onclick="toggleLyrics()">
-        <div class="ccard-title" style="margin-bottom:0">📜 View Lyrics</div>
+        <div class="ccard-title" style="margin-bottom:0">📜 Your Lyrics</div>
         <svg id="lyricsArrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </div>
       <div class="lyrics-body" id="lyricsBody">
-        <div class="lyrics-text" id="lyricsText">Loading lyrics...</div>
+        <div class="lyrics-text" id="lyricsText" style="position:relative">Loading lyrics...</div>
       </div>
     </div>
 
-    <!-- Download & Share -->
-    <div class="ccard">
+    <!-- Download & Share — locked by default -->
+    <div class="ccard" id="downloadCard">
       <div class="ccard-title">⬇ Download & Share</div>
       <div class="action-grid">
-        <a class="btn-dl" id="dlBtn" href="#" download="your-song.mp3">⬇ Download Your Song (MP3)</a>
+        <div style="position:relative" id="dlWrap">
+          <a class="btn-dl dl-locked" id="dlBtn" href="#" download="your-song.mp3">🔒 Download Your Song (MP3)</a>
+        </div>
         <button class="btn-share" onclick="toggleShare()">📤 Share with Anyone ›</button>
         <div class="share-options" id="shareOptions">
           <a class="share-btn" id="whatsappBtn" href="#" target="_blank">💬 WhatsApp</a>
@@ -437,6 +484,9 @@ function loadSong(data) {
   document.getElementById('songWrap').style.display = 'block';
   document.getElementById('stickyEmail').style.display = 'block';
 
+  // Check unlock status
+  checkUnlock();
+
   // Auto-play attempt
   setTimeout(() => {
     audioEl.play().then(()=>{
@@ -517,6 +567,37 @@ function shareNative(){
   if(navigator.share&&songData){
     navigator.share({title:`"${songData.song_title}"`,text:`Listen to my custom song!`,url:window.location.href});
   }
+}
+
+
+// ── UNLOCK / PAYWALL ──
+const UNLOCK_VARIANT = '43257750978637';
+const isUnlocked = params.get('unlocked') === 'true' || params.get('access') === 'full';
+
+function checkUnlock() {
+  const paywall = document.getElementById('paywallCard');
+  const dlBtn = document.getElementById('dlBtn');
+  const lyricsText = document.getElementById('lyricsText');
+  const unlockedBadge = document.getElementById('unlockedBadge');
+
+  if (isUnlocked || demoMode) {
+    // Unlocked — show everything
+    if (paywall) paywall.style.display = 'none';
+    if (dlBtn) { dlBtn.classList.remove('dl-locked'); dlBtn.textContent = '⬇ Download Your Song (MP3)'; }
+    if (unlockedBadge) unlockedBadge.style.display = 'block';
+    if (lyricsText) lyricsText.classList.remove('lyrics-locked');
+  } else {
+    // Locked — show paywall, blur lyrics, lock download
+    if (paywall) paywall.style.display = 'block';
+    if (lyricsText) lyricsText.classList.add('lyrics-locked');
+    if (dlBtn) dlBtn.classList.add('dl-locked');
+  }
+}
+
+function goUnlock() {
+  const successUrl = encodeURIComponent(`${window.location.origin}/success?order_id=${orderId || ''}&unlocked=true`);
+  const url = `https://${SHOPIFY_STORE}/cart/${UNLOCK_VARIANT}:1?attributes[Original_Order]=${orderId || ''}&redirect_url=${successUrl}`;
+  window.location.href = url;
 }
 
 // ── UPSELL ──
