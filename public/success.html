@@ -115,6 +115,23 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .upsell-features li::before{content:'✓';color:var(--gold-l);font-weight:700;flex-shrink:0}
 
 
+
+/* SONG VAULT */
+.vault-card{background:linear-gradient(160deg,#0A0A1A 0%,#12102A 50%,#0A0A1A 100%);border-radius:20px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;border:1px solid rgba(124,100,200,0.25)}
+.vault-card::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(124,100,200,0.18) 0%,transparent 70%);border-radius:50%}
+.vault-badge{display:inline-flex;align-items:center;gap:5px;background:#5B4BB5;color:#fff;border-radius:100px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:0.04em;margin-bottom:10px;position:relative;z-index:1}
+.vault-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.2;position:relative;z-index:1}
+.vault-sub{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:14px;line-height:1.6;position:relative;z-index:1}
+.vault-features{list-style:none;margin-bottom:16px;display:flex;flex-direction:column;gap:6px;position:relative;z-index:1}
+.vault-features li{font-size:13px;color:rgba(255,255,255,0.6);display:flex;align-items:flex-start;gap:7px}
+.vault-features li::before{content:'✓';color:#A090F0;font-weight:700;flex-shrink:0}
+.vault-price{display:flex;align-items:baseline;gap:8px;margin-bottom:16px;position:relative;z-index:1}
+.vault-amount{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:700;color:#C0B0FF;line-height:1}
+.vault-per{font-size:13px;color:rgba(255,255,255,0.4);align-self:flex-end;margin-bottom:4px}
+.btn-vault{width:100%;background:#5B4BB5;color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;z-index:1}
+.btn-vault:hover{background:#4A3A9A;transform:translateY(-1px)}
+.vault-note{font-size:11px;color:rgba(255,255,255,0.3);text-align:center;margin-top:8px;position:relative;z-index:1}
+
 /* ANNIVERSARY CLUB */
 .anni-card{background:linear-gradient(160deg,#0A1A0A 0%,#0F2A10 50%,#0A1A0A 100%);border-radius:20px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;border:1px solid rgba(42,102,68,0.3)}
 .anni-card::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,rgba(42,102,68,0.25) 0%,transparent 70%);border-radius:50%}
@@ -259,6 +276,28 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       <button class="btn-upsell" onclick="goUpsell()">🎵 Yes! Get My Second Version — $49</button>
     </div>
 
+
+
+    <!-- Song Vault Subscription -->
+    <div class="vault-card" id="vaultCard">
+      <div class="vault-badge">🔐 Monthly Subscription</div>
+      <div class="vault-title">Song Vault</div>
+      <p class="vault-sub">Your songs stored forever — with WAV downloads, printable lyrics certificates, and a QR code poster you can frame or display anywhere.</p>
+      <ul class="vault-features">
+        <li>All your songs stored permanently — never lose them</li>
+        <li>WAV + FLAC high-quality downloads (vs MP3 only)</li>
+        <li>Printable lyrics certificate with your photo</li>
+        <li>QR code poster — scan to play at weddings/events</li>
+        <li>Shareable links that never expire</li>
+        <li>New songs at member-only price ($19 vs $39)</li>
+      </ul>
+      <div class="vault-price">
+        <span class="vault-amount">$4.99</span>
+        <span class="vault-per">/month</span>
+      </div>
+      <button class="btn-vault" onclick="joinVault()">🔐 Join Song Vault — $4.99/month</button>
+      <p class="vault-note">Cancel any time · Access all your past songs instantly</p>
+    </div>
 
     <!-- Anniversary Club Subscription -->
     <div class="anni-card" id="anniCard">
@@ -529,8 +568,22 @@ function goUpsell(){
 }
 
 
+
+// ── SONG VAULT ──
+const VAULT_VARIANT = '43257776603213';
+
+function joinVault() {
+  const attrs = [
+    ['Song_Title', songData ? songData.song_title : ''],
+    ['Original_Order', orderId || 'demo'],
+  ];
+  const qs = attrs.filter(([k,v])=>v).map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
+  const url = `https://${SHOPIFY_STORE}/cart/${VAULT_VARIANT}:1?${qs}`;
+  window.location.href = url;
+}
+
 // ── ANNIVERSARY CLUB ──
-const ANNI_VARIANT = 'ANNI_VARIANT_ID'; // ← Update after creating Shopify subscription product
+const ANNI_VARIANT = '43257776046157'; // ← Update after creating Shopify subscription product
 
 function joinAnniClub() {
   // Build cart with anniversary subscription + pass order data
@@ -542,10 +595,7 @@ function joinAnniClub() {
   const qs = attrs.filter(([k,v])=>v).map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
   
   // If no Shopify variant yet, show alert
-  if (ANNI_VARIANT === 'ANNI_VARIANT_ID') {
-    alert('Anniversary Club coming soon! Check back shortly.');
-    return;
-  }
+  // variant wired
   
   const url = `https://${SHOPIFY_STORE}/cart/${ANNI_VARIANT}:1?${qs}`;
   window.location.href = url;
