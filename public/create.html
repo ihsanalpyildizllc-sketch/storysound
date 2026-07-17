@@ -532,7 +532,12 @@ function goToBumps(){
       name: D.name || D.forWhom,
       forWhom: D.forWhom,
       occasion: D.occasion,
-      genre: D.genre
+      genre: D.genre,
+      voice: D.voice,
+      language: D.language,
+      qualities: D.qualities,
+      memories: D.memories,
+      message: D.message
     })
   }).then(r=>r.json()).then(d=>{
     console.log('Customer:', d.action, d.customerId);
