@@ -567,69 +567,69 @@ Thank you for your patience!'
 function loadSong(data) {
   songData = data;
 
-  // Update UI
-  document.getElementById('songTitle').textContent = '"' + data.song_title + '"';
-  if (data.song_meta) document.getElementById('songMeta').textContent = data.song_meta;
-  if (data.lyrics) document.getElementById('lyricsText').textContent = data.lyrics;
+  // ── SHOW THE SONG PAGE FIRST (before anything can fail) ──
+  document.getElementById('loadingWrap').style.display = 'none';
+  document.getElementById('songWrap').style.display = 'block';
+  try { document.getElementById('stickyEmail').style.display = 'block'; } catch(e) {}
+
+  // Update text
+  try { document.getElementById('songTitle').textContent = '"' + data.song_title + '"'; } catch(e) {}
+  try { if (data.song_meta) document.getElementById('songMeta').textContent = data.song_meta; } catch(e) {}
+  try { if (data.lyrics) document.getElementById('lyricsText').textContent = data.lyrics; } catch(e) {}
 
   // Set up audio
-  if (data.audio_url) {
-    songUrl = data.audio_url;
-    audioEl.src = songUrl;
-  } else if (data.audio_b64) {
-    const bytes = Uint8Array.from(atob(data.audio_b64), c => c.charCodeAt(0));
-    const blob = new Blob([bytes], {type: data.audio_mime || 'audio/mpeg'});
-    songUrl = URL.createObjectURL(blob);
-    audioEl.src = songUrl;
-  }
-
-  // Audio events
-  audioEl.addEventListener('timeupdate', updateProgress);
-  audioEl.addEventListener('loadedmetadata', () => {
-    const m = Math.floor(audioEl.duration/60);
-    const s = Math.floor(audioEl.duration%60).toString().padStart(2,'0');
-    document.getElementById('timeTotal').textContent = m+':'+s;
-  });
-  audioEl.addEventListener('ended', () => {
-    isPlaying = false;
-    document.getElementById('playIcon').innerHTML = '<path d="M0 0l18 10L0 20V0z"/>';
-  });
+  try {
+    if (data.audio_url) {
+      songUrl = data.audio_url;
+      audioEl.src = songUrl;
+    } else if (data.audio_b64) {
+      const bytes = Uint8Array.from(atob(data.audio_b64), c => c.charCodeAt(0));
+      const blob = new Blob([bytes], {type: data.audio_mime || 'audio/mpeg'});
+      songUrl = URL.createObjectURL(blob);
+      audioEl.src = songUrl;
+    }
+    audioEl.addEventListener('timeupdate', updateProgress);
+    audioEl.addEventListener('loadedmetadata', () => {
+      try {
+        const m = Math.floor(audioEl.duration/60);
+        const s = Math.floor(audioEl.duration%60).toString().padStart(2,'0');
+        document.getElementById('timeTotal').textContent = m+':'+s;
+      } catch(e) {}
+    });
+    audioEl.addEventListener('ended', () => {
+      isPlaying = false;
+      try { document.getElementById('playIcon').innerHTML = '<path d="M0 0l18 10L0 20V0z"/>'; } catch(e) {}
+    });
+  } catch(e) { console.log('audio setup error', e); }
 
   // Download links
-  if (songUrl) {
-    document.getElementById('dlBtn').href = songUrl;
-    document.getElementById('dlBtnHero').href = songUrl;
-    document.getElementById('dlBtn').download = (data.song_title||'your-song') + '.mp3';
-  }
-
-  // QR Code — links to a listen page
-  const listenUrl = `${window.location.origin}/listen?order_id=${orderId || 'demo'}&title=${encodeURIComponent(data.song_title||'')}`;
-  document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(listenUrl)}&bgcolor=FAF7F2&color=0F0A06&margin=10`;
-
-  // Share links
-  const shareText = `🎵 Listen to "${data.song_title}" — a custom song made just for me!`;
-  document.getElementById('whatsappBtn').href = `https://wa.me/?text=${encodeURIComponent(shareText+' '+listenUrl)}`;
-  document.getElementById('emailBtn').href = `mailto:?subject=${encodeURIComponent('Your custom song is ready!')}&body=${encodeURIComponent(shareText+'\n\n'+listenUrl)}`;
-
-  // Build waveform
-  try { buildWaveform(); } catch(e) { console.log("waveform error", e); }
-
-  // Show song page - do this first, everything else can fail gracefully
   try {
-    document.getElementById('loadingWrap').style.display = 'none';
-    document.getElementById('songWrap').style.display = 'block';
-    document.getElementById('stickyEmail').style.display = 'block';
+    if (songUrl) {
+      document.getElementById('dlBtn').href = songUrl;
+      try { document.getElementById('dlBtnHero').href = songUrl; } catch(e) {}
+      document.getElementById('dlBtn').download = (data.song_title||'your-song') + '.mp3';
+    }
   } catch(e) {}
 
-  // Check unlock — either from URL param OR from Upstash (server-side unlock)
-  if (data.unlocked) isUnlocked = true;
-  try { checkUnlock(); } catch(e) { console.log('unlock error', e); }
+  // QR Code + Share links
+  try {
+    const listenUrl = `${window.location.origin}/listen?order_id=${orderId || 'demo'}&title=${encodeURIComponent(data.song_title||'')}`;
+    try { document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(listenUrl)}&bgcolor=FAF7F2&color=0F0A06&margin=10`; } catch(e) {}
+    const shareText = `🎵 Listen to "${data.song_title}" — a custom song made just for me!`;
+    try { document.getElementById('whatsappBtn').href = `https://wa.me/?text=${encodeURIComponent(shareText+' '+listenUrl)}`; } catch(e) {}
+    try { document.getElementById('emailBtn').href = `mailto:?subject=${encodeURIComponent('Your custom song is ready!')}&body=${encodeURIComponent(shareText+'\n\n'+listenUrl)}`; } catch(e) {}
+  } catch(e) {}
 
-  // Auto-play attempt
+  // Waveform + unlock
+  try { buildWaveform(); } catch(e) {}
+  if (data.unlocked) isUnlocked = true;
+  try { checkUnlock(); } catch(e) {}
+
+  // Auto-play
   setTimeout(() => {
     audioEl.play().then(()=>{
       isPlaying=true;
-      document.getElementById('playIcon').innerHTML = '<rect x="0" y="0" width="5" height="20"/><rect x="13" y="0" width="5" height="20"/>';
+      try { document.getElementById('playIcon').innerHTML = '<rect x="0" y="0" width="5" height="20"/><rect x="13" y="0" width="5" height="20"/>'; } catch(e) {}
     }).catch(()=>{});
   }, 500);
 }
