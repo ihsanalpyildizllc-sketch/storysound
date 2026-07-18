@@ -12,7 +12,7 @@ exports.handler = async (event) => {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514", max_tokens: 1500,
+        model: "claude-sonnet-4-6", max_tokens: 1500,
         messages: [{ role: "user", content: `Write a full emotional R&B love song in Daniel Caesar style.\nFor: ${names || forWhom || "her"}\nStory: ${story || "A beautiful love story"}\nGenre: ${genre || "Emotional R&B 70 BPM"}\n\nReturn ONLY valid JSON:\n{"song_title":"...","music_style":"Emotional R&B ballad 70 BPM, warm piano chords, soulful male vocals with rich reverb, soft acoustic guitar, subtle strings. Intimate and vulnerable.","lyrics":"[Verse 1]\\n[4 short singable lines]\\n\\n[Pre-Chorus]\\n[2 lines]\\n\\n[Chorus]\\n[4 lines — include the name]\\n\\n[Verse 2]\\n[4 lines]\\n\\n[Pre-Chorus]\\n[2 lines]\\n\\n[Chorus]\\n[4 lines]\\n\\n[Bridge]\\n[3 lines — apology, future, nickname]\\n\\n[Final Chorus]\\n[4 lines]"}` }]
       })
     });
