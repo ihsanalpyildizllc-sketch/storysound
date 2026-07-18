@@ -6,25 +6,27 @@ exports.handler = async (event) => {
   const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   try {
-    // Get song data
-    const songRes = await fetch(`${REDIS_URL}/get/song_${orderId}`, {
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+    // Use pipeline to get both song and unlock status in one call
+    const res = await fetch(`${REDIS_URL}/pipeline`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+      body: JSON.stringify([
+        ["GET", `song_${orderId}`],
+        ["GET", `unlocked_${orderId}`]
+      ])
     });
-    const songData = await songRes.json();
+    const results = await res.json();
 
-    // Check if this order has been unlocked
-    const unlockRes = await fetch(`${REDIS_URL}/get/unlocked_${orderId}`, {
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
-    });
-    const unlockData = await unlockRes.json();
-    const isUnlocked = !!unlockData.result;
+    // Pipeline returns array of results
+    const songResult = results[0]?.result;
+    const unlockResult = results[1]?.result;
+    const isUnlocked = !!unlockResult;
 
-    if (!songData.result) {
+    if (!songResult) {
       return { statusCode: 200, body: JSON.stringify({ status: "pending", unlocked: isUnlocked }) };
     }
 
-    const song = JSON.parse(songData.result);
-    // Attach unlock status to song data
+    const song = JSON.parse(songResult);
     song.unlocked = isUnlocked;
     return {
       statusCode: 200,
