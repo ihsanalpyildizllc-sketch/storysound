@@ -35,10 +35,10 @@ exports.handler = async (event) => {
 
   // --- REGULAR SONG ORDER ---
   // Save pending to Upstash
-  const pendingValue = encodeURIComponent(JSON.stringify({ status: "processing", created: Date.now() }));
-  await fetch(`${REDIS_URL}/setex/song_${orderId}/86400/${pendingValue}`, {
+  await fetch(`${REDIS_URL}/pipeline`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+    headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+    body: JSON.stringify([["SET", `song_${orderId}`, JSON.stringify({ status: "processing", created: Date.now() }), "EX", "86400"]])
   });
 
   // Trigger background function (15min timeout)
