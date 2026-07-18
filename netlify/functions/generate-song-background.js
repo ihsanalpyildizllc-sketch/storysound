@@ -47,7 +47,7 @@ exports.handler = async (event) => {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514", max_tokens: 1500,
+        model: "claude-sonnet-4-6", max_tokens: 1500,
         messages: [{ role: "user", content: `Write a deeply personal love song.
 
 Story: ${story}
