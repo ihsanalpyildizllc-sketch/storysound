@@ -30,10 +30,11 @@ exports.handler = async (event) => {
   ].filter(Boolean).join(". ");
 
   async function save(id, data) {
-    const val = encodeURIComponent(JSON.stringify(data));
-    const res = await fetch(`${REDIS_URL}/setex/song_${id}/86400/${val}`, {
+    // Use pipeline API to handle large values (audio base64 can be 1MB+)
+    const res = await fetch(`${REDIS_URL}/pipeline`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+      body: JSON.stringify([["SET", `song_${id}`, JSON.stringify(data), "EX", "86400"]])
     });
     return res.ok;
   }
