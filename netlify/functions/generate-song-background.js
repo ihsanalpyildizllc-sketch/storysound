@@ -79,7 +79,7 @@ Return ONLY valid JSON:
     if (!GEMINI_KEY) throw new Error("Missing GEMINI_API_KEY");
     const lyriaPrompt = song.music_style + "\n\nLyrics:\n" + song.lyrics;
     const lr = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/lyria-3-pro-preview:generateContent?key=${GEMINI_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/lyria-3-clip-preview:generateContent?key=${GEMINI_KEY}`,
       { method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: lyriaPrompt }] }], generationConfig: { responseModalities: ["AUDIO"] } }) }
     );
