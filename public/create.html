@@ -476,8 +476,8 @@ let extraCost=0;
 const PROG={1:[13,'Step 1 of 8'],2:[25,'Step 2 of 8'],3:[38,'Step 3 of 8'],4:[50,'Step 4 of 8'],5:[63,'Step 5 of 8'],6:[75,'Step 6 of 8'],7:[88,'Step 7 of 8'],8:[100,'Final step']};
 
 // ── SHOPIFY CONFIG — update these after creating your Shopify store ──
-const SHOPIFY_STORE='makesongai.myshopify.com';
-const SHOPIFY_VARIANTS={base:'43257726730317',bump1:'43257700778061',bump2:'43257725288525'};
+const SHOPIFY_STORE='gut-1809.myshopify.com';
+const SHOPIFY_VARIANTS={base:'44258532819033',bump1:'',bump2:''};
 
 function showStep(n){
   for(let i=1;i<=STEPS;i++){const el=document.getElementById('s'+i);if(el)el.classList.remove('active');}
@@ -630,8 +630,6 @@ function goToShopify(){
 
   // Build items string: variantID:qty
   let items=SHOPIFY_VARIANTS.base+':1';
-  if(bumps.b1)items+=','+SHOPIFY_VARIANTS.bump1+':1';
-  if(bumps.b2)items+=','+SHOPIFY_VARIANTS.bump2+':1';
 
   // Build query string
   const qs=attrs.filter(([k,v])=>v).map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
