@@ -80,18 +80,21 @@ Return ONLY valid JSON (no markdown):
 
     if (isV2) {
       // Apiframe v2 endpoint
+      // In v2 custom mode: prompt = lyrics, sunoParams.style = music style
+      const vocalGender = voice.toLowerCase().includes('female') ? 'f' : 'm';
       const sr = await fetch('https://api.apiframe.ai/v2/music/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-API-Key': APIFRAME_KEY },
         body: JSON.stringify({
           model: 'suno',
-          prompt: song.music_style,
+          prompt: song.lyrics,
           sunoParams: {
             custom_mode: true,
-            lyrics: song.lyrics,
-            title: song.song_title,
+            style: song.music_style,
+            title: song.song_title.slice(0, 80),
             instrumental: false,
-            model_version: 'V5_5'
+            model_version: 'V5_5',
+            vocal_gender: vocalGender
           }
         })
       });
