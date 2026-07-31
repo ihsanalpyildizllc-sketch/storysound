@@ -177,6 +177,31 @@ Return ONLY valid JSON (no markdown):
       audio_b64:    audioB64
     });
 
+    // ── Step 3b: Track metrics in Upstash ───────────────────────────────────
+    const today = new Date().toISOString().slice(0,10);
+    const orderMeta = JSON.stringify({
+      id: orderId,
+      title: song.song_title,
+      songFor: songFor,
+      occasion: occasion,
+      genre: genre,
+      sizeKb: sizeKb,
+      ts: Date.now(),
+      revenue: 39
+    });
+    await fetch(`${REDIS_URL}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([
+        ['INCR', 'dash:songs:total'],
+        ['INCR', `dash:songs:date:${today}`],
+        ['EXPIRE', `dash:songs:date:${today}`, '2592000'],
+        ['INCRBY', 'dash:revenue:total', '39'],
+        ['LPUSH', 'dash:orders', orderMeta],
+        ['LTRIM', 'dash:orders', '0', '49']
+      ])
+    });
+
     // ── Step 4: Postmark email ────────────────────────────────────────────────
     if (email && process.env.POSTMARK_SERVER_TOKEN) {
       const siteUrl = process.env.SITE_URL || 'https://storysound.netlify.app';
