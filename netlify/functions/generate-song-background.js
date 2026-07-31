@@ -102,22 +102,33 @@ Return ONLY valid JSON (no markdown):
       if (!sr.ok || sd.error) throw new Error('Suno v2 error: ' + (sd.error || JSON.stringify(sd).slice(0,200)));
       taskId = sd.id || sd.task_id;
 
-      // Poll for completion (up to 5 minutes)
-      for (let i = 0; i < 60; i++) {
+      // Poll for completion (up to 8 minutes, uppercase status in v2)
+      for (let i = 0; i < 96; i++) {
         await new Promise(r => setTimeout(r, 5000));
         const pr = await fetch(`https://api.apiframe.ai/v2/jobs/${taskId}`, {
           headers: { 'X-API-Key': APIFRAME_KEY }
         });
         const pd = await pr.json();
-        if (pd.status === 'finished' || pd.status === 'completed' || pd.status === 'succeeded') {
-          // Get audio URL from result
-          const output = pd.output || pd.result || pd;
-          audioUrl = output?.songs?.[0]?.audio_url || output?.audio_url || output?.[0]?.audio_url || pd.audio_url;
+        const jobStatus = (pd.status || '').toUpperCase();
+
+        if (jobStatus === 'COMPLETED' || jobStatus === 'FINISHED' || jobStatus === 'SUCCEEDED') {
+          // v2 result structure: pd.result contains the media output
+          const result = pd.result || pd.output || pd;
+          // Music result could be tracks[], songs[], or direct audio_url
+          const tracks = result?.tracks || result?.songs || result?.audios || [];
+          audioUrl = tracks[0]?.audio_url || tracks[0]?.audioUrl || tracks[0]?.url
+                  || result?.audio_url || result?.audioUrl
+                  || result?.[0]?.audio_url || result?.[0]?.url;
+          console.log('Suno completed. audioUrl:', audioUrl, 'result keys:', Object.keys(result || {}));
           if (audioUrl) break;
+          // If no audioUrl found, log full result for debugging
+          throw new Error('Suno done but no audio URL. Result: ' + JSON.stringify(result).slice(0,500));
         }
-        if (pd.status === 'failed' || pd.status === 'error') {
-          throw new Error('Suno generation failed: ' + JSON.stringify(pd).slice(0,200));
+        if (jobStatus === 'FAILED' || jobStatus === 'ERROR') {
+          throw new Error('Suno generation failed: ' + (pd.error || JSON.stringify(pd).slice(0,200)));
         }
+        // Log progress every 30s
+        if (i % 6 === 0) console.log('Suno progress:', pd.progress, '%', 'status:', pd.status);
       }
     } else {
       // Apiframe v1 endpoint
