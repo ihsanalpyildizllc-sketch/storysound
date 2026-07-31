@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StorySound — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080B12;--bg2:#0D1117;--bg3:#141920;--border:rgba(255,255,255,0.07);
+  --text:#E8EAF0;--muted:#6B7280;--accent:#3B82F6;--green:#10B981;--amber:#F59E0B;--red:#EF4444;
+  --card-shadow:0 1px 3px rgba(0,0,0,0.4),0 8px 24px rgba(0,0,0,0.3);
+}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;padding:32px 24px 64px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#B5471C,#E8691F);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-text{font-size:20px;font-weight:700;letter-spacing:-0.02em}
+.logo-sub{font-size:13px;color:var(--muted);font-weight:400}
+.status-bar{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,0.4)}50%{opacity:0.8;box-shadow:0 0 0 4px rgba(16,185,129,0)}}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+@media(max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--card-shadow);position:relative;overflow:hidden;transition:border-color 0.2s}
+.card:hover{border-color:rgba(255,255,255,0.12)}
+.card-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.card-value{font-size:36px;font-weight:700;letter-spacing:-0.03em;line-height:1;margin-bottom:6px}
+.card-sub{font-size:13px;color:var(--muted)}
+.card-glow{position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;opacity:0.08;filter:blur(40px)}
+.green-glow .card-glow{background:var(--green)}
+.blue-glow .card-glow{background:var(--accent)}
+.amber-glow .card-glow{background:var(--amber)}
+.coral-glow .card-glow{background:#B5471C}
+.credit-card{padding:28px}
+.credit-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.credit-info{flex:1}
+.credit-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.credit-desc{font-size:12px;color:var(--muted)}
+.credit-badge{padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:0.04em}
+.badge-healthy{background:rgba(16,185,129,0.15);color:#10B981}
+.badge-warning{background:rgba(245,158,11,0.15);color:#F59E0B}
+.badge-critical{background:rgba(239,68,68,0.15);color:#EF4444}
+.badge-active{background:rgba(59,130,246,0.15);color:#60A5FA}
+.credit-amount{font-size:48px;font-weight:700;letter-spacing:-0.04em;line-height:1;margin-bottom:4px}
+.credit-songs{font-size:13px;color:var(--muted);margin-bottom:20px}
+.progress-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:8px}
+.progress-fill{height:100%;border-radius:100px;transition:width 1s ease}
+.progress-healthy{background:linear-gradient(90deg,#059669,#10B981)}
+.progress-warning{background:linear-gradient(90deg,#D97706,#F59E0B)}
+.progress-critical{background:linear-gradient(90deg,#DC2626,#EF4444)}
+.progress-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.cost-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.cost-row:last-child{border-bottom:none}
+.cost-label{font-size:13px;color:var(--muted)}
+.cost-val{font-size:13px;font-weight:500;font-family:'Inter',sans-serif}
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--card-shadow)}
+.table-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.table-title{font-size:15px;font-weight:600}
+.table-count{font-size:12px;color:var(--muted);background:var(--bg3);padding:3px 10px;border-radius:100px}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:14px 24px;text-align:left;background:var(--bg3);border-bottom:1px solid var(--border)}
+td{padding:14px 24px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.song-title{font-weight:500;color:var(--text)}
+.song-meta{color:var(--muted);font-size:12px;margin-top:2px}
+.badge-genre{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;background:rgba(59,130,246,0.12);color:#60A5FA;font-family:'Inter',sans-serif}
+.revenue-val{color:var(--green);font-weight:600;font-family:'Inter',sans-serif}
+.time-val{color:var(--muted);font-family:'Inter',sans-serif;font-size:12px}
+.empty-state{padding:48px;text-align:center;color:var(--muted);font-size:14px}
+.refresh-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all 0.2s}
+.refresh-btn:hover{background:rgba(255,255,255,0.08);color:var(--text)}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.anthropic-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--accent);text-decoration:none;margin-top:12px;transition:opacity 0.2s}
+.anthropic-link:hover{opacity:0.7}
+.section-title{font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;margin-top:8px}
+.timestamp{font-size:11px;color:var(--muted);font-family:'Inter',sans-serif}
+.loading{opacity:0.4}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card,.table-wrap{animation:fadeUp 0.4s ease both}
+.card:nth-child(2){animation-delay:0.06s}
+.card:nth-child(3){animation-delay:0.12s}
+.card:nth-child(4){animation-delay:0.18s}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🎵</div>
+    <div>
+      <div class="logo-text">StorySound</div>
+      <div class="logo-sub">Operations Dashboard</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="status-bar"><div class="dot"></div><span id="lastRefresh">Loading...</span></div>
+    <button class="refresh-btn" onclick="loadData()">
+      <svg id="refreshIcon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+      Refresh
+    </button>
+  </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="grid-4">
+  <div class="card green-glow">
+    <div class="card-glow"></div>
+    <div class="card-label">Total Revenue</div>
+    <div class="card-value" id="totalRevenue">—</div>
+    <div class="card-sub" id="totalProfit">— profit</div>
+  </div>
+  <div class="card amber-glow">
+    <div class="card-glow"></div>
+    <div class="card-label">Today's Revenue</div>
+    <div class="card-value" id="todayRevenue">—</div>
+    <div class="card-sub" id="todaySongs">— songs today</div>
+  </div>
+  <div class="card blue-glow">
+    <div class="card-glow"></div>
+    <div class="card-label">Songs Generated</div>
+    <div class="card-value" id="totalSongs">—</div>
+    <div class="card-sub" id="marginVal">— margin</div>
+  </div>
+  <div class="card coral-glow">
+    <div class="card-glow"></div>
+    <div class="card-label">Total Cost</div>
+    <div class="card-value" id="totalCost">—</div>
+    <div class="card-sub">~$0.08 per song</div>
+  </div>
+</div>
+
+<!-- Credit Cards -->
+<div class="section-title">API Credits</div>
+<div class="grid-2">
+  <!-- Apiframe / Suno -->
+  <div class="card credit-card">
+    <div class="credit-header">
+      <div class="credit-info">
+        <div class="credit-name">Apiframe (Suno)</div>
+        <div class="credit-desc">Full 3-min songs • 11 credits each</div>
+      </div>
+      <div class="credit-badge" id="apiframeBadge">—</div>
+    </div>
+    <div class="credit-amount" id="apiframeCredits">—</div>
+    <div class="credit-songs" id="apiframeSongs">— songs remaining</div>
+    <div class="progress-bar"><div class="progress-fill" id="apiframeBar" style="width:0%"></div></div>
+    <div class="progress-labels"><span>0</span><span id="apiframeMax">—</span></div>
+    <div style="margin-top:20px">
+      <div class="cost-row">
+        <span class="cost-label">Cost per song</span>
+        <span class="cost-val">$0.07</span>
+      </div>
+      <div class="cost-row">
+        <span class="cost-label">Plan</span>
+        <span class="cost-val" id="apiframePlan">—</span>
+      </div>
+    </div>
+    <a href="https://apiframe.ai/billing" target="_blank" class="anthropic-link">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Top up at apiframe.ai
+    </a>
+  </div>
+
+  <!-- Claude / Anthropic -->
+  <div class="card credit-card">
+    <div class="credit-header">
+      <div class="credit-info">
+        <div class="credit-name">Claude (Anthropic)</div>
+        <div class="credit-desc">Lyrics writing • claude-sonnet-4-6</div>
+      </div>
+      <div class="credit-badge badge-active">Active</div>
+    </div>
+    <div class="credit-amount" style="font-size:32px;color:#60A5FA">Pay-as-you-go</div>
+    <div class="credit-songs">Billed per token — no credit system</div>
+    <div style="margin-top:20px">
+      <div class="cost-row">
+        <span class="cost-label">Cost per song</span>
+        <span class="cost-val">~$0.01</span>
+      </div>
+      <div class="cost-row">
+        <span class="cost-label">Model</span>
+        <span class="cost-val">claude-sonnet-4-6</span>
+      </div>
+      <div class="cost-row">
+        <span class="cost-label">Estimated spend</span>
+        <span class="cost-val" id="claudeSpend">—</span>
+      </div>
+    </div>
+    <a href="https://console.anthropic.com" target="_blank" class="anthropic-link">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Check balance at console.anthropic.com
+    </a>
+  </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="section-title" style="margin-top:8px">Recent Songs</div>
+<div class="table-wrap">
+  <div class="table-header">
+    <div class="table-title">Song Deliveries</div>
+    <div class="table-count" id="orderCount">Loading...</div>
+  </div>
+  <div id="ordersTable">
+    <div class="empty-state">Loading songs...</div>
+  </div>
+</div>
+
+<div style="margin-top:16px;text-align:center">
+  <span class="timestamp" id="footerTs">Auto-refreshes every 30 seconds</span>
+</div>
+
+<script>
+let refreshTimer;
+
+async function loadData() {
+  const icon = document.getElementById('refreshIcon');
+  icon.classList.add('spin');
+  document.getElementById('lastRefresh').textContent = 'Refreshing...';
+
+  try {
+    const r = await fetch('/.netlify/functions/dashboard-data');
+    const d = await r.json();
+
+    // Stat cards
+    const rev = d.stats.totalRevenue;
+    document.getElementById('totalRevenue').textContent = '$' + rev.toLocaleString();
+    document.getElementById('totalProfit').textContent = '$' + d.stats.totalProfit.toLocaleString() + ' profit';
+    document.getElementById('todayRevenue').textContent = '$' + d.stats.revenueToday.toLocaleString();
+    document.getElementById('todaySongs').textContent = d.stats.todaySongs + ' song' + (d.stats.todaySongs !== 1 ? 's' : '') + ' today';
+    document.getElementById('totalSongs').textContent = d.stats.totalSongs;
+    document.getElementById('marginVal').textContent = d.stats.margin + '% margin';
+    document.getElementById('totalCost').textContent = '$' + d.stats.totalCost.toFixed(2);
+    document.getElementById('claudeSpend').textContent = '$' + (d.stats.totalSongs * 0.01).toFixed(2);
+
+    // Apiframe credits
+    const af = d.apiframe;
+    const maxCredits = 4000;
+    const pct = Math.min(100, (af.credits / maxCredits) * 100);
+    document.getElementById('apiframeCredits').textContent = af.credits.toLocaleString();
+    document.getElementById('apiframeSongs').textContent = af.songsLeft + ' songs remaining';
+    document.getElementById('apiframePlan').textContent = af.plan;
+    document.getElementById('apiframeMax').textContent = maxCredits.toLocaleString();
+
+    const bar = document.getElementById('apiframeBar');
+    bar.style.width = pct + '%';
+    bar.className = 'progress-fill progress-' + af.status;
+
+    const badge = document.getElementById('apiframeBadge');
+    badge.textContent = af.status === 'healthy' ? '✓ Healthy' : af.status === 'warning' ? '⚠ Low' : '⚠ Critical';
+    badge.className = 'credit-badge badge-' + af.status;
+
+    // Orders table
+    const orders = d.recentOrders;
+    document.getElementById('orderCount').textContent = (d.stats.totalSongs || 0) + ' total';
+    if (!orders || orders.length === 0) {
+      document.getElementById('ordersTable').innerHTML = '<div class="empty-state">No songs generated yet — place your first order!</div>';
+    } else {
+      let rows = orders.map(o => {
+        const date = new Date(o.ts);
+        const timeStr = date.toLocaleDateString('en-US', {month:'short',day:'numeric'}) + ' ' + date.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'});
+        return `<tr>
+          <td><div class="song-title">${esc(o.title || '—')}</div><div class="song-meta">For ${esc(o.songFor || '—')} · ${esc(o.occasion || '—')}</div></td>
+          <td><span class="badge-genre">${esc(o.genre || '—')}</span></td>
+          <td><span class="revenue-val">$${o.revenue || 39}</span></td>
+          <td><span class="time-val">${timeStr}</span></td>
+          <td><a href="/.netlify/functions/song-page?orderId=${esc(o.id)}" target="_blank" style="color:var(--accent);font-size:12px;text-decoration:none">Listen →</a></td>
+        </tr>`;
+      }).join('');
+      document.getElementById('ordersTable').innerHTML = `<table><thead><tr><th>Song</th><th>Genre</th><th>Revenue</th><th>Time</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    // Status bar
+    const now = new Date();
+    document.getElementById('lastRefresh').textContent = 'Live · Updated ' + now.toLocaleTimeString();
+    document.getElementById('footerTs').textContent = 'Last refreshed at ' + now.toLocaleTimeString() + ' · Auto-refreshes every 30s';
+
+  } catch(e) {
+    document.getElementById('lastRefresh').textContent = 'Error loading data';
+    console.error(e);
+  }
+
+  icon.classList.remove('spin');
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(loadData, 30000);
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+loadData();
+</script>
+</body>
+</html>
