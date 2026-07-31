@@ -114,8 +114,8 @@ Return ONLY valid JSON:
           From: process.env.FROM_EMAIL || "songs@storysound.ai",
           To: email,
           Subject: `"${song.song_title}" is ready! 🎵`,
-          HtmlBody: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">"${song.song_title}"</h1><p style="color:#7A6A5A;margin:12px 0 24px">Your song is ready!</p><a href="${siteUrl}/success?order_id=${orderId}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">🎵 Listen Now</a></div>`,
-          TextBody: `"${song.song_title}" is ready!\n\n${siteUrl}/success?order_id=${orderId}`
+          HtmlBody: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">"${song.song_title}"</h1><p style="color:#7A6A5A;margin:12px 0 24px">Your song is ready!</p><a href="${siteUrl}/.netlify/functions/song-page?orderId=${orderId}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">🎵 Listen Now</a></div>`,
+          TextBody: `"${song.song_title}" is ready!\n\n${siteUrl}/.netlify/functions/song-page?orderId=${orderId}`
         })
       });
     }
