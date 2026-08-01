@@ -311,12 +311,11 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 <!-- S8: Review + Email -->
 <div class="screen" id="s8">
   <div class="rev-wrap">
-    <div class="rev-title">Review Your Song Details</div>
-    <p class="rev-sub">Make sure everything looks good before we create your personalized song for <strong id="nameDisp" style="color:var(--rust)">them</strong>.</p>
-
+    <div class="rev-title">Where should we send it?</div>
+    <p class="rev-sub">We're writing <strong id="nameDisp" style="color:var(--rust)">their</strong> song right now. Tell us where to send it.</p>
     <div class="rcard">
       <label class="elabel">Your Email Address</label>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:8px">We'll send your song and order updates here</p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:8px">We'll send your song and a link to hear it</p>
       <input class="efield" id="f-email" type="email" placeholder="you@email.com">
       <div class="ph-toggle" onclick="togglePhone()">
         <span>📱 Phone Number (Optional)</span>
@@ -328,145 +327,9 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
         <input class="ph-num" type="tel" placeholder="(555) 123-4567" id="f-phone">
       </div>
     </div>
-
-    <button class="create-btn" onclick="goToBumps()">Create My Song →</button>
-    <p class="see-price">See pricing on the next step.</p>
-
-    <div class="rcard">
-      <div class="rct">🎵 Order Summary <button onclick="openEditModal()" style="background:none;border:none;font-size:11px;color:var(--rust);cursor:pointer;font-weight:600;margin-left:auto">✏️ Edit</button></div>
-      <div class="rrow"><span>Song for</span><strong id="rc-for">—</strong></div>
-      <div class="rrow"><span>Occasion</span><strong id="rc-occ">—</strong></div>
-      <div class="rrow"><span>Genre</span><strong id="rc-genre">—</strong></div>
-      <div class="rrow"><span>Singer Gender</span><strong id="rc-voice">—</strong></div>
-    </div>
-
-    <div class="samp-sec">
-      <div class="rct">🎵 Hear Other Songs We Made</div>
-      <div class="samp-filters">
-        <div class="sf on" onclick="filt(this,'all')">All</div>
-        <div class="sf" onclick="filt(this,'anniversary')">💗 Anniversary</div>
-        <div class="sf" onclick="filt(this,'birthday')">🎂 Birthday</div>
-        <div class="sf" onclick="filt(this,'memorial')">🕊️ Memorial</div>
-        <div class="sf" onclick="filt(this,'wedding')">💍 Wedding</div>
-      </div>
-      <div id="songList">
-        <div class="si" data-cat="anniversary">
-          <button class="splay" onclick="playSong(this,'/audio/yubito-desert-rose.mp3','b1')">
-            <svg width="11" height="14" viewBox="0 0 11 14"><path d="M0 0l11 7L0 14V0z"/></svg>
-          </button>
-          <div style="flex:1"><div class="sin">Yubito (Desert Rose)</div><div class="sisub">R&B · Anniversary</div><div class="sbar-w"><div class="sbar" id="b1"></div></div></div>
-          <div style="font-size:12px;color:var(--muted);flex-shrink:0">0:30</div>
-        </div>
-        <div class="si" data-cat="anniversary">
-          <button class="splay" onclick="playSong(this,'/audio/storysound-sample.mp3','b2')">
-            <svg width="11" height="14" viewBox="0 0 11 14"><path d="M0 0l11 7L0 14V0z"/></svg>
-          </button>
-          <div style="flex:1"><div class="sin">The Night We Found Each Other</div><div class="sisub">Pop · Anniversary</div><div class="sbar-w"><div class="sbar" id="b2"></div></div></div>
-          <div style="font-size:12px;color:var(--muted);flex-shrink:0">0:30</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="wyg">
-      <div class="wyg-t">What You'll Get</div>
-      <div class="wyi"><div class="wyn">1</div><div class="wyt"><strong>A Studio-Quality Masterpiece</strong><span>Pristine production &amp; mixing</span></div></div>
-      <div class="wyi"><div class="wyn">2</div><div class="wyt"><strong>One-of-a-Kind Lyrics</strong><span>Meaningful words unique to you</span></div></div>
-      <div class="wyi"><div class="wyn">3</div><div class="wyt"><strong>5-Minute Delivery</strong><span>In your inbox, not 7 days</span></div></div>
-    </div>
-
-    <div class="why-row">
-      <div class="wc"><div class="wi">⭐</div><div class="wn">Excellent on Trustpilot</div><div class="ws">10,000+ reviews</div></div>
-      <div class="wc"><div class="wi">💧</div><div class="wn">Happy Tears Guarantee</div><div class="ws">100% money back</div></div>
-      <div class="wc"><div class="wi">❤️</div><div class="wn">Ultimate Keepsake</div><div class="ws">Cherished forever</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- BUMPS PAGE -->
-<div id="bumpsPage" style="display:none">
-  <div class="bump-wrap">
-    <div class="bump-title">Almost there!</div>
-    <p class="bump-sub">You're one click away from a beautiful, personalized song for <strong id="bName" style="color:var(--rust)">them</strong></p>
-
-    <div class="osc">
-      <div class="osc-title">🎵 Your Custom Song Order <button onclick="openEditModal()" style="background:none;border:none;font-size:11px;color:var(--rust);cursor:pointer;font-weight:600;margin-left:auto">✏️ Edit</button></div>
-      <div class="osc-pills">
-        <div class="osc-pill">👤 <span id="bFor">—</span></div>
-        <div class="osc-pill">🎉 <span id="bOcc">—</span></div>
-        <div class="osc-pill">🎵 <span id="bGen">—</span></div>
-      </div>
-    </div>
-
-    <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Upgrade Your Gift</div>
-
-    <div class="bump-card" id="bc1" onclick="toggleBump('bc1','b1line',24)">
-      <div class="bump-top">
-        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <div class="bump-label">
-          <div style="margin-bottom:4px"><span class="bump-badge">⭐ MOST POPULAR</span></div>
-          <div class="bump-name">Forever Memory™ Package</div>
-          <div class="bump-desc">Everything you need to give the gift of a lifetime.</div>
-        </div>
-        <div style="text-align:right"><div class="orig">$37</div><div class="bump-price">$24</div></div>
-      </div>
-      <ul class="bump-items">
-        <li>Frameable lyrics with QR code — anyone can scan and listen instantly</li>
-        <li>Make it personal with your own cover photo</li>
-        <li>Bonus version in another style</li>
-      </ul>
-    </div>
-
-    <div class="bump-card" id="bc2" onclick="toggleBump('bc2','b2line',10)">
-      <div class="bump-top">
-        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <div class="bump-label">
-          <div style="margin-bottom:4px"><span class="bump-badge org">⚡ RUSH DELIVERY</span></div>
-          <div class="bump-name">Priority Processing</div>
-          <div class="bump-desc">Skip the queue — get your song delivered first.</div>
-        </div>
-        <div class="bump-price">$10</div>
-      </div>
-    </div>
-
-    <div class="bump-card free-card checked">
-      <div class="bump-top">
-        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <div class="bump-label">
-          <div style="margin-bottom:4px"><span class="bump-badge grn">∞ UNLIMITED REDOS</span></div>
-          <div class="bump-name">Protect Your Purchase</div>
-          <div class="bump-desc">We'll keep working on your song until you love it.</div>
-          <div style="font-size:12px;font-weight:600;color:var(--green);margin-top:4px">FREE when selected today</div>
-        </div>
-        <div class="bump-price free">FREE</div>
-      </div>
-    </div>
-
-    <div class="tp">
-      <div class="tp-head">
-        <div><div style="font-size:10px;color:var(--muted);margin-bottom:2px">Excellent</div><div class="tp-stars">★★★★★</div></div>
-        <div style="margin-left:8px"><div class="tp-score">4.9 / 5</div><div class="tp-count">Based on 12,640+ reviews</div></div>
-        <div class="tp-green">Trustpilot</div>
-      </div>
-      <div class="tp-review">
-        <div class="tp-rtitle">I'm in tears right now</div>
-        <div class="tp-rtext">"I'm in tears right now. With just a few words you guys made a song that tells exactly how I feel. So amazing — I recommend this to everyone. This is the best gift ever in my eyes."</div>
-        <div class="tp-rby">Anna K. · ✓ Verified · US</div>
-      </div>
-    </div>
-
-    <div class="tot-card">
-      <div class="rct">🎵 Order Summary</div>
-      <div class="rrow"><span>Your Song for <span id="bName2" style="color:var(--rust)">them</span></span><div><span class="orig">$99</span> <strong style="color:var(--rust);font-size:16px">$39</strong></div></div>
-      <div id="b1line" style="display:none"><div class="rrow"><span>Forever Memory™ Package</span><strong>$24</strong></div></div>
-      <div id="b2line" style="display:none"><div class="rrow"><span>Priority Processing</span><strong>$10</strong></div></div>
-      <div class="rrow" style="border-top:1.5px solid var(--border);margin-top:8px;padding-top:10px">
-        <span style="font-weight:700;color:var(--ink);font-size:15px">Total</span>
-        <strong style="font-size:20px;color:var(--rust)" id="totPrice">$39</strong>
-      </div>
-      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px">+ Unlimited Song Redos <span style="color:var(--green);font-weight:600">FREE</span></div>
-    </div>
-
-    <div class="trust-row">🔒 Trusted by 400,000+ customers · 100% Money-Back Guarantee</div>
+    <button class="create-btn" id="payBtn" onclick="startFreePreview()">Get My Free Preview →</button>
+    <p class="see-price">Free to hear. No card needed.</p>
+    <div class="trust-row">🔒 100% Money-Back Guarantee · No card required to hear your song</div>
   </div>
 </div>
 
@@ -490,7 +353,6 @@ const PROG={1:[13,'Step 1 of 8'],2:[25,'Step 2 of 8'],3:[38,'Step 3 of 8'],4:[50
 
 // ── SHOPIFY CONFIG — update these after creating your Shopify store ──
 const SHOPIFY_STORE='gut-1809.myshopify.com';
-const SHOPIFY_VARIANTS={base:'44258532819033',bump1:'44258586886233',bump2:'44258587476057'};
 
 function showStep(n){
   for(let i=1;i<=STEPS;i++){const el=document.getElementById('s'+i);if(el)el.classList.remove('active');}
@@ -528,36 +390,8 @@ function goNext(){
   if(cur===7)D.message=document.getElementById('f-msg').value.trim();
   if(cur===7){updateReview();showStep(8);}
   else if(cur<STEPS){showStep(cur+1);}
-  else{showStep('bumps');}
 }
 
-function goToBumps(){
-  const em=document.getElementById('f-email').value.trim();
-  if(!em||!em.includes('@')){tip('Enter a valid email address');return;}
-  D.email=em;D.phone=document.getElementById('f-phone').value.trim();
-  
-  // Create/update Shopify customer in background (fire and forget)
-  fetch('/.netlify/functions/create-customer', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      email: D.email,
-      name: D.name || D.forWhom,
-      forWhom: D.forWhom,
-      occasion: D.occasion,
-      genre: D.genre,
-      voice: D.voice,
-      language: D.language,
-      qualities: D.qualities,
-      memories: D.memories,
-      message: D.message
-    })
-  }).then(r=>r.json()).then(d=>{
-    console.log('Customer:', d.action, d.customerId);
-  }).catch(e=>console.log('Customer create skipped:', e.message));
-
-  showStep('bumps');
-}
 
 function pick1(el){selP('p1',el);D.forWhom=el.textContent;setTimeout(()=>goNext(),300);}
 function pick3(el){selP('p3',el);D.occasion=el.textContent;setTimeout(()=>goNext(),300);}
@@ -594,13 +428,7 @@ function toggleBump(cardId,lineId,amt){
   calcTotal();
 }
 
-function calcTotal(){
-  let t=BASE;
-  if(bumps.b1)t+=24;if(bumps.b2)t+=10;
-  document.getElementById('totPrice').textContent='$'+t;
-  document.getElementById('btnTot').textContent='$'+t;
-  document.getElementById('totPrice').textContent='$'+t;
-}
+function calcTotal(){}  // no bumps on the free-preview funnel
 
 function togglePhone(){
   const f=document.getElementById('phFields'),a=document.getElementById('phArrow');
@@ -608,56 +436,55 @@ function togglePhone(){
   a.style.transform=f.classList.contains('open')?'rotate(180deg)':'';
 }
 
-function goToShopify(){   // FREE-PREVIEW FLOW: generate first, charge after they hear it
+function startFreePreview(){
+  const em=document.getElementById('f-email').value.trim();
+  if(!em||!em.includes('@')){tip('Enter a valid email address');return;}
+  D.email=em;
+  const phEl=document.getElementById('f-phone'); D.phone=phEl?phEl.value.trim():'';
+
   const btn=document.getElementById('payBtn');
   if(btn){btn.disabled=true;btn.textContent='Writing your song...';}
-  const sBtn=document.querySelector('.sticky-pay .btn-pay');
-  if(sBtn){sBtn.disabled=true;sBtn.textContent='Writing your song...';}
+
+  fetch('/.netlify/functions/create-customer',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email:D.email,name:D.name||D.forWhom,forWhom:D.forWhom,occasion:D.occasion,
+      genre:D.genre,voice:D.voice,language:D.language,qualities:D.qualities,memories:D.memories,message:D.message})
+  }).catch(()=>{});
 
   const fullStory=[
-    `Song for: ${D.name} (${D.forWhom})`,
-    `Occasion: ${D.occasion}`,
-    `Genre: ${D.genre}`,
-    `Language: ${D.language}`,
-    `Voice: ${D.voice}`,
+    `Song for: ${D.name} (${D.forWhom})`,`Occasion: ${D.occasion}`,`Genre: ${D.genre}`,
+    `Language: ${D.language}`,`Voice: ${D.voice}`,
     D.qualities?`Their qualities: ${D.qualities}`:'',
     D.memories?`Memories: ${D.memories}`:'',
     D.message?`Message: ${D.message}`:''
   ].filter(Boolean).join(' | ');
 
-  // same note_attributes contract generate-song-background already expects
-  const orderId = 'p2_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-  const payload = {
-    id: orderId,
-    email: D.email,
-    source: 'create2',
-    note_attributes: [
-      {name:'Song For',        value: D.name+' ('+D.forWhom+')'},
-      {name:'Recipient Name',  value: D.name},
-      {name:'Relationship',    value: D.forWhom},
-      {name:'Occasion',        value: D.occasion},
-      {name:'Genre',           value: D.genre},
-      {name:'Language',        value: D.language},
-      {name:'Singer Voice',    value: D.voice},
-      {name:'Their Qualities', value: D.qualities},
-      {name:'Memories',        value: D.memories},
-      {name:'Special Message', value: D.message},
-      {name:'Customer Email',  value: D.email},
-      {name:'_full_story',     value: fullStory}
-    ].filter(a=>a.value)
-  };
+  const orderId='p2_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  const payload={ id:orderId, email:D.email, source:'create2',
+    note_attributes:[
+      {name:'Song For',value:D.name+' ('+D.forWhom+')'},
+      {name:'Recipient Name',value:D.name},
+      {name:'Relationship',value:D.forWhom},
+      {name:'Occasion',value:D.occasion},
+      {name:'Genre',value:D.genre},
+      {name:'Language',value:D.language},
+      {name:'Singer Voice',value:D.voice},
+      {name:'Their Qualities',value:D.qualities},
+      {name:'Memories',value:D.memories},
+      {name:'Special Message',value:D.message},
+      {name:'Customer Email',value:D.email},
+      {name:'_full_story',value:fullStory}
+    ].filter(a=>a.value) };
 
-  const next = '/create2-preview?o=' + encodeURIComponent(orderId)
-    + '&name='  + encodeURIComponent(D.name||'')
-    + '&rel='   + encodeURIComponent(D.forWhom||'')
-    + '&genre=' + encodeURIComponent(D.genre||'');
+  const next='/create2-preview?o='+encodeURIComponent(orderId)
+    +'&name='+encodeURIComponent(D.name||'')
+    +'&rel='+encodeURIComponent(D.forWhom||'')
+    +'&genre='+encodeURIComponent(D.genre||'');
 
-  fetch('/.netlify/functions/start-song', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
-  }).then(()=>{ window.location.href = next; })
-    .catch(()=>{ window.location.href = next; });   // generation is async; page polls anyway
+  fetch('/.netlify/functions/start-song',{method:'POST',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(()=>{window.location.href=next;})
+    .catch(()=>{window.location.href=next;});
 }
 
 
@@ -691,18 +518,12 @@ function tip(msg){
 
 // ── STICKY PAY BAR ──
 function updateStickyBar(){
-  const isOnBumps = document.getElementById('bumpsPage').style.display !== 'none';
-  const isOnReview = document.getElementById('s8') && document.getElementById('s8').classList.contains('active');
+  const onEmail = document.getElementById('s8') && document.getElementById('s8').classList.contains('active');
   const bar = document.getElementById('stickyPay');
-  bar.classList.toggle('show', isOnBumps || isOnReview);
-  // No price sync needed - clean button
+  if(bar) bar.classList.toggle('show', !!onEmail);
 }
 
-function handleStickyBtn(){
-  const isOnReview = document.getElementById('s8') && document.getElementById('s8').classList.contains('active');
-  if(isOnReview){ goToBumps(); }
-  else { goToShopify(); }
-}
+function handleStickyBtn(){ startFreePreview(); }
 
 
 
