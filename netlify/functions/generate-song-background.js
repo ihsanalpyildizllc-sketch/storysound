@@ -39,6 +39,10 @@ exports.handler = async (event) => {
   }
 
   try {
+    // attempt counter (watchdog reads this to cap retries)
+    await fetch(`${REDIS_URL}/pipeline`, { method:'POST',
+      headers:{ Authorization:`Bearer ${REDIS_TOKEN}`,'Content-Type':'application/json' },
+      body: JSON.stringify([['INCR', `attempts_${orderId}`], ['EXPIRE', `attempts_${orderId}`, '604800']]) }).catch(()=>{});
     await save(orderId, { status: 'processing', stage: 'writing', created: Date.now() });
 
     // ── Step 1: Claude writes lyrics ──────────────────────────────────────────
@@ -166,6 +170,7 @@ Return ONLY valid JSON (no markdown):
     const audioBuffer = await audioResp.arrayBuffer();
     const audioB64 = Buffer.from(audioBuffer).toString('base64');
     const sizeKb = Math.round(audioBuffer.byteLength / 1024);
+    if (sizeKb < 500) throw new Error('QA gate: audio too small (' + sizeKb + 'KB) — refusing to deliver an empty file');
 
     await save(orderId, {
       status: 'done',
@@ -177,45 +182,88 @@ Return ONLY valid JSON (no markdown):
       audio_b64:    audioB64
     });
 
-    // ── Step 3b: Track metrics in Upstash ───────────────────────────────────
+    // ── Step 3b: metrics + order meta + index ────────────────────────────────
+    const source = order.source || 'create';
     const today = new Date().toISOString().slice(0,10);
-    const orderMeta = JSON.stringify({
-      id: orderId,
-      title: song.song_title,
-      songFor: songFor,
-      occasion: occasion,
-      genre: genre,
-      sizeKb: sizeKb,
-      ts: Date.now(),
-      revenue: 39
-    });
+    const dashCmds = [
+      ['INCR', 'dash:songs:total'],
+      ['INCR', `dash:songs:date:${today}`],
+      ['EXPIRE', `dash:songs:date:${today}`, '2592000'],
+      ['LPUSH', 'orders_index', orderId],
+      ['LTRIM', 'orders_index', '0', '4999']
+    ];
+    // revenue only for pay-first orders; create2 revenue is recorded at unlock by the webhook
+    if (source === 'create') dashCmds.push(['INCRBY', 'dash:revenue:total', '39']);
     await fetch(`${REDIS_URL}/pipeline`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${REDIS_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify([
-        ['INCR', 'dash:songs:total'],
-        ['INCR', `dash:songs:date:${today}`],
-        ['EXPIRE', `dash:songs:date:${today}`, '2592000'],
-        ['INCRBY', 'dash:revenue:total', '39'],
-        ['LPUSH', 'dash:orders', orderMeta],
-        ['LTRIM', 'dash:orders', '0', '49']
-      ])
+      body: JSON.stringify(dashCmds)
     });
 
-    // ── Step 4: Postmark email ────────────────────────────────────────────────
+    // merge meta (attempts, recipient, size) without clobbering webhook-written fields
+    try {
+      const mres = await fetch(`${REDIS_URL}/pipeline`, { method:'POST',
+        headers:{ Authorization:`Bearer ${REDIS_TOKEN}`,'Content-Type':'application/json' },
+        body: JSON.stringify([['GET', `meta_${orderId}`], ['GET', `attempts_${orderId}`]]) });
+      const mrows = await mres.json();
+      let meta = {}; try { meta = JSON.parse(mrows[0]?.result || '{}') || {}; } catch(e){}
+      const attempts = parseInt(mrows[1]?.result || '1', 10) || 1;
+      Object.assign(meta, {
+        source: meta.source || source,
+        email: meta.email || email,
+        name: meta.name || attrs['Recipient Name'] || songFor,
+        rel:  meta.rel  || attrs['Relationship'] || '',
+        genre: genre, title: song.song_title, sizeKb, attempts,
+        created: meta.created || Date.now(), updated: Date.now()
+      });
+      // paid /create orders: song is permanent from day one
+      if (source === 'create') {
+        await fetch(`${REDIS_URL}/pipeline`, { method:'POST',
+          headers:{ Authorization:`Bearer ${REDIS_TOKEN}`,'Content-Type':'application/json' },
+          body: JSON.stringify([['PERSIST', `song_${orderId}`], ['SET', `meta_${orderId}`, JSON.stringify(Object.assign(meta,{persisted:true}))]]) });
+      } else {
+        // free preview: keep 7 days so the email link survives the weekend
+        await fetch(`${REDIS_URL}/pipeline`, { method:'POST',
+          headers:{ Authorization:`Bearer ${REDIS_TOKEN}`,'Content-Type':'application/json' },
+          body: JSON.stringify([['EXPIRE', `song_${orderId}`, '604800'], ['SET', `meta_${orderId}`, JSON.stringify(meta)]]) });
+      }
+    } catch(e) { console.log('meta merge skipped:', e.message); }
+
+    // ── Step 4: email (funnel-aware, status recorded for the watchdog) ───────
     if (email && process.env.POSTMARK_SERVER_TOKEN) {
       const siteUrl = process.env.SITE_URL || 'https://storysound.netlify.app';
-      await fetch('https://api.postmarkapp.com/email', {
+      const isFree = source === 'create2';
+      const link = isFree
+        ? `${siteUrl}/create2-preview?o=${orderId}`
+        : `${siteUrl}/delivery?o=${orderId}`;
+      const subject = isFree
+        ? `${(attrs['Recipient Name'] || songFor)}'s song preview is ready 🎧`
+        : `"${song.song_title}" is ready to download 🎵`;
+      const cta = isFree ? '▶ Hear My Free Preview' : '🎵 Listen & Download';
+      const body = isFree
+        ? 'The first 20 seconds are ready to hear — free.'
+        : 'Your song is ready. Stream it, download it, keep it forever.';
+      const er = await fetch('https://api.postmarkapp.com/email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Postmark-Server-Token': process.env.POSTMARK_SERVER_TOKEN },
         body: JSON.stringify({
           From: process.env.FROM_EMAIL || 'songs@storysound.ai',
-          To: email,
-          Subject: `"${song.song_title}" is ready! 🎵`,
-          HtmlBody: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">"${song.song_title}"</h1><p style="color:#7A6A5A;margin:12px 0 24px">Your personalized song is ready to listen and download.</p><a href="${siteUrl}/.netlify/functions/song-page?orderId=${orderId}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">🎵 Listen & Download</a></div>`,
-          TextBody: `"${song.song_title}" is ready!\n\n${siteUrl}/.netlify/functions/song-page?orderId=${orderId}`
+          To: email, Subject: subject,
+          HtmlBody: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">"${song.song_title}"</h1><p style="color:#7A6A5A;margin:12px 0 24px">${body}</p><a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">${cta}</a><p style="color:#9A8F82;font-size:12px;margin-top:20px">Save this email — your link is here whenever you need it.</p></div>`,
+          TextBody: `"${song.song_title}"\n\n${body}\n${link}`
         })
       });
+      const eOk = er.ok;
+      const statusField = isFree ? 'preview_email' : 'email_status';
+      const tsField = isFree ? 'preview_emailed_at' : 'emailed_at';
+      try {
+        const g = await fetch(`${REDIS_URL}/get/meta_${orderId}`, { headers:{ Authorization:`Bearer ${REDIS_TOKEN}` } });
+        let m2 = {}; try { m2 = JSON.parse((await g.json())?.result || '{}') || {}; } catch(e){}
+        m2[statusField] = eOk ? 'sent' : 'failed'; m2[tsField] = Date.now();
+        await fetch(`${REDIS_URL}/pipeline`, { method:'POST',
+          headers:{ Authorization:`Bearer ${REDIS_TOKEN}`,'Content-Type':'application/json' },
+          body: JSON.stringify([['SET', `meta_${orderId}`, JSON.stringify(m2)]]) });
+      } catch(e){}
     }
 
     return { statusCode: 200, body: 'Done: ' + song.song_title + ' (' + sizeKb + 'KB)' };
@@ -226,3 +274,4 @@ Return ONLY valid JSON (no markdown):
     return { statusCode: 500, body: err.message };
   }
 };
+
