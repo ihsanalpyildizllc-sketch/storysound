@@ -52,16 +52,31 @@ exports.handler = async (event) => {
       headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6', max_tokens: 1500,
-        messages: [{ role: 'user', content: `Write a deeply personal love song.
+        messages: [{ role: 'user', content: `You are a professional songwriter who writes commissioned personal songs. Someone paid for a song about a real person, built from real memories. Your job is to turn their raw story into a song with a NARRATIVE ARC — not a pile of feelings.
 
-Story: ${story}
-Genre: ${genre}
-Language: ${language}
-Voice: ${voice}
-Occasion: ${occasion}
+THE STORY (real details from the buyer):
+${story}
+
+Genre: ${genre} | Language: ${language} | Voice: ${voice} | Occasion: ${occasion}
+
+STRUCTURE — each section has ONE job, and no two sections may do the same job:
+
+[Verse 1] — THE ORIGIN. Where it began. Use the earliest or most scene-setting memory from the story. Paint one specific moment the listener can see (a place, a season, an object). Past tense.
+[Chorus] — THE CORE TRUTH. The one sentence this whole song exists to say, with ${songFor}'s name in it. Not a list of compliments — ONE central truth, stated memorably. This exact chorus repeats later, so make it strong enough to hear three times.
+[Verse 2] — THE JOURNEY. Time passes. What changed, what was survived, what grew. Use a DIFFERENT memory than Verse 1 — never re-describe the origin. If the story mentions hard times, this is where they live, resolved with warmth.
+[Chorus] — repeat exactly.
+[Bridge] — THE TURN. Shift perspective: speak directly to ${songFor} in present tense, quieter and more intimate than everything before it. This is the line that makes them cry. 2-3 lines, no rhyme required.
+[Final Chorus] — repeat, with ONE line changed to point at the future ("always will" energy).
+
+HARD RULES:
+- Every memory/detail from the story appears AT MOST ONCE. Never restate a detail in different words.
+- Verses tell a story in concrete images (nouns you can touch). Choruses carry emotion. Do not put abstract emotion-words (love, heart, soul, forever) in verses more than once each.
+- No filler lines that could belong in any love song ("you mean the world to me", "I can't live without you"). If a line would work for a stranger's song, cut it and use a real detail instead.
+- Lines must be SHORT and singable: 6-10 words. Natural ${language}.
+- If the story is thin on details, invent small sensory specifics consistent with what's given — never invent major events.
 
 Return ONLY valid JSON (no markdown):
-{"song_title":"...","song_meta":"For ${songFor} - ${occasion} - ${genre}","music_style":"${genre} song, ${voice.toLowerCase()} vocals, emotional and deeply personal, radio quality","lyrics":"[Verse 1]\\n[4 short singable lines]\\n\\n[Chorus]\\n[4 memorable lines that include the name]\\n\\n[Verse 2]\\n[4 lines]\\n\\n[Chorus]\\n[4 lines]\\n\\n[Bridge]\\n[2-3 emotional lines]\\n\\n[Final Chorus]\\n[4 lines]"}` }]
+{"song_title":"...","song_meta":"For ${songFor} - ${occasion} - ${genre}","music_style":"${genre} song, ${voice.toLowerCase()} vocals, emotional and deeply personal, radio quality","lyrics":"[Verse 1]\\n...\\n\\n[Chorus]\\n...\\n\\n[Verse 2]\\n...\\n\\n[Chorus]\\n...\\n\\n[Bridge]\\n...\\n\\n[Final Chorus]\\n..."}` }]
       })
     });
     const cdRaw = await cr.text();
