@@ -702,7 +702,7 @@ const CONFIG = {
     if(rd && rd.reviews && rd.reviews.length){
       p = { familiesCount: null,
             ratingScore: rd.avg, ratingCount: rd.count, ratingDist: rd.dist,
-            testimonials: rd.reviews.map(function(t){ return { stars:t.stars, ago:t.ago, text:t.text, name:t.name }; }) };
+            testimonials: rd.reviews.map(function(t){ return { stars:t.stars, ago:t.ago, text:t.text, name:t.name, photo:t.photo, verified:t.verified }; }) };
       document.getElementById("testimonials").innerHTML = "";
       var flag = document.querySelector(".demoflag"); if(flag) flag.remove();
       renderProof(p);
@@ -774,7 +774,7 @@ const CONFIG = {
         '<p class="small">' + t.text + '</p>' +
         '<div class="tfoot">' + (t.face ? '<img class="tface" src="'+t.face+'" alt="">' : '') +
         '<span><span class="tname" style="margin:0">' + t.name + '</span>' +
-        '<span class="tver" style="display:block">✓ Verified purchase</span></span></div></div>';
+        (t.verified === false ? '' : '<span class="tver" style="display:block">✓ Verified purchase</span>') + '</span></div></div>';
     }).join("");
   }
 
