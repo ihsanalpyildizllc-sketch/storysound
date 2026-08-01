@@ -18,13 +18,18 @@ exports.handler = async (event) => {
     const song = JSON.parse(songResult);
     if (!song.audio_b64) return { statusCode: 404, body: 'No audio' };
 
+    const headers = {
+      'Content-Type': song.audio_mime || 'audio/mpeg',
+      'Cache-Control': 'public, max-age=86400',
+      'Access-Control-Allow-Origin': '*'
+    };
+    if (event.queryStringParameters?.dl === '1') {
+      const safe = String(song.song_title || 'your-song').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 60) || 'your-song';
+      headers['Content-Disposition'] = `attachment; filename="${safe}.mp3"`;
+    }
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': song.audio_mime || 'audio/mpeg',
-        'Cache-Control': 'public, max-age=86400',
-        'Access-Control-Allow-Origin': '*'
-      },
+      headers,
       body: song.audio_b64,
       isBase64Encoded: true
     };
