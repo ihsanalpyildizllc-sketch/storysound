@@ -606,6 +606,11 @@ const CONFIG = {
         .then(r => r.json())
         .then(function(d){
           if(d.name){ name = d.name; rel = d.relationship || rel; genre = d.genre || genre; paintSong(); }
+          if(d.created && !holdTimer){
+            startHold(d.created);
+            try{ document.cookie = "ss_hold_" + token + "=" + d.created +
+                 ";path=/;max-age=" + (CONFIG.timerMinutes*60) + ";SameSite=Lax"; }catch(e){}
+          }
           if(d.stage === "writing")   $("#playHint").textContent = "Writing your lyrics\u2026";
           if(d.stage === "composing") $("#playHint").textContent = "Composing the melody\u2026";
           if(d.failed){ $("#playHint").textContent = "Something went wrong \u2014 we\u2019ll email you shortly."; return; }
@@ -759,27 +764,37 @@ const CONFIG = {
     track("play_vsl", {});
   });
 
-  /* ---------- honest countdown: survives refresh, does not reset ---------- */
-  const KEY = "ss_hold";
-  let started = Number(params.get("t")) || Number(cookie(KEY));
-  if(!started || isNaN(started)){
-    started = Date.now();
-    cookie(KEY, started);
-  }
-  const endsAt = started + CONFIG.timerMinutes * 60000;
+  /* ---------- queue hold: anchored to the ORDER, not the browser ---------- */
   const clock = $("#clock");
-  (function tick(){
-    const left = endsAt - Date.now();
-    if(left <= 0){
-      clock.textContent = "00:00";
-      clock.style.color = "var(--text-muted)";
-      document.querySelector(".timer .note").textContent = "Your hold has expired — your file is back in the general queue. The rate above is still honoured on this page for now.";
-      return;
-    }
-    const m = Math.floor(left / 60000), s = Math.floor(left % 60000 / 1000);
-    clock.textContent = String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
-    setTimeout(tick, 1000);
-  })();
+  const noteEl = document.querySelector(".timer .note");
+  let holdTimer = null;
+
+  function startHold(anchor){
+    if(holdTimer) return;                       // only ever start once
+    const endsAt = anchor + CONFIG.timerMinutes * 60000;
+    (function tick(){
+      const left = endsAt - Date.now();
+      if(left <= 0){
+        clock.textContent = "00:00";
+        clock.style.color = "var(--text-muted)";
+        noteEl.textContent = "Your hold has expired \u2014 your file is back in the general queue. The rate above is still honoured on this page for now.";
+        return;
+      }
+      const m = Math.floor(left / 60000), sec = Math.floor(left % 60000 / 1000);
+      clock.textContent = String(m).padStart(2,"0") + ":" + String(sec).padStart(2,"0");
+      holdTimer = setTimeout(tick, 1000);
+    })();
+  }
+
+  // anchor priority: order creation time > this order's own cookie > now
+  if(!token){
+    startHold(Date.now());
+  } else {
+    const KEY = "ss_hold_" + token;             // per-order, expires with the hold
+    const saved = Number(cookie(KEY));
+    if(saved && !isNaN(saved)) startHold(saved);
+    // otherwise the first poll supplies `created` and starts it
+  }
 
   /* ---------- preview player ---------- */
   const wave = $("#wave"), BARS = 48;
