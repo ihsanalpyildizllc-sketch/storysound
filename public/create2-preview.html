@@ -689,7 +689,18 @@ const CONFIG = {
       {stars:5, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace. Repeat-play behaviour: how often they've listened since.]"}
     ]
   };
-  const p = CONFIG.demoProof ? DEMO : CONFIG.proof;
+  let p = CONFIG.demoProof ? DEMO : CONFIG.proof;
+  // real reviews override everything the moment the first one exists
+  fetch("/.netlify/functions/reviews-data").then(r=>r.json()).then(function(rd){
+    if(rd && rd.reviews && rd.reviews.length){
+      p = { familiesCount: null,
+            ratingScore: rd.avg, ratingCount: rd.count, ratingDist: rd.dist,
+            testimonials: rd.reviews.map(function(t){ return { stars:t.stars, ago:t.ago, text:t.text, name:t.name }; }) };
+      document.getElementById("testimonials").innerHTML = "";
+      var flag = document.querySelector(".demoflag"); if(flag) flag.remove();
+      renderProof(p);
+    }
+  }).catch(function(){});
   if(CONFIG.demoProof){
     document.documentElement.style.setProperty("--demo","1");
   }
@@ -713,6 +724,7 @@ const CONFIG = {
     return '<span style="font-size:'+(size||24)+'px;letter-spacing:2px">'+out+'</span>';
   }
 
+  function renderProof(p){
   if(p.badge && p.badge.url && p.badge.platform){
     $("#badgeBlock").hidden = false;
     const filled = Math.round((p.badge.score||0));
@@ -758,6 +770,9 @@ const CONFIG = {
         '<span class="tver" style="display:block">✓ Verified purchase</span></span></div></div>';
     }).join("");
   }
+
+  }
+  renderProof(p);
 
   /* ---------- vsl ---------- */
   const VSL_URL = CONFIG.vslUrl || params.get("vsl");
