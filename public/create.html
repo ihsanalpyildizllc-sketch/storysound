@@ -428,6 +428,17 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
       </div>
     </div>
 
+    <div class="bump-card" id="bc3" onclick="toggleBump('bc3','b3line',19)">
+      <div class="bump-top">
+        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="bump-label">
+          <div style="margin-bottom:4px"><span class="bump-badge">📜 KEEPSAKE</span></div>
+          <div class="bump-name">Printable Lyrics</div>
+          <div class="bump-desc">Every word, typeset with their name and cover art — ready to print and frame.</div>
+        </div>
+        <div class="bump-price">$19</div>
+      </div>
+    </div>
     <div class="bump-card free-card checked">
       <div class="bump-top">
         <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
@@ -459,6 +470,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
       <div class="rrow"><span>Your Song for <span id="bName2" style="color:var(--rust)">them</span></span><div><span class="orig">$99</span> <strong style="color:var(--rust);font-size:16px">$39</strong></div></div>
       <div id="b1line" style="display:none"><div class="rrow"><span>Forever Memory™ Package</span><strong>$24</strong></div></div>
       <div id="b2line" style="display:none"><div class="rrow"><span>Priority Processing</span><strong>$10</strong></div></div>
+      <div id="b3line" style="display:none"><div class="rrow"><span>Printable Lyrics</span><strong>$19</strong></div></div>
       <div class="rrow" style="border-top:1.5px solid var(--border);margin-top:8px;padding-top:10px">
         <span style="font-weight:700;color:var(--ink);font-size:15px">Total</span>
         <strong style="font-size:20px;color:var(--rust)" id="totPrice">$39</strong>
@@ -482,7 +494,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 <script>
 const STEPS=8;let cur=1;
 const D={forWhom:'',name:'',occasion:'',genre:'',language:'English',voice:'',qualities:'',memories:'',message:'',email:'',phone:''};
-let bumps={b1:false,b2:false};
+let bumps={b1:false,b2:false,b3:false};
 const BASE=39;
 let extraCost=0;
 
@@ -490,7 +502,7 @@ const PROG={1:[13,'Step 1 of 8'],2:[25,'Step 2 of 8'],3:[38,'Step 3 of 8'],4:[50
 
 // ── SHOPIFY CONFIG — update these after creating your Shopify store ──
 const SHOPIFY_STORE='gut-1809.myshopify.com';
-const SHOPIFY_VARIANTS={base:'44258532819033',bump1:'44258586886233',bump2:'44258587476057'};
+const SHOPIFY_VARIANTS={base:'44258532819033',bump1:'44258586886233',bump2:'44258587476057',bump3:'44263011287129'};
 
 function showStep(n){
   for(let i=1;i<=STEPS;i++){const el=document.getElementById('s'+i);if(el)el.classList.remove('active');}
@@ -587,7 +599,8 @@ function updateBumps(){
 function toggleBump(cardId,lineId,amt){
   if(typeof updateStickyBar==='function') setTimeout(updateStickyBar,10);
   const card=document.getElementById(cardId);
-  const key=cardId==='bc1'?'b1':'b2';
+  const key={bc1:'b1',bc2:'b2',bc3:'b3'}[cardId];
+  if(!key) return;
   bumps[key]=!bumps[key];
   card.classList.toggle('checked',bumps[key]);
   document.getElementById(lineId).style.display=bumps[key]?'block':'none';
@@ -596,10 +609,9 @@ function toggleBump(cardId,lineId,amt){
 
 function calcTotal(){
   let t=BASE;
-  if(bumps.b1)t+=24;if(bumps.b2)t+=10;
-  document.getElementById('totPrice').textContent='$'+t;
-  document.getElementById('btnTot').textContent='$'+t;
-  document.getElementById('totPrice').textContent='$'+t;
+  if(bumps.b1)t+=24;if(bumps.b2)t+=10;if(bumps.b3)t+=19;
+  const _tp=document.getElementById('totPrice'); if(_tp)_tp.textContent='$'+t;
+  const _bt=document.getElementById('btnTot');   if(_bt)_bt.textContent='$'+t;
 }
 
 function togglePhone(){
@@ -645,6 +657,7 @@ function goToShopify(){
   let items=SHOPIFY_VARIANTS.base+':1';
   if(bumps.b1)items+=','+SHOPIFY_VARIANTS.bump1+':1';
   if(bumps.b2)items+=','+SHOPIFY_VARIANTS.bump2+':1';
+  if(bumps.b3)items+=','+SHOPIFY_VARIANTS.bump3+':1';
 
   // Build query string
   const qs=attrs.filter(([k,v])=>v).map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
