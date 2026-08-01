@@ -234,9 +234,10 @@ fetch("/.netlify/functions/reviews-data").then(function(r){return r.json();}).th
  document.getElementById("rrHead").textContent="⭐ "+(d.avg||"")+" from "+d.count+" customer"+(d.count===1?"":"s");
  document.getElementById("rrCards").innerHTML=d.reviews.slice(0,3).map(function(t){
   return '<div style="background:#fff;border:1px solid rgba(26,24,20,.08);border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 4px 12px rgba(26,24,20,.05)">'+
+   (t.photo?'<img src="'+t.photo+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;margin-bottom:10px" alt="">':'')+
    '<div style="color:#E5A400;letter-spacing:2px;font-size:13px;margin-bottom:6px">'+"★".repeat(t.stars)+' <span style="color:#9A9389;letter-spacing:0;font-size:11px;float:right">'+esc(t.ago)+'</span></div>'+
    '<div style="font-size:13.5px;line-height:1.6;color:#3A362F">'+esc(t.text)+'</div>'+
-   '<div style="font-size:12px;font-weight:700;margin-top:8px">'+esc(t.name)+' <span style="color:#2D6A4F;font-weight:600">✓ Verified purchase</span></div></div>';
+   '<div style="font-size:12px;font-weight:700;margin-top:8px">'+esc(t.name)+(t.verified?' <span style="color:#2D6A4F;font-weight:600">✓ Verified purchase</span>':'')</div></div>';
  }).join("");
  document.getElementById("realReviews").style.display="block";
 }).catch(function(){});
