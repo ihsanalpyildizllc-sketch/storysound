@@ -27,9 +27,10 @@ box-shadow:0 8px 24px -4px rgba(200,85,61,.32);transition:transform .2s}
 .btn.ghost{background:#fff;color:var(--rust);border:2px solid var(--rust);box-shadow:none}
 .cap{font-size:12px;text-transform:uppercase;letter-spacing:.13em;font-weight:700;color:var(--fade);margin-bottom:14px;text-align:center}
 .lyr{font-size:17px;line-height:1.9;text-align:center;white-space:pre-line}
-.blurbox{position:relative;margin-top:8px}
 .bl{height:15px;margin:12px auto;border-radius:4px;background:linear-gradient(90deg,#E8E4DD,#F3F1EC);filter:blur(3px)}
-.veil{position:absolute;inset:auto 0 0 0;height:80%;background:linear-gradient(180deg,transparent,#fff 70%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;padding-bottom:6px}
+.blurbox{position:relative;margin-top:10px;padding-top:6px}
+.veil{position:absolute;inset:auto 0 0 0;height:60%;background:linear-gradient(180deg,transparent,#fff 75%);display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;pointer-events:none}
+.veil b{font-size:15px}
 .share{display:flex;gap:10px}.share a{flex:1;text-align:center;padding:13px;border:1.5px solid var(--bd);border-radius:11px;text-decoration:none;color:var(--ink);font-weight:600;font-size:14px;background:#fff}
 .up{background:linear-gradient(160deg,#22110B,#3A1C10);color:#fff;border-radius:18px;padding:26px 22px;margin:20px 0}
 .up h3{font-size:22px;letter-spacing:-.02em;margin-bottom:8px}
@@ -65,9 +66,11 @@ function render(d){
   ? '<div class="card"><div class="cap">\ud83d\udcdc Your lyrics</div><div class="lyr">'+esc(d.lyrics.join("\n"))+'</div>'+
     '<button class="btn ghost" style="margin-top:18px" onclick="window.print()">\ud83d\udda8 Print my lyrics</button></div>'
   : '<div class="card"><div class="cap">\ud83d\udcdc From your lyrics</div><div class="lyr">'+esc(d.lyrics.join("\n"))+'</div>'+
-    '<div class="blurbox"><div class="bl" style="width:86%"></div><div class="bl" style="width:74%"></div><div class="bl" style="width:90%"></div>'+
-    '<div class="veil"><b>\ud83d\udd12 +'+Math.max(0,d.lyricsTotal-3)+' more lines</b>'+
-    '<a class="btn" style="max-width:320px" href="https://gut-1809.myshopify.com/cart/44263011287129:1?attributes[Original_Order]='+encodeURIComponent(d.orderId)+'&attributes[Lyrics_Addon]=Yes">Get the printable lyrics \u2014 $19</a></div></div></div>';
+    '<div class="blurbox">'+
+     '<div class="bl" style="width:86%"></div><div class="bl" style="width:74%"></div><div class="bl" style="width:90%"></div><div class="bl" style="width:68%"></div><div class="bl" style="width:82%"></div>'+
+     '<div class="veil"><b>\ud83d\udd12 +'+Math.max(0,d.lyricsTotal-3)+' more lines</b></div>'+
+    '</div>'+
+    '<a class="btn" style="margin-top:16px" href="https://gut-1809.myshopify.com/cart/44263011287129:1?attributes[Original_Order]='+encodeURIComponent(d.orderId)+'&attributes[Lyrics_Addon]=Yes">Get the printable lyrics \u2014 $19</a></div>';
 
  app.innerHTML =
   '<h1>\u201c'+esc(d.title)+'\u201d</h1><p class="sub">Yours forever. Download it, share it, play it loud.</p>'+
@@ -99,9 +102,11 @@ function render(d){
 
  var a=new Audio(d.audioUrl),pl=document.getElementById("pl"),fill=document.getElementById("fill"),
      cur=document.getElementById("cur"),dur=document.getElementById("dur"),playing=false;
- var fmt=function(s){s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
- a.addEventListener("loadedmetadata",function(){dur.textContent=fmt(a.duration);});
- a.addEventListener("timeupdate",function(){cur.textContent=fmt(a.currentTime);if(a.duration)fill.style.width=(a.currentTime/a.duration*100)+"%";});
+ var fmt=function(s){if(!isFinite(s)||isNaN(s)||s<0)return "\u2013:\u2013\u2013";s=Math.floor(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
+ var setDur=function(){if(isFinite(a.duration)&&a.duration>0)dur.textContent=fmt(a.duration);};
+ a.addEventListener("loadedmetadata",setDur);
+ a.addEventListener("durationchange",setDur);
+ a.addEventListener("timeupdate",function(){cur.textContent=fmt(a.currentTime);setDur();if(isFinite(a.duration)&&a.duration>0)fill.style.width=(a.currentTime/a.duration*100)+"%";});
  a.addEventListener("ended",function(){playing=false;pl.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';});
  pl.addEventListener("click",function(){playing=!playing;
   pl.innerHTML=playing?'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>':'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
