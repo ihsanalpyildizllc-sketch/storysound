@@ -8,9 +8,11 @@ exports.handler = async (event) => {
   if (key !== expected) return { statusCode: 401, body: JSON.stringify({ error: "bad key" }) };
 
   try {
-    const idx = await redis([["LRANGE", "orders_index", "0", "199"], ["GET", "agent:last"]]);
+    const idx = await redis([["LRANGE", "orders_index", "0", "199"], ["GET", "agent:last"],
+      ["GET","ev:view_offer"],["GET","ev:play_preview"],["GET","ev:begin_checkout"]]);
     const ids = idx?.[0]?.result || [];
     let agent = null; try { agent = JSON.parse(idx?.[1]?.result || "null"); } catch (e) {}
+    const funnel = { views:+(idx?.[2]?.result||0), plays:+(idx?.[3]?.result||0), checkouts:+(idx?.[4]?.result||0) };
 
     const rows = [];
     const seen = new Set();
@@ -40,7 +42,8 @@ exports.handler = async (event) => {
         emailStatus: m.email_status || (m.preview_email ? "preview:" + m.preview_email : "—"),
         emailErr: m.email_err || null,
         emailedAt: m.emailed_at || m.preview_emailed_at || null,
-        flagged: m.flagged || null
+        flagged: m.flagged || null,
+        revision: !!m.revision_open, revisions: (m.revisions||[]).length
       });
     }
 
@@ -56,7 +59,7 @@ exports.handler = async (event) => {
           aov: paidRows.length ? Math.round(revenue / paidRows.length * 100) / 100 : 0,
           lyricsAttach: rows.length ? Math.round(rows.filter(r => r.lyrics).length / rows.length * 100) : 0
         },
-        agent
+        agent, funnel
       })
     };
   } catch (err) {
