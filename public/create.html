@@ -665,7 +665,7 @@ function goToShopify(){
   const note=encodeURIComponent(fullStory);
   const email=encodeURIComponent(D.email);
 
-  const url=`https://${SHOPIFY_STORE}/cart/${items}?${qs}&note=${note}&checkout[email]=${email}`;
+  const url=`https://${SHOPIFY_STORE}/cart/${items}?${qs}&note=${note}&checkout[email]=${email}&return_to=/checkout`;
   window.location.href=url;
 }
 
