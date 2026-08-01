@@ -193,13 +193,7 @@ header{padding:20px 0;text-align:center;border-bottom:1px solid var(--border);ba
 
 /* vsl */
 .vsl{margin:24px 0 20px}
-.vsl-inner{position:relative;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-xl);background:#1A1814;aspect-ratio:9/16;max-width:300px;margin:0 auto}
-.vsl-inner iframe,.vsl-inner video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover}
-.vsl-ph{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(160deg,#C8553D,#8E3524);cursor:pointer}
-.vsl-play{width:64px;height:64px;border-radius:50%;border:none;background:rgba(255,255,255,.95);color:var(--accent);display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.3);transition:transform .2s ease}
-.vsl-play:hover{transform:scale(1.08)}
-.vsl-play svg{width:26px;height:26px;margin-left:3px}
-.vsl-cap{position:absolute;bottom:14px;left:0;right:0;text-align:center;color:#fff;font-size:var(--text-xs);letter-spacing:.14em;text-transform:uppercase;font-weight:700;opacity:.85}
+.vsl{max-width:400px;margin:24px auto 20px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-xl)}
 
 /* avatars + rating summary */
 .avatars{display:flex;justify-content:center;margin-bottom:10px}
@@ -291,7 +285,10 @@ const CONFIG = {
   // Proof stays EMPTY until you have real orders. Sections auto-hide when empty.
   demoProof: false,         // TRUE = renders sample review cards for layout QA only.
                            // They are watermarked and must be replaced before traffic.
-  vslUrl: "",              // mp4/webm/m3u8 or an embed URL for the "watch this while we write it" video
+  vturb: {
+    playerId: "6a6e0dcba5d5ced98d475e1b",
+    accountId: "3ac19a77-c196-43fe-b470-64cdc7d23f4b"
+  },
 
   // Proof stays EMPTY until you have real orders. Every proof block auto-hides while empty.
   proof: {
@@ -327,14 +324,9 @@ const CONFIG = {
   <p class="sub rv">Watch this while we write it.</p>
 
   <div class="vsl rv" id="vsl">
-    <div class="vsl-inner" id="vslInner">
-      <div class="vsl-ph" id="vslPh">
-        <button class="vsl-play" id="vslPlay" aria-label="Play video">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="vsl-cap">Sound on</div>
-      </div>
-    </div>
+    <vturb-smartplayer id="vid-VTURB_ID" style="display:block;margin:0 auto;width:100%;max-width:400px">
+      <div class="vturb-player-placeholder" style="position:relative;width:100%;padding:177.7% 0 0;z-index:0;background:#1A1814;border-radius:16px;overflow:hidden"></div>
+    </vturb-smartplayer>
   </div>
 
   <p class="hint rv">Press play. Headphones in, if you have them.</p>
@@ -781,16 +773,16 @@ const CONFIG = {
   }
   renderProof(p);
 
-  /* ---------- vsl ---------- */
-  const VSL_URL = CONFIG.vslUrl || params.get("vsl");
-  $("#vslPh").addEventListener("click", function(){
-    if(!VSL_URL){ track("vsl_click_no_source", {}); return; }
-    const tag = /\.(mp4|webm|m3u8)$/i.test(VSL_URL)
-      ? '<video src="'+VSL_URL+'" controls autoplay playsinline></video>'
-      : '<iframe src="'+VSL_URL+'" allow="autoplay; fullscreen" allowfullscreen></iframe>';
-    $("#vslInner").innerHTML = tag;
-    track("play_vsl", {});
-  });
+  /* ---------- vsl: Vturb smartplayer ---------- */
+  if(CONFIG.vturb && CONFIG.vturb.playerId){
+    const el = document.getElementById("vsl").querySelector("vturb-smartplayer");
+    el.id = "vid-" + CONFIG.vturb.playerId;
+    const sc = document.createElement("script");
+    sc.src = "https://scripts.converteai.net/" + CONFIG.vturb.accountId + "/players/" + CONFIG.vturb.playerId + "/v4/player.js";
+    sc.async = true;
+    document.head.appendChild(sc);
+    track("vsl_loaded", {});
+  }
 
   /* ---------- queue hold: anchored to the ORDER, not the browser ---------- */
   const clock = $("#clock");
