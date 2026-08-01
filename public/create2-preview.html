@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your song is almost ready — StorySound</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-primary:#FAF9F6; --bg-secondary:#F3F1EC; --bg-tertiary:#E8E4DD; --bg-dark:#1A1814;
+  --text-primary:#1A1814; --text-secondary:#5C564D; --text-muted:#9A9389;
+  --accent:#C8553D; --accent-light:#E8A598; --accent-dark:#9E3E2C;
+  --gold:#B8893B; --green:#2D6A4F;
+  --border:rgba(26,24,20,.08); --border-strong:rgba(26,24,20,.15);
+  --shadow-sm:0 1px 3px rgba(26,24,20,.06),0 1px 2px rgba(26,24,20,.04);
+  --shadow-md:0 4px 6px -1px rgba(26,24,20,.07),0 2px 4px -1px rgba(26,24,20,.04);
+  --shadow-lg:0 10px 25px -5px rgba(26,24,20,.08),0 8px 10px -6px rgba(26,24,20,.04);
+  --shadow-xl:0 20px 50px -12px rgba(26,24,20,.14),0 8px 20px -8px rgba(26,24,20,.06);
+  --shadow-accent:0 8px 24px -4px rgba(200,85,61,.32);
+  /* ONE font for the whole page. Swap this single line to change everything.
+     Serif alternative: 'Playfair Display',Georgia,serif  (both are loaded above) */
+  --font:'Inter',system-ui,-apple-system,sans-serif;
+  --text-xs:clamp(.75rem,.7rem + .25vw,.8125rem);
+  --text-sm:clamp(.8125rem,.76rem + .25vw,.875rem);
+  --text-base:clamp(.9375rem,.875rem + .3vw,1.0625rem);
+  --text-lg:clamp(1.0625rem,1rem + .4vw,1.25rem);
+  --text-xl:clamp(1.25rem,1.1rem + .7vw,1.5rem);
+  --text-2xl:clamp(1.5rem,1.2rem + 1.5vw,2rem);
+  --text-3xl:clamp(2rem,1.5rem + 2.5vw,3rem);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg-primary);color:var(--text-primary);
+  font-family:var(--font);font-size:var(--text-base);line-height:1.6;
+  -webkit-font-smoothing:antialiased;padding-bottom:96px;
+}
+h1,h2,h3,.serif{font-family:var(--font);font-weight:700;letter-spacing:-.03em;line-height:1.15}
+.wrap{max-width:600px;margin:0 auto;padding:0 20px}
+.sec{padding:56px 0}
+.sec-tight{padding:40px 0}
+.tint{background:var(--bg-secondary)}
+.center{text-align:center}
+.eyebrow{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.14em;font-weight:700;color:var(--text-muted)}
+.muted{color:var(--text-secondary)}
+.small{font-size:var(--text-sm)}
+.xs{font-size:var(--text-xs)}
+
+/* header */
+header{padding:20px 0;text-align:center;border-bottom:1px solid var(--border);background:var(--bg-primary)}
+.logo{font-family:var(--font);font-weight:800;font-size:1.25rem;letter-spacing:-.04em}
+.logo span{color:var(--accent)}
+
+/* hero */
+.hero{padding:48px 0 40px;text-align:center}
+.hero h1{font-size:var(--text-3xl);margin-bottom:12px}
+.hero .sub{color:var(--accent);font-weight:600;font-size:var(--text-lg);font-family:var(--font);font-style:italic}
+.hero .hint{margin-top:20px;font-size:var(--text-sm);color:var(--text-muted)}
+
+/* player */
+.player{
+  margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:20px;
+  padding:32px 24px 24px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;
+}
+.player::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(200,85,61,.06),transparent 65%);pointer-events:none}
+.song-title{font-size:var(--text-2xl);margin-bottom:6px}
+.song-title em{color:var(--accent);font-style:italic}
+.song-meta{font-size:var(--text-sm);color:var(--text-muted);margin-bottom:24px}
+.playbtn{
+  width:72px;height:72px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+  box-shadow:var(--shadow-accent);color:#fff;display:grid;place-items:center;
+  transition:transform .2s ease,box-shadow .2s ease;position:relative;
+}
+.playbtn:disabled{opacity:.55;cursor:wait}
+.playbtn:hover:not(:disabled){transform:scale(1.06);box-shadow:0 12px 32px -4px rgba(200,85,61,.42)}
+.playbtn::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--accent-light);opacity:.5;animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{0%{transform:scale(1);opacity:.5}70%{transform:scale(1.25);opacity:0}100%{opacity:0}}
+.playbtn svg{width:26px;height:26px;margin-left:3px}
+.wave{display:flex;align-items:flex-end;justify-content:center;gap:3px;height:56px;margin:24px 0 12px}
+.wave i{display:block;width:3px;border-radius:2px;background:var(--bg-tertiary);transition:background .25s ease,transform .25s ease}
+.wave i.on{background:var(--accent-light)}
+.timeline{display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--text-muted);font-variant-numeric:tabular-nums}
+
+/* proof strip */
+.proofstrip{
+  margin-top:20px;background:#fff;border:1px solid var(--border);border-radius:14px;
+  padding:16px;text-align:center;box-shadow:var(--shadow-sm);
+}
+
+/* earned rate banner */
+.ratebar{background:var(--green);color:#fff;padding:20px;text-align:center}
+.ratebar .t{font-weight:700;font-size:var(--text-base);margin-bottom:6px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
+.ratebar .d{font-size:var(--text-sm);opacity:.92;max-width:460px;margin:0 auto}
+.hl{background:#FFD966;color:#1A1814;padding:2px 8px;border-radius:6px;font-weight:700;white-space:nowrap}
+
+/* timer */
+.timer{
+  margin:32px auto 0;background:#fff;border:1.5px solid var(--accent-light);border-radius:16px;
+  padding:20px;text-align:center;box-shadow:var(--shadow-md);
+}
+.timer .lab{font-size:var(--text-sm);font-weight:600;color:var(--text-secondary);margin-bottom:4px}
+.timer .clock{font-family:var(--font);font-size:2.5rem;font-weight:800;letter-spacing:-.03em;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.1}
+.timer .note{font-size:var(--text-xs);color:var(--text-muted);margin-top:8px;max-width:400px;margin-inline:auto}
+
+/* compare */
+.compare{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.crow{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--border)}
+.crow:last-child{border-bottom:none}
+.crow .l{display:flex;align-items:center;gap:10px;font-weight:600}
+.crow .r{font-size:var(--text-sm);color:var(--text-muted);text-align:right}
+.crow.win{background:linear-gradient(90deg,rgba(200,85,61,.06),rgba(200,85,61,.02))}
+.crow.win .l{color:var(--accent)}
+.crow.win .r{color:var(--accent);font-weight:700;font-style:italic;font-family:var(--font)}
+.compare-cap{text-align:center;font-size:var(--text-sm);color:var(--text-muted);padding:14px;background:var(--bg-secondary)}
+
+/* pricing */
+.opt{
+  display:block;background:#fff;border:2px solid var(--border);border-radius:16px;padding:18px 20px;
+  margin-bottom:12px;cursor:pointer;position:relative;transition:all .2s ease;box-shadow:var(--shadow-sm);
+}
+.opt:hover{border-color:var(--accent-light);box-shadow:var(--shadow-md)}
+.opt.sel{border-color:var(--accent);box-shadow:var(--shadow-accent);background:linear-gradient(180deg,rgba(200,85,61,.04),#fff)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt-in{display:flex;align-items:center;gap:14px}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border-strong);flex:none;display:grid;place-items:center;transition:all .2s ease}
+.opt.sel .dot{border-color:var(--accent)}
+.opt.sel .dot::after{content:"";width:11px;height:11px;border-radius:50%;background:var(--accent)}
+.opt-txt{flex:1;min-width:0}
+.opt-name{font-weight:700;font-size:var(--text-lg);display:flex;align-items:center;gap:8px}
+.opt-desc{font-size:var(--text-sm);color:var(--text-secondary);margin-top:2px}
+.opt-price{text-align:right;flex:none}
+.was{font-size:var(--text-sm);color:var(--text-muted);text-decoration:line-through}
+.now{font-family:var(--font);font-size:var(--text-2xl);font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1.1}
+.save{display:inline-block;margin-top:4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green)}
+.badge{
+  position:absolute;top:-11px;right:16px;background:var(--accent);color:#fff;
+  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px;
+  box-shadow:var(--shadow-sm);
+}
+.badge.g{background:var(--green)}
+.bump{background:#FFFBF2;border:2px dashed var(--gold);border-radius:14px;padding:16px 18px;margin-bottom:20px;cursor:pointer;display:block;transition:all .2s ease}
+.bump:hover{background:#FFF7E6}
+.bump.sel{background:#FFF4DE;border-style:solid}
+.bump-in{display:flex;gap:12px;align-items:flex-start}
+.box{width:22px;height:22px;border-radius:6px;border:2px solid var(--gold);flex:none;display:grid;place-items:center;background:#fff;transition:all .2s ease;margin-top:2px}
+.bump.sel .box{background:var(--gold)}
+.box svg{width:13px;height:13px;stroke:#fff;stroke-width:3.5;fill:none;opacity:0;transition:opacity .15s ease}
+.bump.sel .box svg{opacity:1}
+.bump-t{font-weight:700;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.bump-label{flex:1;min-width:0}
+.bump-p{color:var(--gold);font-weight:700;white-space:nowrap}
+.bump-d{font-size:var(--text-sm);color:var(--text-secondary);margin-top:3px}
+
+/* cta */
+.cta{
+  display:block;width:100%;border:none;cursor:pointer;border-radius:14px;padding:20px 24px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;
+  font-family:var(--font);font-size:var(--text-lg);font-weight:700;letter-spacing:-.01em;
+  box-shadow:var(--shadow-accent);transition:transform .2s ease,box-shadow .2s ease;
+  animation:breathe 3.5s ease-in-out infinite;
+}
+.cta:hover{transform:translateY(-2px);box-shadow:0 14px 36px -4px rgba(200,85,61,.45)}
+.cta:active{transform:translateY(0)}
+@keyframes breathe{0%,100%{box-shadow:0 8px 24px -4px rgba(200,85,61,.32)}50%{box-shadow:0 12px 34px -4px rgba(200,85,61,.46)}}
+.cta-sub{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:var(--text-sm);color:var(--text-secondary)}
+.cta-sub span{display:flex;align-items:center;gap:5px}
+.tick{color:var(--green);font-weight:700}
+
+/* guarantee */
+.guar{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;display:flex;gap:16px;box-shadow:var(--shadow-sm);margin-top:24px}
+.guar .ico{font-size:28px;flex:none;line-height:1}
+.guar h3{font-size:var(--text-lg);margin-bottom:6px;font-family:var(--font)}
+
+/* steps */
+.step{display:flex;gap:16px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+.num{width:32px;height:32px;border-radius:50%;background:var(--bg-secondary);color:var(--accent);font-family:var(--font);font-weight:700;display:grid;place-items:center;flex:none}
+.step h4{font-size:var(--text-base);font-weight:700;margin-bottom:3px}
+
+/* lyrics */
+.lyr{background:#fff;border:1px solid var(--border);border-radius:16px;padding:26px 24px;box-shadow:var(--shadow-md);position:relative;overflow:hidden}
+.lyr .cap{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.14em;font-weight:700;color:var(--text-muted);margin-bottom:16px;text-align:center}
+.lyr .line{font-size:var(--text-lg);line-height:1.85;text-align:center;font-weight:400}
+.lyr .line b{font-weight:700;color:var(--accent)}
+.lyr .hidden-lines{margin-top:6px;position:relative}
+.lyr .blur{height:17px;margin:14px auto;border-radius:4px;background:linear-gradient(90deg,var(--bg-tertiary),var(--bg-secondary));filter:blur(3px);opacity:.85}
+.lyr .veil{position:absolute;left:0;right:0;bottom:0;height:78%;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 72%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;padding-bottom:4px}
+.lyr .lock{font-size:22px}
+.lyr .more{font-weight:700;font-size:var(--text-base)}
+.lyr .unlock{background:none;border:none;color:var(--accent);font-family:var(--font);font-weight:700;font-size:var(--text-sm);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px}
+
+/* vsl */
+.vsl{margin:24px 0 20px}
+.vsl-inner{position:relative;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-xl);background:#1A1814;aspect-ratio:9/16;max-width:300px;margin:0 auto}
+.vsl-inner iframe,.vsl-inner video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover}
+.vsl-ph{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(160deg,#C8553D,#8E3524);cursor:pointer}
+.vsl-play{width:64px;height:64px;border-radius:50%;border:none;background:rgba(255,255,255,.95);color:var(--accent);display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.3);transition:transform .2s ease}
+.vsl-play:hover{transform:scale(1.08)}
+.vsl-play svg{width:26px;height:26px;margin-left:3px}
+.vsl-cap{position:absolute;bottom:14px;left:0;right:0;text-align:center;color:#fff;font-size:var(--text-xs);letter-spacing:.14em;text-transform:uppercase;font-weight:700;opacity:.85}
+
+/* avatars + rating summary */
+.avatars{display:flex;justify-content:center;margin-bottom:10px}
+.avatars img{width:34px;height:34px;border-radius:50%;border:2px solid #fff;margin-left:-9px;object-fit:cover;box-shadow:var(--shadow-sm)}
+.avatars img:first-child{margin-left:0}
+.badgecard{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);
+  margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.badgecard .word{font-weight:700;font-size:var(--text-lg)}
+.badgecard .sq{display:flex;gap:3px}
+.badgecard .sq i{width:30px;height:30px;display:grid;place-items:center;border-radius:3px;background:var(--bg-tertiary);color:#fff;font-size:16px;font-style:normal}
+.badgecard .sq i.f{background:var(--green)}
+.badgecard a{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--text-primary);text-decoration:none}
+.rating{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow-sm);margin-bottom:20px}
+.rating-top{display:flex;gap:18px;align-items:center;margin-bottom:18px}
+.halfstar{position:relative;display:inline-block;color:var(--bg-tertiary)}
+.halfstar span{position:absolute;left:0;top:0;overflow:hidden;color:#E5A400}
+.rating-score{font-family:var(--font);font-size:2.5rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.bars .barrow{display:flex;align-items:center;gap:12px;font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:8px}
+.bars .barrow .n{width:32px;flex:none;display:flex;align-items:center;gap:3px}
+.bars .barrow .pc{width:42px;text-align:right;flex:none;font-variant-numeric:tabular-nums}
+.bars .track{flex:1;height:7px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden}
+.bars .fill{height:100%;background:#E5A400;border-radius:4px}
+.tphoto{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;margin-bottom:14px;background:var(--bg-tertiary)}
+.tface{width:32px;height:32px;border-radius:50%;object-fit:cover;flex:none}
+.tfoot{display:flex;align-items:center;gap:10px;margin-top:14px}
+.demoflag{background:#FFF3CD;border:1px solid #E5A400;color:#7A5A00;font-size:11px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;border-radius:8px;text-align:center;margin-bottom:14px}
+
+/* faq */
+.faq{background:#fff;border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.faq summary{padding:18px 20px;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:14px;align-items:center;font-family:var(--font);font-size:var(--text-base)}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--accent);font-size:1.4rem;font-weight:400;flex:none;transition:transform .2s ease}
+.faq[open] summary::after{transform:rotate(45deg)}
+.faq .body{padding:0 20px 20px;color:var(--text-secondary);font-size:var(--text-sm)}
+
+/* sticky */
+.sticky{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(250,249,246,.92);
+  backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:12px 20px calc(12px + env(safe-area-inset-bottom));
+  box-shadow:0 -4px 24px rgba(26,24,20,.08);transform:translateY(110%);transition:transform .3s ease;
+}
+.sticky.show{transform:translateY(0)}
+.sticky-in{max-width:600px;margin:0 auto;display:flex;gap:14px;align-items:center}
+.sticky .amt{font-family:var(--font);font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;font-size:var(--text-xl);line-height:1}
+.sticky .lbl{font-size:var(--text-xs);color:var(--text-muted)}
+.sticky .cta{flex:1;padding:15px 18px;font-size:var(--text-base);animation:none}
+
+/* testimonials */
+.tcard{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+.stars{color:#E5A400;letter-spacing:2px;font-size:var(--text-sm)}
+.tmeta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.tname{margin-top:12px;font-weight:700;font-size:var(--text-sm)}
+.tver{font-size:var(--text-xs);color:var(--green);font-weight:600}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:none}
+footer{padding:32px 20px 40px;text-align:center;color:var(--text-muted);font-size:var(--text-xs);border-top:1px solid var(--border)}
+footer a{color:var(--text-secondary)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRICE TEST CONFIG — everything you tune lives in this block
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+const CONFIG = {
+  brand: "StorySound",
+
+  // ─── THIS PAGE IS OFFER 2. The main lander stays untouched at its own URL. ───
+  offerId: "offer2",         // stamped on every tracked event so it never mixes with the main lander
+  activeVariant: "a",        // MATCHED TO THEIRS: $119 fast / $79 slow / +$19 lyrics
+  allowUrlOverride: false,   // ?v=a|b|c|d QA override. Keep FALSE on live traffic.
+
+  timerMinutes: 20,
+  checkoutBase: "/checkout",
+  previewApi: "/.netlify/functions/preview-song",
+  previewSeconds: 20,
+  trackEndpoint: "/.netlify/functions/track",
+
+  // Proof stays EMPTY until you have real orders. Sections auto-hide when empty.
+  demoProof: true,         // TRUE = renders sample review cards for layout QA only.
+                           // They are watermarked and must be replaced before traffic.
+  vslUrl: "",              // mp4/webm/m3u8 or an embed URL for the "watch this while we write it" video
+
+  // Proof stays EMPTY until you have real orders. Every proof block auto-hides while empty.
+  proof: {
+    familiesCount:  null,    // e.g. 1240 — renders the avatar + count strip
+    commonReaction: null,    // e.g. "How did you remember all of that?"
+    avatars:        [],      // 4-5 small image URLs for the face pile
+    ratingScore:    null,    // e.g. 4.7
+    ratingCount:    null,    // e.g. 312
+    ratingDist:     {5:0,4:0,3:0,2:0,1:0},   // percentages for the bar breakdown (rows with 0 are skipped)
+    // Third-party rating badge. Only fill this in once you have a REAL profile on that
+    // platform — the link must resolve to your own page there.
+    // Better still: paste that platform's official widget script instead of this block.
+    badge: null,   // { platform:"Trustpilot", word:"Excellent", score:4.5, url:"https://www.trustpilot.com/review/yourdomain.com" }
+    testimonials:   []       // {stars, ago, text, name, photo, face}
+  },
+
+  variants: {
+    a: { label:"A · Premium",  fast:{was:319, now:119}, slow:{was:149, now:79}, bump:19 },
+    b: { label:"B · Mid",      fast:{was:199, now:79},  slow:{was:99,  now:49}, bump:14 },
+    c: { label:"C · Value",    fast:{was:129, now:49},  slow:{was:79,  now:29}, bump:9 },
+    d: { label:"D · Low",      fast:{was:99,  now:39},  slow:{was:59,  now:24}, bump:9 }
+  }
+};
+</script>
+
+
+<header>
+  <div class="logo">Story<span>Sound</span></div>
+</header>
+
+<section class="hero wrap">
+  <h1 class="rv">Your words are becoming a song.</h1>
+  <p class="sub rv">Watch this while we write it.</p>
+
+  <div class="vsl rv" id="vsl">
+    <div class="vsl-inner" id="vslInner">
+      <div class="vsl-ph" id="vslPh">
+        <button class="vsl-play" id="vslPlay" aria-label="Play video">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="vsl-cap">Sound on</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint rv">Press play. Headphones in, if you have them.</p>
+
+  <div class="player rv">
+    <h2 class="song-title" id="songTitle">Margaret's <em>Song</em></h2>
+    <p class="song-meta" id="songMeta">Acoustic folk · written for your mother</p>
+    <button class="playbtn" id="play" aria-label="Play preview">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <div class="wave" id="wave"></div>
+    <div class="timeline"><span id="cur">0:00</span><span id="clipLen"></span></div>
+      <div class="small muted" id="playHint" style="margin-top:10px;min-height:20px"></div>
+  </div>
+
+  <div class="proofstrip rv" id="proofstrip" hidden></div>
+</section>
+
+<div class="ratebar rv">
+  <div class="t">🔓 Preview-Unlocked Rate <span class="hl" id="offPct">—</span></div>
+  <div class="d">You listened all the way to the preview. That earns you <strong id="offAmt">—</strong> off the full song — a rate we don't show on the public site.</div>
+</div>
+
+<section class="wrap sec-tight">
+  <div class="timer rv">
+    <div class="lab">Your file is held in the studio queue</div>
+    <div class="clock" id="clock">20:00</div>
+    <div class="note">When the hold expires your file returns to the general queue and the preview-unlocked rate goes with it.</div>
+  </div>
+</section>
+
+<section class="wrap sec-tight" id="lyricsSection" hidden>
+  <div class="lyr rv">
+    <div class="cap">📜 From <span data-owner>your</span> lyrics</div>
+    <div id="lyricsLines"></div>
+    <div class="hidden-lines" id="lyricsHidden">
+      <div class="blur" style="width:88%"></div>
+      <div class="blur" style="width:76%"></div>
+      <div class="blur" style="width:92%"></div>
+      <div class="blur" style="width:70%"></div>
+      <div class="blur" style="width:84%"></div>
+      <div class="veil">
+        <span class="lock">🔒</span>
+        <span class="more" id="lyricsMore"></span>
+        <button class="unlock" id="lyricsUnlock">Unlock the full lyrics →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap sec-tight">
+  <div class="compare rv">
+    <div class="crow"><span class="l">💐 Flowers</span><span class="r">dead in a week</span></div>
+    <div class="crow"><span class="l">💍 Jewelry</span><span class="r">sits in a drawer</span></div>
+    <div class="crow"><span class="l">🍽️ A nice dinner</span><span class="r">forgotten by Friday</span></div>
+    <div class="crow win"><span class="l"><span>🎵</span><span><span data-owner>Your</span> song</span></span><span class="r">played again tonight</span></div>
+    <div class="compare-cap">Buy once. Replayed forever.</div>
+  </div>
+</section>
+
+<section class="wrap sec" id="pricing">
+  <div class="center rv" style="margin-bottom:28px">
+    <p class="eyebrow">Step one of one</p>
+    <h2 style="font-size:var(--text-2xl);margin-top:8px">Choose your delivery speed</h2>
+  </div>
+
+  <label class="opt sel rv" data-sku="fast">
+    <span class="badge">Most chosen</span>
+    <input type="radio" name="speed" value="fast" checked>
+    <span class="opt-in">
+      <span class="dot"></span>
+      <span class="opt-txt">
+        <span class="opt-name">⚡ Ready in 30 minutes</span>
+        <span class="opt-desc">Full song in your inbox tonight</span>
+      </span>
+      <span class="opt-price">
+        <span class="was" id="fastWas"></span>
+        <span class="now" id="fastNow"></span>
+        <span class="save" id="fastSave"></span>
+      </span>
+    </span>
+  </label>
+
+  <label class="opt rv" data-sku="slow">
+    <input type="radio" name="speed" value="slow">
+    <span class="opt-in">
+      <span class="dot"></span>
+      <span class="opt-txt">
+        <span class="opt-name">Ready in 48 hours</span>
+        <span class="opt-desc">Same song, same quality — you just wait</span>
+      </span>
+      <span class="opt-price">
+        <span class="was" id="slowWas"></span>
+        <span class="now" id="slowNow"></span>
+        <span class="save" id="slowSave"></span>
+      </span>
+    </span>
+  </label>
+
+  <label class="bump sel rv" id="bump">
+    <input type="checkbox" checked hidden>
+    <span class="bump-in">
+      <span class="box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+      <span style="flex:1">
+        <span class="bump-t"><span class="bump-label">Keep <span data-owner>Your</span> lyrics forever</span><span class="bump-p" id="bumpPrice"></span></span>
+        <span class="bump-d">A print-ready PDF with the name and cover art. Frame it, or fold it into the card.</span>
+      </span>
+    </span>
+  </label>
+
+  <button class="cta rv" id="mainCta">🔓 Unlock <span data-owner>Your</span> Full Song</button>
+  <div class="cta-sub rv">
+    <span><b class="tick">✓</b> Unlimited free revisions</span>
+    <span><b class="tick">✓</b> Yours forever</span>
+  </div>
+
+  <div class="guar rv">
+    <div class="ico">🛡️</div>
+    <div>
+      <h3>The Happy Tears Guarantee</h3>
+      <p class="small muted">If it doesn't move you, we'll rewrite it free until it does. Still not right? Every penny back — no forms, no questions, 30 days.</p>
+    </div>
+  </div>
+</section>
+
+<section class="tint sec">
+  <div class="wrap">
+    <div class="center rv" style="margin-bottom:28px">
+      <p class="eyebrow">What happens next</p>
+      <h2 style="font-size:var(--text-2xl);margin-top:8px">No guesswork</h2>
+    </div>
+    <div class="step rv"><div class="num">1</div><div><h4>You unlock it</h4><p class="small muted">One payment. Your song goes into production the second you click.</p></div></div>
+    <div class="step rv"><div class="num">2</div><div><h4>The full song lands in your inbox</h4><p class="small muted">Studio-quality file, every verse, chorus and bridge. Yours to download and keep.</p></div></div>
+    <div class="step rv"><div class="num">3</div><div><h4>You play it for her</h4><p class="small muted">Quiet room. Two words: "Just listen." That's the entire setup.</p></div></div>
+  </div>
+</section>
+
+
+<section class="tint sec" id="proofSection" hidden>
+  <div class="wrap">
+    <div class="center rv" style="margin-bottom:28px">
+      <h2 style="font-size:var(--text-2xl)" id="proofHeading"></h2>
+      <p class="small muted" style="margin-top:6px">Real stories, real reactions</p>
+    </div>
+    <div class="badgecard rv" id="badgeBlock" hidden></div>
+    <div class="rating rv" id="ratingBlock" hidden></div>
+    <div id="testimonials"></div>
+  </div>
+</section>
+
+<section class="wrap sec">
+  <div class="center rv" style="margin-bottom:28px">
+    <p class="eyebrow">Questions</p>
+    <h2 style="font-size:var(--text-2xl);margin-top:8px">Everything you're wondering</h2>
+  </div>
+
+  <details class="faq rv"><summary>What if it comes across as cheesy?</summary>
+    <div class="body">The line between cheesy and moving is specificity. Generic love songs make people wince because they could be about anyone. Yours is built from real names, real memories, and moments only the two of you would recognise. That's the part that makes people cry.</div></details>
+
+  <details class="faq rv"><summary>What if I don't like the full song?</summary>
+    <div class="body">The preview you just heard comes from the same recording. Unlocking gives you the complete track — every verse, the chorus and the bridge, at the same quality. If the style, the voice or the lyrics aren't right, we'll redo it free until it feels perfect.</div></details>
+
+  <details class="faq rv"><summary>What if I'm not happy with the final result?</summary>
+    <div class="body">There's a 100% satisfaction guarantee. If you're still not happy after revisions, you get a full refund — no questions asked.</div></details>
+
+  <details class="faq rv"><summary>Is my payment secure?</summary>
+    <div class="body">Checkout runs on an encrypted, PCI-compliant payment system. All major cards, Apple Pay and Google Pay are accepted. Your card details are encrypted and never stored on our servers.</div></details>
+
+  <details class="faq rv"><summary>How quickly do I get the full song after paying?</summary>
+    <div class="body">About 30 minutes. The moment you unlock it and we finalise the track, you get full access to stream, download and share it.</div></details>
+
+  <details class="faq rv"><summary>How do I share the song with them?</summary>
+    <div class="body">You'll get a private link you can text, email, or open on any device. Most people play it in person — at dinner, in the car, or in a quiet moment together. You can also download the HD file to play through a speaker, drop into a slideshow, or simply keep forever.</div></details>
+
+  <details class="faq rv"><summary>What happens if I don't unlock the full song right now?</summary>
+    <div class="body">Your preview is held for a limited time. After that it's archived and our songwriters move on to new orders. Wanting changes or the full song later may mean recreating it from scratch — a longer wait, with no guarantee of the same result or the same price. The best version of your song is ready right now.</div></details>
+</section>
+
+<section class="wrap sec-tight">
+  <button class="cta rv" id="footCta">🔓 Unlock <span data-owner>Your</span> Full Song</button>
+  <p class="center small muted rv" style="margin-top:12px">🛡️ 30-day money-back guarantee</p>
+</section>
+
+<footer>
+  <div class="logo" style="font-size:1rem;margin-bottom:10px">Story<span>Sound</span></div>
+  <p><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refunds">Refund Policy</a> · <a href="/contact">Contact</a></p>
+  <p style="margin-top:8px">© <span id="yr"></span> StorySound. All rights reserved.</p>
+</footer>
+
+<div class="sticky" id="sticky">
+  <div class="sticky-in">
+    <div>
+      <div class="amt" id="stickyAmt"></div>
+      <div class="lbl" id="stickyLbl">30-min delivery</div>
+    </div>
+    <button class="cta" id="stickyCta">Unlock <span data-owner>Your</span> Song</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = s => document.querySelector(s);
+  const money = n => "$" + (Number.isInteger(n) ? n : n.toFixed(2));
+
+  /* ---------- variant assignment: ?v= wins, else sticky cookie, else split ---------- */
+  function cookie(k, v){
+    try{
+      if(v !== undefined){ document.cookie = k+"="+v+";path=/;max-age=2592000;SameSite=Lax"; return v; }
+      const m = document.cookie.match(new RegExp("(^|; )"+k+"=([^;]*)"));
+      return m ? m[2] : null;
+    }catch(e){ return null; }
+  }
+  const params = new URLSearchParams(location.search);
+  let vKey = CONFIG.activeVariant;
+  if(CONFIG.allowUrlOverride){
+    const q = params.get("v");
+    if(q && CONFIG.variants[q]) vKey = q;
+  }
+  const V = CONFIG.variants[vKey];
+
+  /* ---------- personalisation + preview clip ---------- */
+  const token = params.get("o");
+  let name  = params.get("name")  || "";
+  let rel   = params.get("rel")   || "";
+  let genre = params.get("genre") || "";
+  const DUR = CONFIG.previewSeconds;
+
+  // Margaret -> Margaret's | James -> James' | Chris -> Chris' | (blank) -> Your
+  function poss(n){
+    if(!n) return "Your";
+    const t = n.trim();
+    return /[sS]$/.test(t) ? t + "\u2019" : t + "\u2019s";
+  }
+  function paintSong(){
+    const owner = poss(name);
+    $("#songTitle").innerHTML = owner + ' <em>Song</em>';
+    $("#songMeta").textContent = [genre, rel && ("written for " + rel)].filter(Boolean).join(" \u00b7 ");
+    document.title = name ? owner + " Song is ready \u2014 StorySound" : "Your song is almost ready \u2014 StorySound";
+    document.querySelectorAll("[data-owner]").forEach(el => el.textContent = owner);
+  }
+  paintSong();
+  $("#yr").textContent = new Date().getFullYear();
+
+  function esc(t){ return String(t).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+  function showLyrics(lines, total){
+    if(!lines || !lines.length) return;
+    const re = name ? new RegExp("(" + name.trim().replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + ")", "ig") : null;
+    $("#lyricsLines").innerHTML = lines.map(function(l){
+      const safe = esc(l);
+      return '<div class="line">' + (re ? safe.replace(re, "<b>$1</b>") : safe) + '</div>';
+    }).join("");
+    const rest = Math.max(0, (total || 0) - lines.length);
+    $("#lyricsMore").textContent = rest ? "+ " + rest + " more lines written for " + (rel || name || "them")
+                                        : "The rest of the song is written";
+    $("#lyricsSection").hidden = false;
+    track("lyrics_teaser_shown", { lines: lines.length, total: total });
+  }
+
+  let audio = null, ready = false;
+  function loadPreview(url){
+    audio = new Audio(url);
+    audio.preload = "auto";
+    audio.crossOrigin = "anonymous";
+    ready = true;
+    $("#play").disabled = false;
+    $("#playHint").textContent = "";
+  }
+
+  if(token){
+    $("#play").disabled = true;
+    $("#playHint").textContent = "Finishing your preview…";
+    (function poll(tries){
+      fetch(CONFIG.previewApi + "?o=" + encodeURIComponent(token))
+        .then(r => r.json())
+        .then(function(d){
+          if(d.name){ name = d.name; rel = d.relationship || rel; genre = d.genre || genre; paintSong(); }
+          if(d.stage === "writing")   $("#playHint").textContent = "Writing your lyrics\u2026";
+          if(d.stage === "composing") $("#playHint").textContent = "Composing the melody\u2026";
+          if(d.failed){ $("#playHint").textContent = "Something went wrong \u2014 we\u2019ll email you shortly."; return; }
+          if(d.title) $("#songTitle").innerHTML = esc(d.title).replace(/(Song|song)$/,'<em>$1</em>');
+          if(d.lyricsTeaser && d.lyricsTeaser.length) showLyrics(d.lyricsTeaser, d.lyricsTotal);
+          if(d.ready && d.previewUrl){ loadPreview(d.previewUrl); track("preview_ready", {}); return; }
+          if(tries < 40) setTimeout(() => poll(tries + 1), 3000);
+          else $("#playHint").textContent = "Taking longer than usual — we'll email your preview.";
+        })
+        .catch(function(){ if(tries < 40) setTimeout(() => poll(tries + 1), 3000); });
+    })(0);
+  } else if(params.get("preview")){
+    loadPreview(params.get("preview"));   // direct URL, for testing only
+  } else {
+    ready = true;                          // silent demo mode: waveform animates, no audio
+  }
+
+  /* ---------- render prices ---------- */
+  const pct = Math.round((1 - V.fast.now / V.fast.was) * 100);
+  $("#offPct").textContent = pct + "% OFF";
+  $("#offAmt").textContent = money(V.fast.was - V.fast.now);
+  $("#fastWas").textContent = money(V.fast.was);
+  $("#fastNow").textContent = money(V.fast.now);
+  $("#fastSave").textContent = "save " + money(V.fast.was - V.fast.now);
+  $("#slowWas").textContent = money(V.slow.was);
+  $("#slowNow").textContent = money(V.slow.now);
+  $("#slowSave").textContent = "save " + money(V.slow.was - V.slow.now);
+  $("#bumpPrice").textContent = "+" + money(V.bump);
+
+  let sku = "fast", bumpOn = true;
+  const total = () => V[sku].now + (bumpOn ? V.bump : 0);
+  function paint(){
+    const t = money(total());
+    $("#stickyAmt").textContent = t;
+    $("#stickyLbl").textContent = (sku === "fast" ? "30-min delivery" : "48-hour delivery") + (bumpOn ? " + lyrics" : "");
+  }
+
+  document.querySelectorAll(".opt").forEach(function(o){
+    o.addEventListener("click", function(){
+      document.querySelectorAll(".opt").forEach(x => x.classList.remove("sel"));
+      o.classList.add("sel");
+      o.querySelector("input").checked = true;
+      sku = o.dataset.sku;
+      paint();
+      track("select_speed", { sku: sku });
+    });
+  });
+  $("#bump").addEventListener("click", function(e){
+    e.preventDefault();
+    bumpOn = !bumpOn;
+    $("#bump").classList.toggle("sel", bumpOn);
+    paint();
+    track("toggle_bump", { on: bumpOn });
+  });
+
+  /* ---------- proof (renders only when real data exists) ---------- */
+  const DEMO = {
+    familiesCount: 1240,
+    commonReaction: "How did you remember all of that?",
+    avatars: [],
+    ratingScore: 4.5, ratingCount: 3723,
+    ratingDist: {5:70,4:20,3:7,2:0,1:0},
+    badge: null,   // see CONFIG.proof.badge — needs a real profile URL to render
+    testimonials: [
+      {stars:5, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace with a real customer quote. Aim for one specific detail from their song, one reaction, one line about what they'd have bought otherwise.]"},
+      {stars:5, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace. Skeptic-turned-believer angle: what they expected, what actually happened.]"},
+      {stars:5, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace. Milestone birthday for a parent. Include the reaction, not the product description.]"},
+      {stars:5, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace. Male recipient, unsentimental type. Counters the 'he'll think it's corny' objection.]"},
+      {stars:4, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace. Keep one 4-star. An all-5 wall reads fake and converts worse.]"},
+      {stars:5, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace. Repeat-play behaviour: how often they've listened since.]"}
+    ]
+  };
+  const p = CONFIG.demoProof ? DEMO : CONFIG.proof;
+  if(CONFIG.demoProof){
+    document.documentElement.style.setProperty("--demo","1");
+  }
+  if(p.familiesCount){
+    $("#proofstrip").hidden = false;
+    const faces = (p.avatars||[]).map(u => '<img src="'+u+'" alt="">').join("");
+    $("#proofstrip").innerHTML =
+      (faces ? '<div class="avatars">'+faces+'</div>' : '') +
+      '<strong>' + p.familiesCount.toLocaleString() + '+ families</strong> have given this gift' +
+      (p.commonReaction ? '<div class="small muted" style="margin-top:6px">“' + p.commonReaction + '” — the most common reaction</div>' : '');
+  }
+  function starRow(score, size){
+    const full = Math.floor(score), frac = score - full;
+    let out = "";
+    for(let i=1;i<=5;i++){
+      if(i <= full) out += '<span style="color:#E5A400">★</span>';
+      else if(i === full+1 && frac >= .25)
+        out += '<span class="halfstar">★<span style="width:'+Math.round(frac*100)+'%">★</span></span>';
+      else out += '<span style="color:var(--bg-tertiary)">★</span>';
+    }
+    return '<span style="font-size:'+(size||24)+'px;letter-spacing:2px">'+out+'</span>';
+  }
+
+  if(p.badge && p.badge.url && p.badge.platform){
+    $("#badgeBlock").hidden = false;
+    const filled = Math.round((p.badge.score||0));
+    $("#badgeBlock").innerHTML =
+      '<span class="word">' + (p.badge.word || "Excellent") + '</span>' +
+      '<span class="sq">' + [1,2,3,4,5].map(function(i){
+        return '<i class="' + (i <= filled ? 'f' : '') + '">★</i>';
+      }).join("") + '</span>' +
+      '<a href="' + p.badge.url + '" target="_blank" rel="noopener">' + p.badge.platform + '</a>';
+  }
+
+  if(p.ratingScore && p.ratingCount){
+    $("#ratingBlock").hidden = false;
+    const dist = p.ratingDist || {};
+    $("#ratingBlock").innerHTML =
+      '<div class="rating-top">' +
+        '<div class="rating-score">' + p.ratingScore + '</div>' +
+        '<div><div>' + starRow(p.ratingScore, 22) + '</div>' +
+        '<div class="small muted" style="margin-top:2px">Based on ' + p.ratingCount.toLocaleString() + ' reviews</div></div>' +
+      '</div>' +
+      '<div class="bars">' + [5,4,3,2,1].filter(n => dist[n] > 0).map(function(n){
+        return '<div class="barrow"><span class="n">' + n + ' <span style="color:#8A7F70">★</span></span>' +
+               '<span class="track"><span class="fill" style="width:' + dist[n] + '%"></span></span>' +
+               '<span class="pc">' + dist[n] + '%</span></div>';
+      }).join("") + '</div>';
+  }
+
+  if(p.testimonials && p.testimonials.length){
+    $("#proofSection").hidden = false;
+    if(CONFIG.demoProof){
+      $("#testimonials").insertAdjacentHTML("beforebegin",
+        '<div class="demoflag">⚠ Sample layout only — replace every review before sending traffic</div>');
+    }
+    $("#proofHeading").textContent = p.familiesCount ? "Loved by " + p.familiesCount.toLocaleString() + "+ families" : "What people said";
+    $("#testimonials").innerHTML = p.testimonials.map(function(t){
+      return '<div class="tcard rv">' +
+        (t.photo ? '<img class="tphoto" src="'+t.photo+'" alt="">' : '') +
+        '<div class="tmeta"><span class="stars">' + "★".repeat(t.stars || 5) + '</span>' +
+        '<span class="xs muted">' + (t.ago||"") + '</span></div>' +
+        '<p class="small">' + t.text + '</p>' +
+        '<div class="tfoot">' + (t.face ? '<img class="tface" src="'+t.face+'" alt="">' : '') +
+        '<span><span class="tname" style="margin:0">' + t.name + '</span>' +
+        '<span class="tver" style="display:block">✓ Verified purchase</span></span></div></div>';
+    }).join("");
+  }
+
+  /* ---------- vsl ---------- */
+  const VSL_URL = CONFIG.vslUrl || params.get("vsl");
+  $("#vslPh").addEventListener("click", function(){
+    if(!VSL_URL){ track("vsl_click_no_source", {}); return; }
+    const tag = /\.(mp4|webm|m3u8)$/i.test(VSL_URL)
+      ? '<video src="'+VSL_URL+'" controls autoplay playsinline></video>'
+      : '<iframe src="'+VSL_URL+'" allow="autoplay; fullscreen" allowfullscreen></iframe>';
+    $("#vslInner").innerHTML = tag;
+    track("play_vsl", {});
+  });
+
+  /* ---------- honest countdown: survives refresh, does not reset ---------- */
+  const KEY = "ss_hold";
+  let started = Number(params.get("t")) || Number(cookie(KEY));
+  if(!started || isNaN(started)){
+    started = Date.now();
+    cookie(KEY, started);
+  }
+  const endsAt = started + CONFIG.timerMinutes * 60000;
+  const clock = $("#clock");
+  (function tick(){
+    const left = endsAt - Date.now();
+    if(left <= 0){
+      clock.textContent = "00:00";
+      clock.style.color = "var(--text-muted)";
+      document.querySelector(".timer .note").textContent = "Your hold has expired — your file is back in the general queue. The rate above is still honoured on this page for now.";
+      return;
+    }
+    const m = Math.floor(left / 60000), s = Math.floor(left % 60000 / 1000);
+    clock.textContent = String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    setTimeout(tick, 1000);
+  })();
+
+  /* ---------- preview player ---------- */
+  const wave = $("#wave"), BARS = 48;
+  for(let i=0;i<BARS;i++){
+    const b = document.createElement("i");
+    b.style.height = (18 + Math.sin(i*0.55)*14 + Math.random()*22) + "px";
+    wave.appendChild(b);
+  }
+  const bars = wave.querySelectorAll("i");
+  const ICON_PLAY  = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  const ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+  let playing = false, pos = 0, timer = null, everPlayed = false;
+
+  function render(){
+    const done = Math.floor(pos / DUR * BARS);
+    bars.forEach((b,i) => b.classList.toggle("on", i <= done));
+    $("#cur").textContent = "0:" + String(Math.min(Math.floor(pos), DUR)).padStart(2,"0");
+  }
+  function stop(){
+    playing = false;
+    $("#play").innerHTML = ICON_PLAY;
+    clearInterval(timer);
+    if(audio) audio.pause();
+  }
+
+  $("#play").addEventListener("click", function(){
+    if(!ready) return;
+    playing = !playing;
+    this.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
+    if(!playing){ stop(); return; }
+
+    if(!everPlayed){ everPlayed = true; track("play_preview", {}); }
+    if(audio){
+      if(pos >= DUR) { pos = 0; audio.currentTime = 0; }
+      audio.play().catch(() => {});
+    }
+    timer = setInterval(function(){
+      pos = audio ? audio.currentTime : Math.min(pos + 0.25, DUR);
+      render();
+      if(pos >= DUR){                       // hard stop at the clip length
+        if(audio) audio.pause();
+        pos = DUR; render(); stop();
+        track("preview_complete", {});
+        $("#playHint").textContent = "That's the first " + DUR + " seconds.";
+      }
+    }, 200);
+  });
+
+  /* ---------- sticky bar ---------- */
+  const sticky = $("#sticky"), pricing = $("#pricing");
+  new IntersectionObserver(function(en){
+    sticky.classList.toggle("show", !en[0].isIntersecting && en[0].boundingClientRect.top < 0);
+  }, { threshold: 0 }).observe(pricing);
+
+  /* ---------- scroll reveal ---------- */
+  const io = new IntersectionObserver(function(en){
+    en.forEach(function(e,i){ if(e.isIntersecting){ setTimeout(()=>e.target.classList.add("in"), i*70); io.unobserve(e.target); } });
+  }, { threshold: .12 });
+  document.querySelectorAll(".rv").forEach(el => io.observe(el));
+
+  /* ---------- tracking: variant + price must land with every event ---------- */
+  function track(event, data){
+    const payload = Object.assign({
+      event: event, offer: CONFIG.offerId, variant: vKey, sku: sku, bump: bumpOn, total: total(),
+      ts: Date.now(), path: location.pathname
+    }, data || {});
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(payload);
+    try{
+      navigator.sendBeacon(CONFIG.trackEndpoint, new Blob([JSON.stringify(payload)], {type:"application/json"}));
+    }catch(e){}
+  }
+  function go(kind, extra){
+    track("begin_checkout", Object.assign({ kind: kind }, extra || {}));
+    const q = new URLSearchParams(Object.assign({
+      offer: CONFIG.offerId, v: vKey, kind: kind, sku: sku, bump: bumpOn ? 1 : 0, amount: total(),
+      name: name, rel: rel, genre: genre
+    }, extra || {}));
+    location.href = CONFIG.checkoutBase + "?" + q.toString();
+  }
+  $("#mainCta").addEventListener("click", () => go("song"));
+  $("#stickyCta").addEventListener("click", () => go("song"));
+  $("#footCta").addEventListener("click", () => go("song"));
+  $("#lyricsUnlock").addEventListener("click", function(){
+    track("lyrics_unlock_click", {});
+    document.getElementById("pricing").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  $("#clipLen").textContent = CONFIG.previewSeconds + " second preview";
+  paint();
+  track("view_offer", { pct: pct });
+})();
+</script>
+</body>
+</html>
