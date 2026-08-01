@@ -925,8 +925,10 @@ const CONFIG = {
       .join("&");
 
     const email = params.get("em") || "";
-    const url = "https://" + CONFIG.shopifyStore + "/cart/" + items + "?" + qs +
+    // land on checkout, not the theme homepage, so the buyer SEES their cart
+    let url = "https://" + CONFIG.shopifyStore + "/cart/" + items + "?" + qs +
                 (email ? "&checkout[email]=" + encodeURIComponent(email) : "");
+    url += "&return_to=/checkout";
     location.href = url;
   }
 
