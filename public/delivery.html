@@ -115,7 +115,12 @@ function render(d){
   var r=this.getBoundingClientRect();if(a.duration)a.currentTime=(e.clientX-r.left)/r.width*a.duration;});
  document.getElementById("cp").addEventListener("click",function(e){e.preventDefault();
   navigator.clipboard.writeText(location.origin+"/delivery?o="+d.orderId).then(function(){e.target.textContent="Copied \u2713";});});
- document.getElementById("revOpen").addEventListener("click",function(){
+ function ping(kind){try{navigator.sendBeacon("/.netlify/functions/track",
+   new Blob([JSON.stringify({event:kind+"_upsell_click",offer:"delivery",o:d.orderId,ts:Date.now()})],{type:"application/json"}));}catch(e){}}
+ var lyrA=document.querySelector('a[href*="44263011287129"]'); if(lyrA)lyrA.addEventListener("click",function(){ping("lyrics")});
+ var vidA=document.querySelector('a[href*="memory-video"]');   if(vidA)vidA.addEventListener("click",function(){ping("video")});
+ var newA=document.querySelector('a[href="/create"]');          if(newA)newA.addEventListener("click",function(){ping("another_song")});
+ document.getElementById("revOpen").addEventListener("click",function(){ping("revision");
   this.style.display="none";document.getElementById("revForm").style.display="block";});
  document.getElementById("revSend").addEventListener("click",function(){
   var t=document.getElementById("revText").value.trim(),msg=document.getElementById("revMsg");
