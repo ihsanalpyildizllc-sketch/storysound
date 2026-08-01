@@ -471,7 +471,8 @@ function startFreePreview(){
   const next='/create2-preview?o='+encodeURIComponent(orderId)
     +'&name='+encodeURIComponent(D.name||'')
     +'&rel='+encodeURIComponent(D.forWhom||'')
-    +'&genre='+encodeURIComponent(D.genre||'');
+    +'&genre='+encodeURIComponent(D.genre||'')
+    +'&em='+encodeURIComponent(D.email||'');
 
   fetch('/.netlify/functions/start-song',{method:'POST',
     headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
