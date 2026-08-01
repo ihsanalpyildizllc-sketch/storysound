@@ -18,6 +18,11 @@
   schedule = "*/10 * * * *"
 
 [[redirects]]
+  from = "/review"
+  to = "/review.html"
+  status = 200
+
+[[redirects]]
   from = "/delivery"
   to = "/delivery.html"
   status = 200
