@@ -13,7 +13,10 @@ exports.handler = async (event) => {
     let agent = null; try { agent = JSON.parse(idx?.[1]?.result || "null"); } catch (e) {}
 
     const rows = [];
+    const seen = new Set();
     for (const orderId of ids) {
+      if (seen.has(orderId)) continue;
+      seen.add(orderId);
       const [song, meta, unlocked] = await Promise.all([
         getJSON(`song_${orderId}`), getJSON(`meta_${orderId}`), getJSON(`unlocked_${orderId}`)
       ]);
@@ -35,6 +38,7 @@ exports.handler = async (event) => {
         attempts: m.attempts || 1,
         sizeKb: s.audio_size_kb || null,
         emailStatus: m.email_status || (m.preview_email ? "preview:" + m.preview_email : "—"),
+        emailErr: m.email_err || null,
         emailedAt: m.emailed_at || m.preview_emailed_at || null,
         flagged: m.flagged || null
       });
