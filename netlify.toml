@@ -14,6 +14,19 @@
 [functions."generate-song-background"]
   timeout = 900
 
+[functions."delivery-agent"]
+  schedule = "*/10 * * * *"
+
+[[redirects]]
+  from = "/delivery"
+  to = "/delivery.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin-orders"
+  to = "/admin-orders.html"
+  status = 200
+
 [[redirects]]
   from = "/create2-preview"
   to = "/create2-preview.html"
