@@ -33,11 +33,16 @@ exports.handler = async (event) => {
   } catch (e) { console.log("meta seed failed:", e.message); }
 
   const bgUrl = process.env.URL || process.env.SITE_URL || "https://storysound.netlify.app";
-  fetch(`${bgUrl}/.netlify/functions/generate-song-background`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  }).catch(e => console.error("BG trigger error:", e));
+  // MUST await: lambda freezes on return, killing un-awaited requests.
+  // Background functions ack with 202 immediately, so this costs ~100ms.
+  try {
+    const bg = await fetch(`${bgUrl}/.netlify/functions/generate-song-background`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    console.log("BG trigger:", bg.status);
+  } catch (e) { console.error("BG trigger error:", e.message); }
 
   return { statusCode: 200, body: JSON.stringify({ jobId, message: "Song generation started" }) };
 };
