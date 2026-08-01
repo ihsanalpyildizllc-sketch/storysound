@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How did it land? — StorySound</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAF9F6;--ink:#1A1814;--mut:#5C564D;--fade:#9A9389;--rust:#C8553D;--rustD:#9E3E2C;--bd:rgba(26,24,20,.08);--font:'Inter',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.6;padding:20px}
+.wrap{max-width:520px;margin:0 auto}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.04em;text-align:center;padding:14px 0 26px}.logo span{color:var(--rust)}
+h1{font-size:clamp(24px,6vw,30px);letter-spacing:-.03em;text-align:center;margin-bottom:8px}
+.sub{text-align:center;color:var(--mut);margin-bottom:26px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:18px;padding:24px;box-shadow:0 10px 25px -5px rgba(26,24,20,.08)}
+.stars{display:flex;justify-content:center;gap:8px;margin-bottom:22px}
+.st{font-size:38px;cursor:pointer;color:#E3DCD2;transition:transform .12s,color .12s;background:none;border:none;line-height:1}
+.st.on{color:#E5A400}.st:hover{transform:scale(1.15)}
+label{display:block;font-weight:700;font-size:14px;margin:16px 0 6px}
+.hint{font-size:12.5px;color:var(--fade);margin-bottom:8px;line-height:1.5}
+textarea,input[type=text]{width:100%;border:1.5px solid var(--bd);border-radius:12px;padding:13px;font-family:var(--font);font-size:15px;background:#FCFBF9}
+textarea{min-height:120px;resize:vertical}
+textarea:focus,input:focus{outline:none;border-color:var(--rust)}
+.perm{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:13.5px;color:var(--mut)}
+.perm input{margin-top:3px;accent-color:var(--rust);width:17px;height:17px}
+.btn{display:block;width:100%;border:none;cursor:pointer;border-radius:13px;padding:16px;margin-top:20px;
+background:linear-gradient(135deg,var(--rust),var(--rustD));color:#fff;font-family:var(--font);font-size:16px;font-weight:700}
+.done{text-align:center;padding:40px 10px}
+.done .big{font-size:52px;margin-bottom:14px}
+</style></head><body>
+<div class="wrap">
+<div class="logo">Story<span>Sound</span></div>
+<div id="form">
+<h1>How did it land?</h1>
+<p class="sub">One minute of your time helps the next person decide.</p>
+<div class="card">
+<div class="stars" id="stars"></div>
+<label>Tell the story</label>
+<p class="hint" id="prompts">What was their reaction when they heard it? Was there a line that got them? Were you skeptical before you pressed play — and what changed?</p>
+<textarea id="text" placeholder="She stopped halfway through and said…"></textarea>
+<label>Your name</label>
+<input type="text" id="name" placeholder="First name and last initial is perfect">
+<div class="perm"><input type="checkbox" id="perm" checked><span>You can publish my review on StorySound with my first name and last initial.</span></div>
+<button class="btn" id="go">Submit my review</button>
+</div></div>
+<div id="done" class="done" style="display:none">
+<div class="big">🧡</div><h1>Thank you.</h1>
+<p class="sub" id="doneMsg">That means more than you know — we're a small team and every word gets read.</p>
+</div></div>
+<script>
+(function(){
+var o=new URLSearchParams(location.search).get("o")||"";
+var stars=0,box=document.getElementById("stars");
+for(var i=1;i<=5;i++){(function(n){
+ var b=document.createElement("button");b.className="st";b.textContent="★";
+ b.onclick=function(){stars=n;[].forEach.call(box.children,function(c,idx){c.classList.toggle("on",idx<n)});};
+ box.appendChild(b);})(i);}
+document.getElementById("go").onclick=function(){
+ var text=document.getElementById("text").value.trim();
+ if(!stars){alert("Tap a star rating first");return;}
+ if(text.length<20){alert("A sentence or two helps — what happened when they heard it?");return;}
+ this.disabled=true;this.textContent="Sending…";
+ fetch("/.netlify/functions/review-submit",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({o:o,stars:stars,text:text,name:document.getElementById("name").value,permission:document.getElementById("perm").checked})})
+ .then(function(r){return r.json();}).then(function(d){
+  if(d.error){alert(d.error);document.getElementById("go").disabled=false;document.getElementById("go").textContent="Submit my review";return;}
+  document.getElementById("form").style.display="none";document.getElementById("done").style.display="block";
+  if(stars<=3)document.getElementById("doneMsg").textContent="We read every word — and we'd love to make it right. Reply to your delivery email and we'll revise the song free until you love it.";
+ }).catch(function(){alert("Couldn't send — try again");document.getElementById("go").disabled=false;document.getElementById("go").textContent="Submit my review";});
+};
+})();
+</script></body></html>
