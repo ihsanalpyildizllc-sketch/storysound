@@ -491,7 +491,14 @@ function startFreePreview(){
     +'&name='+encodeURIComponent(D.name||'')
     +'&rel='+encodeURIComponent(D.forWhom||'')
     +'&genre='+encodeURIComponent(D.genre||'')
-    +'&em='+encodeURIComponent(D.email||'');
+    +'&em='+encodeURIComponent(D.email||'')
+    +'&occ='+encodeURIComponent(D.occasion||'')
+    +'&voice='+encodeURIComponent(D.voice||'')
+    +'&lang='+encodeURIComponent(D.language||'')
+    +'&qual='+encodeURIComponent(D.qualities||'')
+    +'&mem='+encodeURIComponent(D.memories||'')
+    +'&msg='+encodeURIComponent(D.message||'')
+    +'&story='+encodeURIComponent(fullStory);
 
   fetch('/.netlify/functions/start-song',{method:'POST',
     headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
