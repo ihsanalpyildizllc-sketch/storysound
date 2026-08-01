@@ -45,16 +45,74 @@ exports.handler = async (event) => {
         headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
       });
       console.log("Unlock stored for original order:", origOrderId);
+
+      // make the song permanent + record purchase meta + revenue + delivery email
+      const country = order.billing_address?.country_code || order.shipping_address?.country_code || null;
+      const items = lineItems.map(i => i.title + " ($" + i.price + ")").join(", ");
+      const lyricsBought = lineItems.some(i => String(i.variant_id) === "44263011287129") || attrs["Lyrics_Addon"] === "Yes";
+      const total = parseFloat(order.total_price || 0) || 0;
+
+      const g = await fetch(`${REDIS_URL}/pipeline`, { method:"POST",
+        headers:{ Authorization:`Bearer ${REDIS_TOKEN}`,"Content-Type":"application/json" },
+        body: JSON.stringify([["GET", `meta_${origOrderId}`], ["GET", `song_${origOrderId}`], ["PERSIST", `song_${origOrderId}`], ["INCRBY", "dash:revenue:total", String(Math.round(total))]]) });
+      const rows = await g.json();
+      let meta = {}; try { meta = JSON.parse(rows[0]?.result || "{}") || {}; } catch(e){}
+      let songRec = null; try { songRec = JSON.parse(rows[1]?.result || "null"); } catch(e){}
+
+      Object.assign(meta, {
+        paid: true, persisted: true, items, total, country: meta.country || country,
+        lyrics: lyricsBought || meta.lyrics || false,
+        email: meta.email || order.email || attrs["Customer Email"] || "",
+        unlock_order: orderId, updated: Date.now()
+      });
+
+      // delivery email, immediately — the watchdog re-sends if this fails
+      let emailStatus = "skipped";
+      if (meta.email && process.env.POSTMARK_SERVER_TOKEN && songRec && songRec.status === "done") {
+        const link = `${SITE_URL}/delivery?o=${origOrderId}`;
+        const title = songRec.song_title || "Your Song";
+        const er = await fetch("https://api.postmarkapp.com/email", { method:"POST",
+          headers:{ "Content-Type":"application/json","X-Postmark-Server-Token":process.env.POSTMARK_SERVER_TOKEN },
+          body: JSON.stringify({
+            From: process.env.FROM_EMAIL || "songs@storysound.ai",
+            To: meta.email,
+            Subject: `"${title}" is ready to download 🎵`,
+            HtmlBody: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">"${title}"</h1><p style="color:#7A6A5A;margin:12px 0 24px">Thank you! Your full song is unlocked. Stream it, download it, keep it forever.</p><a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">🎵 Listen &amp; Download</a><p style="color:#9A8F82;font-size:12px;margin-top:20px">Save this email — your link never expires.</p></div>`,
+            TextBody: `"${title}" is unlocked!\n\nListen & download: ${link}`
+          })});
+        emailStatus = er.ok ? "sent" : "failed";
+      }
+      meta.email_status = emailStatus === "skipped" ? (meta.email_status || "pending") : emailStatus;
+      if (emailStatus === "sent") meta.emailed_at = Date.now();
+
+      await fetch(`${REDIS_URL}/pipeline`, { method:"POST",
+        headers:{ Authorization:`Bearer ${REDIS_TOKEN}`,"Content-Type":"application/json" },
+        body: JSON.stringify([["SET", `meta_${origOrderId}`, JSON.stringify(meta)]]) });
     }
     return { statusCode: 200, body: "Unlock processed" };
   }
 
-  // --- REGULAR SONG ORDER ---
-  // Save pending to Upstash
+  // --- REGULAR SONG ORDER (pay-first /create funnel) ---
+  const country = order.billing_address?.country_code || order.shipping_address?.country_code || null;
+  const items = lineItems.map(i => i.title + " ($" + i.price + ")").join(", ");
+  const lyricsBought = lineItems.some(i => ["44263011287129","44258586886233"].includes(String(i.variant_id)));
+  const meta = {
+    source: "create", paid: true,
+    email: order.email || attrs["Customer Email"] || "",
+    name: (attrs["Song For"] || "").split(" (")[0] || "",
+    country, items, total: parseFloat(order.total_price || 0) || 39,
+    lyrics: lyricsBought, created: Date.now(), attempts: 0
+  };
   await fetch(`${REDIS_URL}/pipeline`, {
     method: "POST",
     headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
-    body: JSON.stringify([["SET", `song_${orderId}`, JSON.stringify({ status: "processing", created: Date.now() }), "EX", "86400"]])
+    body: JSON.stringify([
+      ["SET", `song_${orderId}`, JSON.stringify({ status: "processing", created: Date.now() }), "EX", "86400"],
+      ["SET", `meta_${orderId}`, JSON.stringify(meta)],
+      ["SET", `payload_${orderId}`, event.body, "EX", "172800"],
+      ["LPUSH", "orders_index", orderId],
+      ["LTRIM", "orders_index", "0", "4999"]
+    ])
   });
 
   // Trigger background function (15min timeout)
