@@ -129,6 +129,22 @@ exports.handler = async () => {
           await mergeMeta(orderId, { persisted: true });
         }
 
+        // review request: 48h after delivery email, once, only if not yet reviewed
+        if (isPaid && m.email && m.email_status === "sent" && !m.reviewed && m.review_request !== "sent" && !m.ab_optout) {
+          if (Date.now() - (m.emailed_at || 0) > 48 * 60 * 60 * 1000) {
+            const rl = `${SITE}/review?o=${encodeURIComponent(orderId)}`;
+            const r = await sendEmail({
+              to: m.email,
+              subject: `Did "${song.song_title || "your song"}" land? (1 minute)`,
+              html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">How did it go?</h1><p style="color:#7A6A5A;margin:12px 0 24px">What was their reaction when they heard it? One minute of your time helps the next person decide — and we read every single word.</p><a href="${rl}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">⭐ Leave a 1-minute review</a></div>`,
+              text: `How did it go? Tell us in one minute: ${rl}`
+            });
+            if (!(r.reason === "no email or token")) {
+              await mergeMeta(orderId, { review_request: r.ok ? "sent" : "failed", review_requested_at: Date.now() });
+            }
+          }
+        }
+
         if (isPaid && m.email && m.email_status !== "sent") {
           const e = deliveryEmail({ title: song.song_title || "Your Song", orderId, siteUrl: SITE });
           const r = await sendEmail({ to: m.email, subject: e.subject, html: e.html, text: e.text });
