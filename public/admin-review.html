@@ -1,0 +1,43 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Add review — Admin</title>
+<style>
+body{font-family:Inter,system-ui,sans-serif;background:#101010;color:#f2efe9;padding:24px;max-width:520px;margin:0 auto}
+h1{font-size:18px}h1 span{color:#E0684B}
+label{display:block;font-weight:700;font-size:13px;margin:14px 0 5px}
+input,textarea,select{width:100%;border:1px solid #2a2a2a;border-radius:10px;padding:11px;background:#191919;color:#f2efe9;font-family:inherit;font-size:14px}
+textarea{min-height:110px}
+.btn{width:100%;border:none;border-radius:11px;padding:14px;margin-top:18px;background:#E0684B;color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+.note{font-size:12px;color:#9a938a;margin-top:14px;line-height:1.6}
+#msg{margin-top:12px;font-weight:700}
+</style></head><body>
+<h1>Story<span>Sound</span> — add a real review</h1>
+<p class="note">For reviews collected over WhatsApp, DM, or the giveaway. Paste their <b>exact words</b> — every entry here is publishable and must be a real person's real feedback.</p>
+<label>Stars</label><select id="stars"><option value="5">★★★★★</option><option value="4">★★★★</option><option value="3">★★★</option><option value="2">★★</option><option value="1">★</option></select>
+<label>Their words (verbatim)</label><textarea id="text"></textarea>
+<label>Name (First L.)</label><input id="name" placeholder="Maria R.">
+<label>Paid customer? </label><select id="vp"><option value="1">Yes — verified purchase badge</option><option value="0" selected>No — free/giveaway (no badge)</option></select>
+<label>Photo (optional, their real photo)</label><input type="file" id="photo" accept="image/*">
+<button class="btn" id="go">Publish review</button>
+<div id="msg"></div>
+<script>
+var KEY=new URLSearchParams(location.search).get("key")||"";
+function readPhoto(cb){var f=(document.getElementById("photo").files||[])[0];if(!f){cb(null);return;}
+ var img=new Image(),rd=new FileReader();rd.onload=function(){img.onload=function(){
+ var c=document.createElement("canvas"),m=900/Math.max(img.width,img.height);
+ c.width=Math.round(img.width*Math.min(1,m));c.height=Math.round(img.height*Math.min(1,m));
+ c.getContext("2d").drawImage(img,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.82));};img.src=rd.result;};rd.readAsDataURL(f);}
+document.getElementById("go").onclick=function(){
+ var b=this;b.disabled=true;b.textContent="Publishing…";
+ readPhoto(function(photo){
+  fetch("/.netlify/functions/review-submit",{method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({adminKey:KEY,stars:+document.getElementById("stars").value,
+    text:document.getElementById("text").value,name:document.getElementById("name").value,
+    verifiedPurchase:document.getElementById("vp").value==="1",photo:photo})})
+  .then(r=>r.json()).then(function(d){
+   document.getElementById("msg").textContent=d.ok?"✅ Published — live on the funnel now":"❌ "+(d.error||"failed");
+   b.disabled=false;b.textContent="Publish review";
+   if(d.ok){document.getElementById("text").value="";document.getElementById("name").value="";document.getElementById("photo").value="";}
+  });
+ });
+};
+</script></body></html>
