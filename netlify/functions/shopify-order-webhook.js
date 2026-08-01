@@ -4,7 +4,14 @@ exports.handler = async (event) => {
   const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
   const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
   const SITE_URL = process.env.SITE_URL || "https://storysound.netlify.app";
-  const UNLOCK_VARIANT = "43257750978637";
+  // Any of these means "this is an unlock purchase for an existing preview",
+  // NOT a new song to generate.
+  const UNLOCK_VARIANTS = [
+    "43257750978637",   // legacy $49 unlock
+    "44263008763993",   // Custom Song (30 minutes)
+    "44263007518809",   // Custom Song (48 hours)
+    "44263011287129"    // Lyrics
+  ];
 
   let order;
   try { order = JSON.parse(event.body); } catch(e) { return { statusCode: 400, body: "Invalid JSON" }; }
@@ -17,13 +24,22 @@ exports.handler = async (event) => {
 
   // --- DETECT UNLOCK ORDER ($49 lyrics + download) ---
   const lineItems = order.line_items || [];
-  const isUnlockOrder = lineItems.some(item => String(item.variant_id) === UNLOCK_VARIANT);
+  const isUnlockOrder = lineItems.some(item => UNLOCK_VARIANTS.includes(String(item.variant_id)));
 
   if (isUnlockOrder) {
     const origOrderId = attrs["Original_Order"] || "";
     if (origOrderId && REDIS_URL && REDIS_TOKEN) {
       // Store unlock flag — success page polls get-song which checks this
-      const val = encodeURIComponent(JSON.stringify({ unlocked: true, unlockOrderId: orderId, ts: Date.now() }));
+      const val = encodeURIComponent(JSON.stringify({
+        unlocked: true,
+        unlockOrderId: orderId,
+        offer: attrs["Offer"] || "",
+        priceVariant: attrs["Price_Variant"] || "",
+        delivery: attrs["Delivery"] || "",
+        lyrics: attrs["Lyrics_Addon"] === "Yes",
+        total: order.total_price || null,
+        ts: Date.now()
+      }));
       await fetch(`${REDIS_URL}/setex/unlocked_${origOrderId}/2592000/${val}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
