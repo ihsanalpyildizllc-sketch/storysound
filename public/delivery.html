@@ -78,8 +78,24 @@ function render(d){
    '<a href="https://wa.me/?text='+encodeURIComponent('\ud83c\udfb5 Listen to this: '+location.origin+'/delivery?o='+d.orderId)+'" target="_blank" rel="noopener">WhatsApp</a>'+
    '<a href="#" id="cp">Copy link</a></div>'+
   lyricsBlock+
-  '<div class="up"><h3>Who else deserves a song?</h3><p>A birthday is coming. You already know whose. Make the gift nobody else will think of \u2014 in the next five minutes.</p>'+
-  '<a class="btn" href="/create">\ud83c\udfb5 Make another song \u2014 $39</a></div>';
+  '<div class="card" id="revCard">'+
+  '<div class="cap">🔁 Want something changed?</div>'+
+  '<p style="font-size:14px;color:var(--mut);text-align:center;margin-bottom:14px">Revisions are free until you love it. Tell us what to adjust and a new version lands in your inbox.</p>'+
+  '<button class="btn ghost" id="revOpen">Request a free revision</button>'+
+  '<div id="revForm" style="display:none;margin-top:16px">'+
+   '<label style="font-weight:700;font-size:14px;display:block;margin-bottom:6px">What should change?</label>'+
+   '<textarea id="revText" style="width:100%;border:1.5px solid var(--bd);border-radius:12px;padding:12px;font-family:var(--font);font-size:14px;min-height:100px" placeholder="e.g. Less repetition in the chorus, focus more on the trip to the cabin, slower tempo…"></textarea>'+
+   '<label style="font-weight:700;font-size:14px;display:block;margin:12px 0 6px">Anything to keep exactly as-is? <span style="font-weight:400;color:var(--fade)">(optional)</span></label>'+
+   '<input id="revKeep" style="width:100%;border:1.5px solid var(--bd);border-radius:12px;padding:12px;font-family:var(--font);font-size:14px" placeholder="e.g. The opening verse — that one is perfect">'+
+   '<button class="btn" id="revSend" style="margin-top:14px">Send revision request</button>'+
+   '<p id="revMsg" style="text-align:center;font-size:13px;margin-top:10px;min-height:18px"></p>'+
+  '</div></div>'+
+
+  '<div class="up"><h3>🎬 Turn it into a video</h3><p>Your photos, set to '+esc(d.title)+' — lyrics on screen, ready for the party TV and the family group chat. This is the version everyone shares.</p>'+
+  '<a class="btn" href="/memory-video?o='+encodeURIComponent(d.orderId)+'">Make the Memory Video — $39</a></div>'+
+
+  '<div class="up" style="background:linear-gradient(160deg,#1F3D2E,#16301F)"><h3>Who else deserves one?</h3><p>A birthday is coming. You already know whose. Make the gift nobody else will think of — in the next five minutes.</p>'+
+  '<a class="btn" style="color:#16301F" href="/create">🎵 Make another song — $39</a></div>';
 
  var a=new Audio(d.audioUrl),pl=document.getElementById("pl"),fill=document.getElementById("fill"),
      cur=document.getElementById("cur"),dur=document.getElementById("dur"),playing=false;
@@ -94,6 +110,19 @@ function render(d){
   var r=this.getBoundingClientRect();if(a.duration)a.currentTime=(e.clientX-r.left)/r.width*a.duration;});
  document.getElementById("cp").addEventListener("click",function(e){e.preventDefault();
   navigator.clipboard.writeText(location.origin+"/delivery?o="+d.orderId).then(function(){e.target.textContent="Copied \u2713";});});
+ document.getElementById("revOpen").addEventListener("click",function(){
+  this.style.display="none";document.getElementById("revForm").style.display="block";});
+ document.getElementById("revSend").addEventListener("click",function(){
+  var t=document.getElementById("revText").value.trim(),msg=document.getElementById("revMsg");
+  if(t.length<10){msg.textContent="A sentence or two helps — what should be different?";msg.style.color="var(--rust)";return;}
+  var btn=this;btn.disabled=true;btn.textContent="Sending…";
+  fetch("/.netlify/functions/revision-request",{method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({o:d.orderId,feedback:t,keep:document.getElementById("revKeep").value.trim()})})
+  .then(function(r){return r.json();}).then(function(x){
+   if(x.ok){document.getElementById("revForm").innerHTML='<p style="text-align:center;font-weight:700;padding:10px">✅ Got it — check your email. New version usually within a few hours.</p>';}
+   else{msg.textContent=x.error||"Couldn\u2019t send — try again";msg.style.color="var(--rust)";btn.disabled=false;btn.textContent="Send revision request";}
+  }).catch(function(){msg.textContent="Couldn\u2019t send — try again";btn.disabled=false;btn.textContent="Send revision request";});
+ });
 }
 load();
 })();
