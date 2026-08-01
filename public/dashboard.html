@@ -223,19 +223,19 @@ async function loadData() {
   document.getElementById('lastRefresh').textContent = 'Refreshing...';
 
   try {
-    const r = await fetch('/.netlify/functions/dashboard-data');
+    const r = await fetch('/.netlify/functions/dashboard-data?key='+encodeURIComponent(new URLSearchParams(location.search).get('key')||'')+'');
     const d = await r.json();
 
     // Stat cards
-    const rev = d.stats.totalRevenue;
+    const rev = d.revenue.total;
     document.getElementById('totalRevenue').textContent = '$' + rev.toLocaleString();
-    document.getElementById('totalProfit').textContent = '$' + d.stats.totalProfit.toLocaleString() + ' profit';
-    document.getElementById('todayRevenue').textContent = '$' + d.stats.revenueToday.toLocaleString();
-    document.getElementById('todaySongs').textContent = d.stats.todaySongs + ' song' + (d.stats.todaySongs !== 1 ? 's' : '') + ' today';
-    document.getElementById('totalSongs').textContent = d.stats.totalSongs;
-    document.getElementById('marginVal').textContent = d.stats.margin + '% margin';
-    document.getElementById('totalCost').textContent = '$' + d.stats.totalCost.toFixed(2);
-    document.getElementById('claudeSpend').textContent = '$' + (d.stats.totalSongs * 0.01).toFixed(2);
+    document.getElementById('totalProfit').textContent = '$' + d.cost.profit.toLocaleString() + ' profit';
+    document.getElementById('todayRevenue').textContent = '$' + d.revenue.today.toLocaleString();
+    document.getElementById('todaySongs').textContent = d.songs.today + ' song' + (d.songs.today !== 1 ? 's' : '') + ' today';
+    document.getElementById('totalSongs').textContent = d.songs.total;
+    document.getElementById('marginVal').textContent = (d.revenue.total>0?((d.cost.profit/d.revenue.total)*100).toFixed(1):'—')+'% margin';
+    document.getElementById('totalCost').textContent = '$' + d.cost.total.toFixed(2);
+    document.getElementById('claudeSpend').textContent = '$' + (d.songs.total * 0.01).toFixed(2);
 
     // Apiframe credits
     const af = d.apiframe;
@@ -248,27 +248,29 @@ async function loadData() {
 
     const bar = document.getElementById('apiframeBar');
     bar.style.width = pct + '%';
-    bar.className = 'progress-fill progress-' + af.status;
+    bar.className = 'progress-fill progress-' + af.health;
 
     const badge = document.getElementById('apiframeBadge');
-    badge.textContent = af.status === 'healthy' ? '✓ Healthy' : af.status === 'warning' ? '⚠ Low' : '⚠ Critical';
-    badge.className = 'credit-badge badge-' + af.status;
+    badge.textContent = af.health === 'healthy' ? '✓ Healthy' : af.health === 'warning' ? '⚠ Low' : '⚠ Critical';
+    badge.className = 'credit-badge badge-' + af.health;
 
     // Orders table
     const orders = d.recentOrders;
-    document.getElementById('orderCount').textContent = (d.stats.totalSongs || 0) + ' total';
+    document.getElementById('orderCount').textContent = (d.songs && d.songs.total || 0) + ' total';
     if (!orders || orders.length === 0) {
       document.getElementById('ordersTable').innerHTML = '<div class="empty-state">No songs generated yet — place your first order!</div>';
     } else {
       let rows = orders.map(o => {
         const date = new Date(o.ts);
         const timeStr = date.toLocaleDateString('en-US', {month:'short',day:'numeric'}) + ' ' + date.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'});
+        const st = o.status==='done' ? (o.paid ? '💰 paid' : '🎧 preview') : o.status;
+        const rev = o.paid && o.revenue ? '$'+o.revenue : (o.source==='create2' ? '—' : '$'+(o.revenue||0));
         return `<tr>
-          <td><div class="song-title">${esc(o.title || '—')}</div><div class="song-meta">For ${esc(o.songFor || '—')} · ${esc(o.occasion || '—')}</div></td>
+          <td><div class="song-title">${esc(o.title || '—')}${o.revision ? ' <span style="color:#E5A400;font-size:11px">🔁 revision</span>' : ''}</div><div class="song-meta">For ${esc(o.songFor || '—')} · ${esc(o.source)} · ${st}</div></td>
           <td><span class="badge-genre">${esc(o.genre || '—')}</span></td>
-          <td><span class="revenue-val">$${o.revenue || 39}</span></td>
+          <td><span class="revenue-val">${rev}</span></td>
           <td><span class="time-val">${timeStr}</span></td>
-          <td><a href="/.netlify/functions/song-page?orderId=${esc(o.id)}" target="_blank" style="color:var(--accent);font-size:12px;text-decoration:none">Listen →</a></td>
+          <td>${o.listen ? `<a href="${o.listen}" target="_blank" style="color:var(--accent);font-size:12px;text-decoration:none">Listen →</a> · ` : ''}<a href="${o.delivery}" target="_blank" style="color:var(--accent);font-size:12px;text-decoration:none">Page →</a></td>
         </tr>`;
       }).join('');
       document.getElementById('ordersTable').innerHTML = `<table><thead><tr><th>Song</th><th>Genre</th><th>Revenue</th><th>Time</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
@@ -295,5 +297,12 @@ function esc(s) {
 
 loadData();
 </script>
-</body>
+<div style="text-align:center;padding:18px;font-size:12px">
+<a id="lnkOrders" style="color:#E0684B;text-decoration:none;font-weight:600">Full orders table →</a> ·
+<a id="lnkReview" style="color:#E0684B;text-decoration:none;font-weight:600">Add a review →</a></div>
+<script>
+(function(){var k=new URLSearchParams(location.search).get('key')||'';
+document.getElementById('lnkOrders').href='/admin-orders?key='+encodeURIComponent(k);
+document.getElementById('lnkReview').href='/admin-review?key='+encodeURIComponent(k);})();
+</script></body>
 </html>
