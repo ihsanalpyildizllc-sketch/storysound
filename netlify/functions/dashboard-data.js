@@ -48,12 +48,14 @@ exports.handler = async (event) => {
       });
     }
 
-    const credits = apiframeRes?.team?.credits || 0;
+    // Apiframe has moved this field around; try every known shape
+    const A = apiframeRes || {};
+    const credits = A?.team?.credits ?? A?.data?.credits ?? A?.user?.credits ?? A?.credits ?? A?.data?.team?.credits ?? 0;
     const cost = Math.round(totalSongs * 0.08 * 100) / 100;
     return {
       statusCode: 200, headers: h(),
       body: JSON.stringify({
-        apiframe: { credits, plan: apiframeRes?.team?.plan || "unknown", songsLeft: Math.floor(credits / 11),
+        apiframe: { credits, plan: A?.team?.plan || A?.data?.plan || A?.plan || "unknown", songsLeft: Math.floor(credits / 11),
           health: credits > 500 ? "healthy" : credits > 100 ? "warning" : "critical" },
         revenue: { total: totalRev, today: todayRev },
         songs: { total: totalSongs, today: todaySongs },
