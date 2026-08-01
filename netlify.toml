@@ -15,6 +15,11 @@
   timeout = 900
 
 [[redirects]]
+  from = "/create2"
+  to = "/create2.html"
+  status = 200
+
+[[redirects]]
   from = "/create"
   to = "/create.html"
   status = 200
