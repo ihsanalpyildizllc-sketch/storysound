@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orders — StorySound Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#101010;--card:#191919;--bd:#2a2a2a;--ink:#f2efe9;--mut:#9a938a;--rust:#E0684B;--grn:#5FBF8A;--amb:#E5A400;--red:#E05C5C}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;font-size:14px;padding:24px}
+h1{font-size:20px;letter-spacing:-.02em;margin-bottom:4px}h1 span{color:var(--rust)}
+.sub{color:var(--mut);font-size:12px;margin-bottom:20px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
+.kpi .n{font-size:22px;font-weight:800;letter-spacing:-.02em}.kpi .l{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.agent{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:20px;font-size:12px;color:var(--mut)}
+.agent b{color:var(--ink)}
+.tblwrap{overflow-x:auto;background:var(--card);border:1px solid var(--bd);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:1150px}
+th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);text-align:left;padding:12px 10px;border-bottom:1px solid var(--bd);white-space:nowrap;position:sticky;top:0;background:var(--card)}
+td{padding:11px 10px;border-bottom:1px solid #222;white-space:nowrap;vertical-align:middle}
+tr:hover td{background:#1f1f1f}
+.pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.g{background:rgba(95,191,138,.15);color:var(--grn)}.a{background:rgba(229,164,0,.15);color:var(--amb)}
+.r{background:rgba(224,92,92,.15);color:var(--red)}.n{background:#262626;color:var(--mut)}
+a{color:var(--rust);text-decoration:none;font-weight:600}a:hover{text-decoration:underline}
+audio{height:30px;width:190px;vertical-align:middle}
+.mono{font-family:ui-monospace,monospace;font-size:11px;color:var(--mut)}
+#err{color:var(--red);padding:40px;text-align:center}
+</style></head><body>
+<h1>Story<span>Sound</span> — Orders</h1>
+<p class="sub">Auto-refreshes every 60s · <span id="upd">loading…</span></p>
+<div class="kpis" id="kpis"></div>
+<div class="agent" id="agent">Agent: waiting for first run…</div>
+<div class="tblwrap"><table><thead><tr>
+<th>Ordered</th><th>Song</th><th>Listen</th><th>Src</th><th>Status</th><th>Tries</th><th>Size</th>
+<th>Lyrics</th><th>Total</th><th>Country</th><th>Email</th><th>Delivery</th><th>Links</th>
+</tr></thead><tbody id="tb"></tbody></table></div>
+<div id="err" style="display:none"></div>
+<script>
+(function(){
+var KEY=new URLSearchParams(location.search).get("key")||"";
+if(!KEY){document.getElementById("err").style.display="block";document.getElementById("err").textContent="Add ?key=YOUR_DASH_KEY to the URL.";return;}
+function esc(t){return String(t==null?"":t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function fmtTs(t){if(!t)return"—";var d=new Date(t);return d.toLocaleDateString(undefined,{month:"short",day:"numeric"})+" "+d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});}
+function load(){
+ fetch("/.netlify/functions/orders-admin?key="+encodeURIComponent(KEY)).then(function(r){return r.json();}).then(function(d){
+  if(d.error){document.getElementById("err").style.display="block";document.getElementById("err").textContent=d.error;return;}
+  var s=d.summary;
+  document.getElementById("kpis").innerHTML=
+   '<div class="kpi"><div class="n">'+s.orders+'</div><div class="l">Orders</div></div>'+
+   '<div class="kpi"><div class="n">'+s.paid+'</div><div class="l">Paid</div></div>'+
+   '<div class="kpi"><div class="n">$'+s.revenue+'</div><div class="l">Revenue</div></div>'+
+   '<div class="kpi"><div class="n">$'+s.aov+'</div><div class="l">AOV</div></div>'+
+   '<div class="kpi"><div class="n">'+s.lyricsAttach+'%</div><div class="l">Lyrics attach</div></div>';
+  if(d.agent){var a=d.agent;document.getElementById("agent").innerHTML=
+   "Agent last run <b>"+fmtTs(a.ts)+"</b> · checked <b>"+a.checked+"</b> · retried <b>"+a.retried+"</b> · delivery emails <b>"+a.emailedDelivery+"</b> · preview emails <b>"+a.emailedPreview+"</b> · flagged <b>"+a.flagged+"</b>"+(a.errors&&a.errors.length?' · <span style="color:var(--red)">'+a.errors.length+' errors</span>':"");}
+  document.getElementById("tb").innerHTML=d.rows.map(function(r){
+   var st=r.status==="done"?'<span class="pill g">done</span>':r.status==="processing"?'<span class="pill a">'+esc(r.stage||"processing")+'</span>':'<span class="pill r">'+esc(r.status)+'</span>';
+   if(r.flagged)st+=' <span class="pill r">'+esc(r.flagged)+'</span>';
+   var em=r.emailStatus==="sent"?'<span class="pill g">sent</span>':r.emailStatus&&r.emailStatus.indexOf("preview:sent")===0?'<span class="pill g">preview</span>':r.emailStatus==="failed"?'<span class="pill r">failed</span>':'<span class="pill n">—</span>';
+   var play=r.status==="done"?'<audio controls preload="none" src="/.netlify/functions/get-audio?orderId='+encodeURIComponent(r.orderId)+'"></audio>':"—";
+   return "<tr>"+
+    "<td>"+fmtTs(r.created)+"</td>"+
+    "<td><b>"+esc(r.title||"…")+"</b><br><span class='mono'>"+esc(r.orderId)+"</span></td>"+
+    "<td>"+play+"</td>"+
+    "<td>"+esc(r.source)+"</td>"+
+    "<td>"+st+"</td>"+
+    "<td>"+r.attempts+"</td>"+
+    "<td>"+(r.sizeKb?r.sizeKb+"KB":"—")+"</td>"+
+    "<td>"+(r.lyrics?'<span class="pill g">yes</span>':'<span class="pill n">no</span>')+"</td>"+
+    "<td><b>"+(r.total?"$"+r.total:"—")+"</b></td>"+
+    "<td>"+esc(r.country||"—")+"</td>"+
+    "<td>"+(r.email?'<a href="mailto:'+esc(r.email)+'">'+esc(r.email)+"</a><br>":"")+em+"</td>"+
+    "<td>"+fmtTs(r.emailedAt)+"</td>"+
+    "<td><a href='/delivery?o="+encodeURIComponent(r.orderId)+"' target='_blank'>delivery</a> · <a href='/create2-preview?o="+encodeURIComponent(r.orderId)+"' target='_blank'>preview</a> · <a href='/.netlify/functions/get-audio?orderId="+encodeURIComponent(r.orderId)+"&dl=1'>mp3</a></td>"+
+   "</tr>";}).join("");
+  document.getElementById("upd").textContent="updated "+new Date().toLocaleTimeString();
+ }).catch(function(e){document.getElementById("upd").textContent="fetch failed — retrying";});
+}
+load();setInterval(load,60000);
+})();
+</script></body></html>
