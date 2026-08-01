@@ -80,13 +80,21 @@ Return ONLY valid JSON (no markdown):
       })
     });
     const cdRaw = await cr.text();
-    let cd; try { cd = JSON.parse(cdRaw); } catch(e) { throw new Error('Claude parse error: ' + cdRaw.slice(0,100)); }
-    if (cd.error) throw new Error('Claude API error: ' + cd.error.message);
-    if (!cd.content?.[0]) throw new Error('Claude returned no content');
+    let cd; try { cd = JSON.parse(cdRaw); } catch(e) { throw new Error('[claude-api] non-JSON response: ' + cdRaw.slice(0,120)); }
+    if (cd.error) throw new Error('[claude-api] ' + cd.error.message);
+    if (!cd.content?.[0]) throw new Error('[claude-api] empty content');
 
+    // robust: strip fences, then take the first balanced {...} block regardless of any preamble
     let song;
-    try { song = JSON.parse(cd.content[0].text.replace(/```json|```/g, '').trim()); }
-    catch(e) { throw new Error('Song JSON parse error: ' + cd.content[0].text.slice(0,200)); }
+    const txt = cd.content[0].text.replace(/```json|```/g, '').trim();
+    try { song = JSON.parse(txt); }
+    catch(e) {
+      const m = txt.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error('[claude-lyrics] no JSON in reply: ' + txt.slice(0,150));
+      try { song = JSON.parse(m[0]); }
+      catch(e2) { throw new Error('[claude-lyrics] JSON invalid: ' + m[0].slice(0,150)); }
+    }
+    if (!song.lyrics || !song.song_title) throw new Error('[claude-lyrics] missing fields: ' + JSON.stringify(Object.keys(song)));
 
     await save(orderId, { status: 'processing', stage: 'composing', song_title: song.song_title, lyrics: song.lyrics });
 
@@ -117,7 +125,24 @@ Return ONLY valid JSON (no markdown):
           }
         })
       });
-      const sd = await sr.json();
+      let sd;
+      { const raw = await sr.text();
+        try { sd = JSON.parse(raw); }
+        catch(e) {
+          // transient gateway HTML — one retry after 4s
+          await new Promise(r => setTimeout(r, 4000));
+          const sr2 = await fetch('https://api.apiframe.ai/v2/music/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-API-Key': APIFRAME_KEY },
+            body: JSON.stringify({ model: 'suno', prompt: song.lyrics,
+              sunoParams: { custom_mode: true, style: song.music_style, title: song.song_title.slice(0,80),
+                instrumental: false, model_version: 'V5_5', vocal_gender: vocalGender } })
+          });
+          const raw2 = await sr2.text();
+          try { sd = JSON.parse(raw2); }
+          catch(e2) { throw new Error('[apiframe-submit] non-JSON twice: ' + raw2.slice(0,120)); }
+        }
+      }
       if (!sr.ok || sd.error) throw new Error('Suno v2 error: ' + (sd.error || JSON.stringify(sd).slice(0,200)));
       taskId = sd.jobId || sd.id || sd.task_id;
 
@@ -127,7 +152,11 @@ Return ONLY valid JSON (no markdown):
         const pr = await fetch(`https://api.apiframe.ai/v2/jobs/${taskId}`, {
           headers: { 'X-API-Key': APIFRAME_KEY }
         });
-        const pd = await pr.json();
+        let pd;
+        { const praw = await pr.text();
+          try { pd = JSON.parse(praw); }
+          catch(e) { console.log('[apiframe-poll] non-JSON blip, retrying:', praw.slice(0,80)); continue; }
+        }
         const jobStatus = (pd.status || '').toUpperCase();
 
         if (jobStatus === 'COMPLETED' || jobStatus === 'FINISHED' || jobStatus === 'SUCCEEDED') {
@@ -158,7 +187,24 @@ Return ONLY valid JSON (no markdown):
           model: 'chirp-v4'
         })
       });
-      const sd = await sr.json();
+      let sd;
+      { const raw = await sr.text();
+        try { sd = JSON.parse(raw); }
+        catch(e) {
+          // transient gateway HTML — one retry after 4s
+          await new Promise(r => setTimeout(r, 4000));
+          const sr2 = await fetch('https://api.apiframe.ai/v2/music/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-API-Key': APIFRAME_KEY },
+            body: JSON.stringify({ model: 'suno', prompt: song.lyrics,
+              sunoParams: { custom_mode: true, style: song.music_style, title: song.song_title.slice(0,80),
+                instrumental: false, model_version: 'V5_5', vocal_gender: vocalGender } })
+          });
+          const raw2 = await sr2.text();
+          try { sd = JSON.parse(raw2); }
+          catch(e2) { throw new Error('[apiframe-submit] non-JSON twice: ' + raw2.slice(0,120)); }
+        }
+      }
       if (!sr.ok || sd.error) throw new Error('Suno v1 error: ' + (sd.error || JSON.stringify(sd).slice(0,200)));
       taskId = sd.task_id;
 
@@ -168,7 +214,11 @@ Return ONLY valid JSON (no markdown):
         const pr = await fetch(`https://api.apiframe.pro/fetch/${taskId}`, {
           headers: { 'Authorization': APIFRAME_KEY }
         });
-        const pd = await pr.json();
+        let pd;
+        { const praw = await pr.text();
+          try { pd = JSON.parse(praw); }
+          catch(e) { console.log('[apiframe-poll] non-JSON blip, retrying:', praw.slice(0,80)); continue; }
+        }
         if (pd.status === 'finished') {
           audioUrl = pd.songs?.[0]?.audio_url;
           if (audioUrl) break;
