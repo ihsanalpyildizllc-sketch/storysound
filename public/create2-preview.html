@@ -277,13 +277,19 @@ const CONFIG = {
   allowUrlOverride: false,   // ?v=a|b|c|d QA override. Keep FALSE on live traffic.
 
   timerMinutes: 20,
-  checkoutBase: "/checkout",
+  // ─── Shopify checkout ───
+  shopifyStore: "gut-1809.myshopify.com",
+  variants: {
+    fast: "44263008763993",   // Custom Song (30 minutes)
+    slow: "44263007518809",   // Custom Song (48 hours)
+    bump: "44263011287129"    // Lyrics
+  },
   previewApi: "/.netlify/functions/preview-song",
   previewSeconds: 20,
   trackEndpoint: "/.netlify/functions/track",
 
   // Proof stays EMPTY until you have real orders. Sections auto-hide when empty.
-  demoProof: true,         // TRUE = renders sample review cards for layout QA only.
+  demoProof: false,         // TRUE = renders sample review cards for layout QA only.
                            // They are watermarked and must be replaced before traffic.
   vslUrl: "",              // mp4/webm/m3u8 or an embed URL for the "watch this while we write it" video
 
@@ -302,7 +308,7 @@ const CONFIG = {
     testimonials:   []       // {stars, ago, text, name, photo, face}
   },
 
-  variants: {
+  prices: {
     a: { label:"A · Premium",  fast:{was:319, now:119}, slow:{was:149, now:79}, bump:19 },
     b: { label:"B · Mid",      fast:{was:199, now:79},  slow:{was:99,  now:49}, bump:14 },
     c: { label:"C · Value",    fast:{was:129, now:49},  slow:{was:79,  now:29}, bump:9 },
@@ -546,9 +552,9 @@ const CONFIG = {
   let vKey = CONFIG.activeVariant;
   if(CONFIG.allowUrlOverride){
     const q = params.get("v");
-    if(q && CONFIG.variants[q]) vKey = q;
+    if(q && CONFIG.prices[q]) vKey = q;
   }
-  const V = CONFIG.variants[vKey];
+  const V = CONFIG.prices[vKey];
 
   /* ---------- personalisation + preview clip ---------- */
   const token = params.get("o");
@@ -869,12 +875,31 @@ const CONFIG = {
   }
   function go(kind, extra){
     track("begin_checkout", Object.assign({ kind: kind }, extra || {}));
-    const q = new URLSearchParams(Object.assign({
-      offer: CONFIG.offerId, v: vKey, kind: kind, sku: sku, bump: bumpOn ? 1 : 0, amount: total(),
-      name: name, rel: rel, genre: genre
-    }, extra || {}));
-    location.href = CONFIG.checkoutBase + "?" + q.toString();
+
+    // line items: chosen delivery speed (+ lyrics bump if ticked)
+    let items = CONFIG.variants[sku] + ":1";
+    if(bumpOn) items += "," + CONFIG.variants.bump + ":1";
+
+    // Original_Order is what shopify-order-webhook reads to unlock this preview
+    const attrs = {
+      "Original_Order": token || "",
+      "Offer": CONFIG.offerId,
+      "Price_Variant": vKey,
+      "Delivery": sku === "fast" ? "30 minutes" : "48 hours",
+      "Lyrics_Addon": bumpOn ? "Yes" : "No",
+      "Song For": name || "",
+      "Relationship": rel || ""
+    };
+    const qs = Object.keys(attrs).filter(k => attrs[k])
+      .map(k => "attributes[" + encodeURIComponent(k) + "]=" + encodeURIComponent(attrs[k]))
+      .join("&");
+
+    const email = params.get("em") || "";
+    const url = "https://" + CONFIG.shopifyStore + "/cart/" + items + "?" + qs +
+                (email ? "&checkout[email]=" + encodeURIComponent(email) : "");
+    location.href = url;
   }
+
   $("#mainCta").addEventListener("click", () => go("song"));
   $("#stickyCta").addEventListener("click", () => go("song"));
   $("#footCta").addEventListener("click", () => go("song"));
