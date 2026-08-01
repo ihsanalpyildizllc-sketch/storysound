@@ -561,6 +561,13 @@ const CONFIG = {
   let name  = params.get("name")  || "";
   let rel   = params.get("rel")   || "";
   let genre = params.get("genre") || "";
+  const occ   = params.get("occ")   || "";
+  const voice = params.get("voice") || "";
+  const lang  = params.get("lang")  || "";
+  const qual  = params.get("qual")  || "";
+  const mem   = params.get("mem")   || "";
+  const msg   = params.get("msg")   || "";
+  const story = params.get("story") || "";
   const DUR = CONFIG.previewSeconds;
 
   // Margaret -> Margaret's | James -> James' | Chris -> Chris' | (blank) -> Your
@@ -903,7 +910,15 @@ const CONFIG = {
       "Delivery": sku === "fast" ? "30 minutes" : "48 hours",
       "Lyrics_Addon": bumpOn ? "Yes" : "No",
       "Song For": name || "",
-      "Relationship": rel || ""
+      "Relationship": rel || "",
+      "Occasion": occ || "",
+      "Genre": genre || "",
+      "Language": lang || "",
+      "Singer Voice": voice || "",
+      "Their Qualities": qual || "",
+      "Memories": mem || "",
+      "Special Message": msg || "",
+      "_full_story": story || ""
     };
     const qs = Object.keys(attrs).filter(k => attrs[k])
       .map(k => "attributes[" + encodeURIComponent(k) + "]=" + encodeURIComponent(attrs[k]))
