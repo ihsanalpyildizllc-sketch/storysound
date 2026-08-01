@@ -1,873 +1,1056 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your song is almost ready — StorySound</title>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,"script","https://connect.facebook.net/en_US/fbevents.js");
+fbq("init","1060043183620255");
+fbq("track","PageView");
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1060043183620255&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Your Song — StorySound</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+*{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg-primary:#FAF9F6; --bg-secondary:#F3F1EC; --bg-tertiary:#E8E4DD; --bg-dark:#1A1814;
-  --text-primary:#1A1814; --text-secondary:#5C564D; --text-muted:#9A9389;
-  --accent:#C8553D; --accent-light:#E8A598; --accent-dark:#9E3E2C;
-  --gold:#B8893B; --green:#2D6A4F;
-  --border:rgba(26,24,20,.08); --border-strong:rgba(26,24,20,.15);
-  --shadow-sm:0 1px 3px rgba(26,24,20,.06),0 1px 2px rgba(26,24,20,.04);
-  --shadow-md:0 4px 6px -1px rgba(26,24,20,.07),0 2px 4px -1px rgba(26,24,20,.04);
-  --shadow-lg:0 10px 25px -5px rgba(26,24,20,.08),0 8px 10px -6px rgba(26,24,20,.04);
-  --shadow-xl:0 20px 50px -12px rgba(26,24,20,.14),0 8px 20px -8px rgba(26,24,20,.06);
-  --shadow-accent:0 8px 24px -4px rgba(200,85,61,.32);
-  /* ONE font for the whole page. Swap this single line to change everything.
-     Serif alternative: 'Playfair Display',Georgia,serif  (both are loaded above) */
-  --font:'Inter',system-ui,-apple-system,sans-serif;
-  --text-xs:clamp(.75rem,.7rem + .25vw,.8125rem);
-  --text-sm:clamp(.8125rem,.76rem + .25vw,.875rem);
-  --text-base:clamp(.9375rem,.875rem + .3vw,1.0625rem);
-  --text-lg:clamp(1.0625rem,1rem + .4vw,1.25rem);
-  --text-xl:clamp(1.25rem,1.1rem + .7vw,1.5rem);
-  --text-2xl:clamp(1.5rem,1.2rem + 1.5vw,2rem);
-  --text-3xl:clamp(2rem,1.5rem + 2.5vw,3rem);
+  --cream:#FAF7F2;--cream2:#F2EBE0;--ink:#0F0A06;--ink2:#2C1F14;
+  --muted:#7A6A5A;--rust:#B5471C;--rust2:#8E3415;--gold:#C49A2E;
+  --gold-l:#F0D898;--border:rgba(15,10,6,0.09);--green:#2A6644;--white:#fff;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{
-  background:var(--bg-primary);color:var(--text-primary);
-  font-family:var(--font);font-size:var(--text-base);line-height:1.6;
-  -webkit-font-smoothing:antialiased;padding-bottom:96px;
+html,body{min-height:100%;background:var(--cream)}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);padding-bottom:90px}
+.prog-wrap{background:var(--cream);position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border)}
+.prog-fill{height:3px;background:linear-gradient(90deg,var(--rust),#E07030);transition:width 0.5s ease}
+.prog-meta{display:flex;justify-content:space-between;padding:10px 24px 8px;font-size:12px;color:var(--muted);font-weight:500}
+.prog-meta span:last-child{color:var(--rust);font-weight:600}
+.screen{display:none;padding:44px 24px 24px;animation:fadeUp 0.35s ease}
+.screen.active{display:block}
+.screen-center{min-height:calc(100vh - 120px);display:flex;flex-direction:column;justify-content:center}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.stitle{font-family:'Cormorant Garamond',serif;font-size:clamp(30px,7vw,42px);font-weight:700;color:var(--ink);line-height:1.1;letter-spacing:-0.02em;margin-bottom:8px;text-align:center}
+.ssub{font-size:14px;color:var(--muted);margin-bottom:6px;text-align:center}
+.sbest{font-size:12px;color:var(--muted);font-style:italic;margin-bottom:28px;text-align:center}
+.pill-wrap{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:28px}
+.pill{border:1.5px solid var(--border);border-radius:100px;padding:10px 18px;font-size:14px;font-weight:500;cursor:pointer;background:var(--white);color:var(--ink2);transition:all 0.18s;user-select:none;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.pill:active{transform:scale(0.97)}
+.pill.sel{background:var(--rust);color:#fff;border-color:var(--rust);box-shadow:0 4px 14px rgba(181,71,28,0.28)}
+.igroup{margin-bottom:20px}
+.ilabel{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;display:block}
+.ifield{width:100%;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--ink);background:var(--white);outline:none;transition:all 0.2s;-webkit-appearance:none}
+.ifield:focus{border-color:var(--rust);box-shadow:0 0 0 3px rgba(181,71,28,0.08)}
+textarea.ifield{min-height:130px;resize:none;line-height:1.65}
+.slabel{font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:12px;text-align:center}
+.btm{position:fixed;bottom:0;left:0;right:0;background:rgba(250,247,242,0.96);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px;z-index:100}
+.btm.hide{display:none}
+.btn-back{background:none;border:1.5px solid var(--border);border-radius:100px;padding:12px 22px;font-size:15px;font-weight:500;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;flex-shrink:0;transition:all 0.2s}
+.btn-next{flex:1;background:var(--ink);color:#fff;border:none;border-radius:100px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;position:relative;overflow:hidden}
+.btn-next::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent 55%)}
+.btn-next:disabled{opacity:0.38;cursor:not-allowed}
+.tos{font-size:10px;color:var(--muted);text-align:center;width:100%;padding-top:4px}
+.tos a{color:var(--muted);text-decoration:underline}
+
+/* EDIT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;padding:0 0 32px;animation:slideUp 0.3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 16px}
+.modal-header{padding:0 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--ink)}
+.modal-close{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;padding:4px;line-height:1}
+.modal-body{padding:20px}
+.modal-section{margin-bottom:20px}
+.modal-section-label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;display:block}
+.modal-pills{display:flex;flex-wrap:wrap;gap:8px}
+.modal-pill{border:1.5px solid var(--border);border-radius:100px;padding:8px 14px;font-size:13px;font-weight:500;cursor:pointer;background:var(--white);color:var(--ink2);transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.modal-pill.sel{background:var(--rust);color:#fff;border-color:var(--rust)}
+.modal-input{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);background:var(--cream);outline:none;transition:all 0.2s}
+.modal-input:focus{border-color:var(--rust);background:var(--white)}
+.modal-textarea{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--cream);outline:none;resize:none;min-height:80px;line-height:1.6;transition:all 0.2s}
+.modal-textarea:focus{border-color:var(--rust);background:var(--white)}
+.btn-save-changes{width:100%;background:var(--rust);color:#fff;border:none;border-radius:100px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;box-shadow:0 4px 16px rgba(181,71,28,0.28)}
+.btn-save-changes:active{transform:scale(0.98)}
+
+/* BUMPS PAGE */
+.bump-wrap{padding:32px 20px 24px;max-width:580px;margin:0 auto}
+.bump-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:4px}
+.bump-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:20px}
+.osc{background:var(--white);border-radius:16px;padding:16px 18px;border:1px solid var(--border);margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.osc-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.osc-pills{display:flex;gap:12px;flex-wrap:wrap}
+.osc-pill{font-size:13px;color:var(--ink2);display:flex;align-items:center;gap:4px}
+.bump-card{border-radius:14px;padding:16px;margin-bottom:10px;border:2px solid var(--border);cursor:pointer;transition:all 0.2s;background:var(--white);position:relative}
+.bump-card.checked{border-color:var(--rust);background:#FEF8F5}
+.bump-card.free-card{border-color:var(--green);background:rgba(42,102,68,0.04);cursor:default}
+.bump-top{display:flex;align-items:flex-start;gap:10px}
+.bump-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;background:var(--white);transition:all 0.2s}
+.bump-card.checked .bump-check{background:var(--rust);border-color:var(--rust)}
+.bump-card.free-card .bump-check{background:var(--green);border-color:var(--green)}
+.bump-check svg{fill:#fff;display:none}
+.bump-card.checked .bump-check svg,.bump-card.free-card .bump-check svg{display:block}
+.bump-label{flex:1}
+.bump-badge{display:inline-flex;align-items:center;gap:4px;background:var(--rust);color:#fff;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700;letter-spacing:0.06em;margin-bottom:5px}
+.bump-badge.grn{background:var(--green)}
+.bump-badge.org{background:#C97020}
+.bump-name{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.bump-desc{font-size:13px;color:var(--muted);line-height:1.5}
+.bump-price{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--rust);flex-shrink:0;margin-top:2px}
+.bump-price.free{color:var(--green)}
+.bump-items{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:5px;padding-left:32px}
+.bump-items li{font-size:12px;color:var(--ink2);display:flex;gap:5px}
+.bump-items li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.orig{font-size:12px;color:var(--muted);text-decoration:line-through;margin-right:2px}
+.tp{background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
+.tp-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.tp-stars{color:#00B67A;font-size:15px;letter-spacing:1px}
+.tp-score{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink)}
+.tp-count{font-size:11px;color:var(--muted)}
+.tp-green{color:#00B67A;font-weight:700;font-size:12px;margin-left:auto}
+.tp-review{border-left:3px solid #00B67A;padding:10px 12px;background:rgba(0,182,122,0.05);border-radius:0 8px 8px 0}
+.tp-rtitle{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.tp-rtext{font-size:13px;color:var(--muted);line-height:1.6}
+.tp-rby{font-size:11px;color:var(--muted);margin-top:6px}
+.trust-row{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);justify-content:center;margin-bottom:12px}
+.btn-pay{width:100%;background:var(--rust);color:#fff;border:none;border-radius:16px;padding:17px;font-size:17px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;box-shadow:0 4px 20px rgba(181,71,28,0.3);position:relative;overflow:hidden;margin-bottom:8px}
+.btn-pay::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.12),transparent 55%)}
+.btn-pay:disabled{opacity:0.5;cursor:not-allowed}
+.sec-row{display:flex;align-items:center;justify-content:center;gap:14px;font-size:12px;color:var(--muted);font-weight:500;margin-bottom:16px}
+/* STICKY PAY BAR */
+.sticky-pay{position:fixed;bottom:0;left:0;right:0;background:rgba(250,247,242,0.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:12px 20px;z-index:100;display:none}
+.sticky-pay.show{display:block}
+.sticky-pay .btn-pay{margin-bottom:4px;padding:15px}
+.sticky-pay .sec-row{margin-bottom:0}
+
+/* STICKY PULSE ANIMATION */
+@keyframes stickyPulse{0%,100%{box-shadow:0 4px 20px rgba(181,71,28,0.3)}50%{box-shadow:0 4px 32px rgba(181,71,28,0.7),0 0 0 4px rgba(181,71,28,0.15)}}
+.sticky-pay .btn-pay.pulse{animation:stickyPulse 2s ease-in-out infinite}
+
+/* REVIEW PAGE */
+.rev-wrap{padding:40px 20px 24px;max-width:560px;margin:0 auto}
+.rev-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:4px}
+.rev-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:20px}
+.rcard{background:var(--white);border-radius:16px;padding:20px;border:1px solid var(--border);margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.rct{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.rrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
+.rrow:last-of-type{border-bottom:none}
+.rrow span{color:var(--muted)}
+.rrow strong{color:var(--ink);text-align:right;max-width:58%}
+.elabel{display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px}
+.efield{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--ink);background:var(--cream);outline:none;transition:all 0.2s;-webkit-appearance:none}
+.efield:focus{border-color:var(--rust);background:var(--white);box-shadow:0 0 0 3px rgba(181,71,28,0.08)}
+.ph-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px 0;border-top:1px solid var(--border);margin-top:10px}
+.ph-toggle span:first-child{font-size:14px;color:var(--ink2);flex:1}
+.ph-toggle small{font-size:12px;color:var(--muted)}
+.ph-fields{display:none;padding:10px 0 4px;gap:8px}
+.ph-fields.open{display:flex}
+.ph-pre{width:88px;border:1.5px solid var(--border);border-radius:10px;padding:11px 10px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--white);color:var(--ink);outline:none;flex-shrink:0}
+.ph-num{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:15px;background:var(--white);color:var(--ink);outline:none}
+.create-btn{width:100%;background:var(--rust);color:#fff;border:none;border-radius:100px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;margin-top:8px;margin-bottom:6px;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(181,71,28,0.3)}
+.create-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.12),transparent 55%)}
+.see-price{font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px}
+/* SAMPLES */
+.samp-sec{background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
+.samp-filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;scrollbar-width:none}
+.samp-filters::-webkit-scrollbar{display:none}
+.sf{border:1.5px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;background:var(--white);color:var(--muted);white-space:nowrap;flex-shrink:0;transition:all 0.15s}
+.sf.on{background:var(--rust);color:#fff;border-color:var(--rust)}
+.si{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.si:last-child{border-bottom:none}
+.splay{width:40px;height:40px;background:var(--rust);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;border:none;box-shadow:0 3px 10px rgba(181,71,28,0.25);transition:transform 0.15s}
+.splay:active{transform:scale(0.95)}
+.splay svg{fill:#fff;margin-left:2px}
+.sin{font-size:14px;font-weight:600;color:var(--ink)}
+.sisub{font-size:12px;color:var(--muted)}
+.sbar-w{height:3px;background:var(--cream2);border-radius:2px;margin-top:5px}
+.sbar{height:3px;background:var(--rust);border-radius:2px;width:0%;transition:width 0.3s}
+/* WYG */
+.wyg{background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
+.wyg-t{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:12px}
+.wyi{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.wyi:last-child{border-bottom:none}
+.wyn{width:28px;height:28px;background:var(--rust);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.wyt strong{display:block;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:1px}
+.wyt span{font-size:12px;color:var(--muted)}
+/* WHY */
+.why-row{display:flex;gap:10px;margin-bottom:14px}
+.wc{flex:1;background:var(--white);border-radius:12px;padding:14px 10px;text-align:center;border:1px solid var(--border)}
+.wi{font-size:22px;margin-bottom:4px}
+.wn{font-size:11px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.ws{font-size:10px;color:var(--muted)}
+/* ORDER TOTAL */
+.tot-card{background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
+@media(min-width:520px){
+  .screen,.bump-wrap,.rev-wrap{max-width:520px;margin:0 auto}
+  .btm{max-width:520px;left:50%;transform:translateX(-50%)}
 }
-h1,h2,h3,.serif{font-family:var(--font);font-weight:700;letter-spacing:-.03em;line-height:1.15}
-.wrap{max-width:600px;margin:0 auto;padding:0 20px}
-.sec{padding:56px 0}
-.sec-tight{padding:40px 0}
-.tint{background:var(--bg-secondary)}
-.center{text-align:center}
-.eyebrow{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.14em;font-weight:700;color:var(--text-muted)}
-.muted{color:var(--text-secondary)}
-.small{font-size:var(--text-sm)}
-.xs{font-size:var(--text-xs)}
-
-/* header */
-header{padding:20px 0;text-align:center;border-bottom:1px solid var(--border);background:var(--bg-primary)}
-.logo{font-family:var(--font);font-weight:800;font-size:1.25rem;letter-spacing:-.04em}
-.logo span{color:var(--accent)}
-
-/* hero */
-.hero{padding:48px 0 40px;text-align:center}
-.hero h1{font-size:var(--text-3xl);margin-bottom:12px}
-.hero .sub{color:var(--accent);font-weight:600;font-size:var(--text-lg);font-family:var(--font);font-style:italic}
-.hero .hint{margin-top:20px;font-size:var(--text-sm);color:var(--text-muted)}
-
-/* player */
-.player{
-  margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:20px;
-  padding:32px 24px 24px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;
-}
-.player::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(200,85,61,.06),transparent 65%);pointer-events:none}
-.song-title{font-size:var(--text-2xl);margin-bottom:6px}
-.song-title em{color:var(--accent);font-style:italic}
-.song-meta{font-size:var(--text-sm);color:var(--text-muted);margin-bottom:24px}
-.playbtn{
-  width:72px;height:72px;border-radius:50%;border:none;cursor:pointer;
-  background:linear-gradient(135deg,var(--accent),var(--accent-dark));
-  box-shadow:var(--shadow-accent);color:#fff;display:grid;place-items:center;
-  transition:transform .2s ease,box-shadow .2s ease;position:relative;
-}
-.playbtn:disabled{opacity:.55;cursor:wait}
-.playbtn:hover:not(:disabled){transform:scale(1.06);box-shadow:0 12px 32px -4px rgba(200,85,61,.42)}
-.playbtn::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--accent-light);opacity:.5;animation:pulse 2.4s ease-out infinite}
-@keyframes pulse{0%{transform:scale(1);opacity:.5}70%{transform:scale(1.25);opacity:0}100%{opacity:0}}
-.playbtn svg{width:26px;height:26px;margin-left:3px}
-.wave{display:flex;align-items:flex-end;justify-content:center;gap:3px;height:56px;margin:24px 0 12px}
-.wave i{display:block;width:3px;border-radius:2px;background:var(--bg-tertiary);transition:background .25s ease,transform .25s ease}
-.wave i.on{background:var(--accent-light)}
-.timeline{display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--text-muted);font-variant-numeric:tabular-nums}
-
-/* proof strip */
-.proofstrip{
-  margin-top:20px;background:#fff;border:1px solid var(--border);border-radius:14px;
-  padding:16px;text-align:center;box-shadow:var(--shadow-sm);
-}
-
-/* earned rate banner */
-.ratebar{background:var(--green);color:#fff;padding:20px;text-align:center}
-.ratebar .t{font-weight:700;font-size:var(--text-base);margin-bottom:6px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
-.ratebar .d{font-size:var(--text-sm);opacity:.92;max-width:460px;margin:0 auto}
-.hl{background:#FFD966;color:#1A1814;padding:2px 8px;border-radius:6px;font-weight:700;white-space:nowrap}
-
-/* timer */
-.timer{
-  margin:32px auto 0;background:#fff;border:1.5px solid var(--accent-light);border-radius:16px;
-  padding:20px;text-align:center;box-shadow:var(--shadow-md);
-}
-.timer .lab{font-size:var(--text-sm);font-weight:600;color:var(--text-secondary);margin-bottom:4px}
-.timer .clock{font-family:var(--font);font-size:2.5rem;font-weight:800;letter-spacing:-.03em;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.1}
-.timer .note{font-size:var(--text-xs);color:var(--text-muted);margin-top:8px;max-width:400px;margin-inline:auto}
-
-/* compare */
-.compare{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-sm)}
-.crow{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--border)}
-.crow:last-child{border-bottom:none}
-.crow .l{display:flex;align-items:center;gap:10px;font-weight:600}
-.crow .r{font-size:var(--text-sm);color:var(--text-muted);text-align:right}
-.crow.win{background:linear-gradient(90deg,rgba(200,85,61,.06),rgba(200,85,61,.02))}
-.crow.win .l{color:var(--accent)}
-.crow.win .r{color:var(--accent);font-weight:700;font-style:italic;font-family:var(--font)}
-.compare-cap{text-align:center;font-size:var(--text-sm);color:var(--text-muted);padding:14px;background:var(--bg-secondary)}
-
-/* pricing */
-.opt{
-  display:block;background:#fff;border:2px solid var(--border);border-radius:16px;padding:18px 20px;
-  margin-bottom:12px;cursor:pointer;position:relative;transition:all .2s ease;box-shadow:var(--shadow-sm);
-}
-.opt:hover{border-color:var(--accent-light);box-shadow:var(--shadow-md)}
-.opt.sel{border-color:var(--accent);box-shadow:var(--shadow-accent);background:linear-gradient(180deg,rgba(200,85,61,.04),#fff)}
-.opt input{position:absolute;opacity:0;pointer-events:none}
-.opt-in{display:flex;align-items:center;gap:14px}
-.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border-strong);flex:none;display:grid;place-items:center;transition:all .2s ease}
-.opt.sel .dot{border-color:var(--accent)}
-.opt.sel .dot::after{content:"";width:11px;height:11px;border-radius:50%;background:var(--accent)}
-.opt-txt{flex:1;min-width:0}
-.opt-name{font-weight:700;font-size:var(--text-lg);display:flex;align-items:center;gap:8px}
-.opt-desc{font-size:var(--text-sm);color:var(--text-secondary);margin-top:2px}
-.opt-price{text-align:right;flex:none}
-.was{font-size:var(--text-sm);color:var(--text-muted);text-decoration:line-through}
-.now{font-family:var(--font);font-size:var(--text-2xl);font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1.1}
-.save{display:inline-block;margin-top:4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green)}
-.badge{
-  position:absolute;top:-11px;right:16px;background:var(--accent);color:#fff;
-  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px;
-  box-shadow:var(--shadow-sm);
-}
-.badge.g{background:var(--green)}
-.bump{background:#FFFBF2;border:2px dashed var(--gold);border-radius:14px;padding:16px 18px;margin-bottom:20px;cursor:pointer;display:block;transition:all .2s ease}
-.bump:hover{background:#FFF7E6}
-.bump.sel{background:#FFF4DE;border-style:solid}
-.bump-in{display:flex;gap:12px;align-items:flex-start}
-.box{width:22px;height:22px;border-radius:6px;border:2px solid var(--gold);flex:none;display:grid;place-items:center;background:#fff;transition:all .2s ease;margin-top:2px}
-.bump.sel .box{background:var(--gold)}
-.box svg{width:13px;height:13px;stroke:#fff;stroke-width:3.5;fill:none;opacity:0;transition:opacity .15s ease}
-.bump.sel .box svg{opacity:1}
-.bump-t{font-weight:700;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
-.bump-label{flex:1;min-width:0}
-.bump-p{color:var(--gold);font-weight:700;white-space:nowrap}
-.bump-d{font-size:var(--text-sm);color:var(--text-secondary);margin-top:3px}
-
-/* cta */
-.cta{
-  display:block;width:100%;border:none;cursor:pointer;border-radius:14px;padding:20px 24px;
-  background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;
-  font-family:var(--font);font-size:var(--text-lg);font-weight:700;letter-spacing:-.01em;
-  box-shadow:var(--shadow-accent);transition:transform .2s ease,box-shadow .2s ease;
-  animation:breathe 3.5s ease-in-out infinite;
-}
-.cta:hover{transform:translateY(-2px);box-shadow:0 14px 36px -4px rgba(200,85,61,.45)}
-.cta:active{transform:translateY(0)}
-@keyframes breathe{0%,100%{box-shadow:0 8px 24px -4px rgba(200,85,61,.32)}50%{box-shadow:0 12px 34px -4px rgba(200,85,61,.46)}}
-.cta-sub{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:var(--text-sm);color:var(--text-secondary)}
-.cta-sub span{display:flex;align-items:center;gap:5px}
-.tick{color:var(--green);font-weight:700}
-
-/* guarantee */
-.guar{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;display:flex;gap:16px;box-shadow:var(--shadow-sm);margin-top:24px}
-.guar .ico{font-size:28px;flex:none;line-height:1}
-.guar h3{font-size:var(--text-lg);margin-bottom:6px;font-family:var(--font)}
-
-/* steps */
-.step{display:flex;gap:16px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
-.num{width:32px;height:32px;border-radius:50%;background:var(--bg-secondary);color:var(--accent);font-family:var(--font);font-weight:700;display:grid;place-items:center;flex:none}
-.step h4{font-size:var(--text-base);font-weight:700;margin-bottom:3px}
-
-/* lyrics */
-.lyr{background:#fff;border:1px solid var(--border);border-radius:16px;padding:26px 24px;box-shadow:var(--shadow-md);position:relative;overflow:hidden}
-.lyr .cap{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.14em;font-weight:700;color:var(--text-muted);margin-bottom:16px;text-align:center}
-.lyr .line{font-size:var(--text-lg);line-height:1.85;text-align:center;font-weight:400}
-.lyr .line b{font-weight:700;color:var(--accent)}
-.lyr .hidden-lines{margin-top:6px;position:relative}
-.lyr .blur{height:17px;margin:14px auto;border-radius:4px;background:linear-gradient(90deg,var(--bg-tertiary),var(--bg-secondary));filter:blur(3px);opacity:.85}
-.lyr .veil{position:absolute;left:0;right:0;bottom:0;height:78%;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 72%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;padding-bottom:4px}
-.lyr .lock{font-size:22px}
-.lyr .more{font-weight:700;font-size:var(--text-base)}
-.lyr .unlock{background:none;border:none;color:var(--accent);font-family:var(--font);font-weight:700;font-size:var(--text-sm);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px}
-
-/* vsl */
-.vsl{margin:24px 0 20px}
-.vsl-inner{position:relative;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-xl);background:#1A1814;aspect-ratio:9/16;max-width:300px;margin:0 auto}
-.vsl-inner iframe,.vsl-inner video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover}
-.vsl-ph{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(160deg,#C8553D,#8E3524);cursor:pointer}
-.vsl-play{width:64px;height:64px;border-radius:50%;border:none;background:rgba(255,255,255,.95);color:var(--accent);display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.3);transition:transform .2s ease}
-.vsl-play:hover{transform:scale(1.08)}
-.vsl-play svg{width:26px;height:26px;margin-left:3px}
-.vsl-cap{position:absolute;bottom:14px;left:0;right:0;text-align:center;color:#fff;font-size:var(--text-xs);letter-spacing:.14em;text-transform:uppercase;font-weight:700;opacity:.85}
-
-/* avatars + rating summary */
-.avatars{display:flex;justify-content:center;margin-bottom:10px}
-.avatars img{width:34px;height:34px;border-radius:50%;border:2px solid #fff;margin-left:-9px;object-fit:cover;box-shadow:var(--shadow-sm)}
-.avatars img:first-child{margin-left:0}
-.badgecard{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);
-  margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
-.badgecard .word{font-weight:700;font-size:var(--text-lg)}
-.badgecard .sq{display:flex;gap:3px}
-.badgecard .sq i{width:30px;height:30px;display:grid;place-items:center;border-radius:3px;background:var(--bg-tertiary);color:#fff;font-size:16px;font-style:normal}
-.badgecard .sq i.f{background:var(--green)}
-.badgecard a{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--text-primary);text-decoration:none}
-.rating{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow-sm);margin-bottom:20px}
-.rating-top{display:flex;gap:18px;align-items:center;margin-bottom:18px}
-.halfstar{position:relative;display:inline-block;color:var(--bg-tertiary)}
-.halfstar span{position:absolute;left:0;top:0;overflow:hidden;color:#E5A400}
-.rating-score{font-family:var(--font);font-size:2.5rem;font-weight:800;letter-spacing:-.03em;line-height:1}
-.bars .barrow{display:flex;align-items:center;gap:12px;font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:8px}
-.bars .barrow .n{width:32px;flex:none;display:flex;align-items:center;gap:3px}
-.bars .barrow .pc{width:42px;text-align:right;flex:none;font-variant-numeric:tabular-nums}
-.bars .track{flex:1;height:7px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden}
-.bars .fill{height:100%;background:#E5A400;border-radius:4px}
-.tphoto{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;margin-bottom:14px;background:var(--bg-tertiary)}
-.tface{width:32px;height:32px;border-radius:50%;object-fit:cover;flex:none}
-.tfoot{display:flex;align-items:center;gap:10px;margin-top:14px}
-.demoflag{background:#FFF3CD;border:1px solid #E5A400;color:#7A5A00;font-size:11px;font-weight:700;
-  letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;border-radius:8px;text-align:center;margin-bottom:14px}
-
-/* faq */
-.faq{background:#fff;border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow-sm)}
-.faq summary{padding:18px 20px;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:14px;align-items:center;font-family:var(--font);font-size:var(--text-base)}
-.faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:"+";color:var(--accent);font-size:1.4rem;font-weight:400;flex:none;transition:transform .2s ease}
-.faq[open] summary::after{transform:rotate(45deg)}
-.faq .body{padding:0 20px 20px;color:var(--text-secondary);font-size:var(--text-sm)}
-
-/* sticky */
-.sticky{
-  position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(250,249,246,.92);
-  backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:12px 20px calc(12px + env(safe-area-inset-bottom));
-  box-shadow:0 -4px 24px rgba(26,24,20,.08);transform:translateY(110%);transition:transform .3s ease;
-}
-.sticky.show{transform:translateY(0)}
-.sticky-in{max-width:600px;margin:0 auto;display:flex;gap:14px;align-items:center}
-.sticky .amt{font-family:var(--font);font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;font-size:var(--text-xl);line-height:1}
-.sticky .lbl{font-size:var(--text-xs);color:var(--text-muted)}
-.sticky .cta{flex:1;padding:15px 18px;font-size:var(--text-base);animation:none}
-
-/* testimonials */
-.tcard{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
-.stars{color:#E5A400;letter-spacing:2px;font-size:var(--text-sm)}
-.tmeta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.tname{margin-top:12px;font-weight:700;font-size:var(--text-sm)}
-.tver{font-size:var(--text-xs);color:var(--green);font-weight:600}
-
-/* reveal */
-.rv{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}
-.rv.in{opacity:1;transform:none}
-footer{padding:32px 20px 40px;text-align:center;color:var(--text-muted);font-size:var(--text-xs);border-top:1px solid var(--border)}
-footer a{color:var(--text-secondary)}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     PRICE TEST CONFIG — everything you tune lives in this block
-     ═══════════════════════════════════════════════════════════ -->
-<script>
-const CONFIG = {
-  brand: "StorySound",
-
-  // ─── THIS PAGE IS OFFER 2. The main lander stays untouched at its own URL. ───
-  offerId: "offer2",         // stamped on every tracked event so it never mixes with the main lander
-  activeVariant: "a",        // MATCHED TO THEIRS: $119 fast / $79 slow / +$19 lyrics
-  allowUrlOverride: false,   // ?v=a|b|c|d QA override. Keep FALSE on live traffic.
-
-  timerMinutes: 20,
-  checkoutBase: "/checkout",
-  previewApi: "/.netlify/functions/order-preview",
-  previewSeconds: 20,
-  trackEndpoint: "/.netlify/functions/track",
-
-  // Proof stays EMPTY until you have real orders. Sections auto-hide when empty.
-  demoProof: true,         // TRUE = renders sample review cards for layout QA only.
-                           // They are watermarked and must be replaced before traffic.
-  vslUrl: "",              // mp4/webm/m3u8 or an embed URL for the "watch this while we write it" video
-
-  // Proof stays EMPTY until you have real orders. Every proof block auto-hides while empty.
-  proof: {
-    familiesCount:  null,    // e.g. 1240 — renders the avatar + count strip
-    commonReaction: null,    // e.g. "How did you remember all of that?"
-    avatars:        [],      // 4-5 small image URLs for the face pile
-    ratingScore:    null,    // e.g. 4.7
-    ratingCount:    null,    // e.g. 312
-    ratingDist:     {5:0,4:0,3:0,2:0,1:0},   // percentages for the bar breakdown (rows with 0 are skipped)
-    // Third-party rating badge. Only fill this in once you have a REAL profile on that
-    // platform — the link must resolve to your own page there.
-    // Better still: paste that platform's official widget script instead of this block.
-    badge: null,   // { platform:"Trustpilot", word:"Excellent", score:4.5, url:"https://www.trustpilot.com/review/yourdomain.com" }
-    testimonials:   []       // {stars, ago, text, name, photo, face}
-  },
-
-  variants: {
-    a: { label:"A · Premium",  fast:{was:319, now:119}, slow:{was:149, now:79}, bump:19 },
-    b: { label:"B · Mid",      fast:{was:199, now:79},  slow:{was:99,  now:49}, bump:14 },
-    c: { label:"C · Value",    fast:{was:129, now:49},  slow:{was:79,  now:29}, bump:9 },
-    d: { label:"D · Low",      fast:{was:99,  now:39},  slow:{was:59,  now:24}, bump:9 }
-  }
-};
-</script>
-
-
-<header>
-  <div class="logo">Story<span>Sound</span></div>
-</header>
-
-<section class="hero wrap">
-  <h1 class="rv">Your words are becoming a song.</h1>
-  <p class="sub rv">Watch this while we write it.</p>
-
-  <div class="vsl rv" id="vsl">
-    <div class="vsl-inner" id="vslInner">
-      <div class="vsl-ph" id="vslPh">
-        <button class="vsl-play" id="vslPlay" aria-label="Play video">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="vsl-cap">Sound on</div>
-      </div>
-    </div>
-  </div>
-
-  <p class="hint rv">Press play. Headphones in, if you have them.</p>
-
-  <div class="player rv">
-    <h2 class="song-title" id="songTitle">Margaret's <em>Song</em></h2>
-    <p class="song-meta" id="songMeta">Acoustic folk · written for your mother</p>
-    <button class="playbtn" id="play" aria-label="Play preview">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-    </button>
-    <div class="wave" id="wave"></div>
-    <div class="timeline"><span id="cur">0:00</span><span id="clipLen"></span></div>
-      <div class="small muted" id="playHint" style="margin-top:10px;min-height:20px"></div>
-  </div>
-
-  <div class="proofstrip rv" id="proofstrip" hidden></div>
-</section>
-
-<div class="ratebar rv">
-  <div class="t">🔓 Preview-Unlocked Rate <span class="hl" id="offPct">—</span></div>
-  <div class="d">You listened all the way to the preview. That earns you <strong id="offAmt">—</strong> off the full song — a rate we don't show on the public site.</div>
+<div class="prog-wrap">
+  <div style="height:3px;background:rgba(181,71,28,0.1)"><div class="prog-fill" id="pf" style="width:13%"></div></div>
+  <div class="prog-meta"><span id="ps">Step 1 of 8</span><span id="pp">13% Complete</span></div>
 </div>
 
-<section class="wrap sec-tight">
-  <div class="timer rv">
-    <div class="lab">Your file is held in the studio queue</div>
-    <div class="clock" id="clock">20:00</div>
-    <div class="note">When the hold expires your file returns to the general queue and the preview-unlocked rate goes with it.</div>
-  </div>
-</section>
-
-<section class="wrap sec-tight" id="lyricsSection" hidden>
-  <div class="lyr rv">
-    <div class="cap">📜 From <span data-owner>your</span> lyrics</div>
-    <div id="lyricsLines"></div>
-    <div class="hidden-lines" id="lyricsHidden">
-      <div class="blur" style="width:88%"></div>
-      <div class="blur" style="width:76%"></div>
-      <div class="blur" style="width:92%"></div>
-      <div class="blur" style="width:70%"></div>
-      <div class="blur" style="width:84%"></div>
-      <div class="veil">
-        <span class="lock">🔒</span>
-        <span class="more" id="lyricsMore"></span>
-        <button class="unlock" id="lyricsUnlock">Unlock the full lyrics →</button>
-      </div>
+<!-- S1: Who -->
+<div class="screen active" id="s1">
+  <div class="screen-center">
+    <div class="stitle">Who's this song for?</div>
+    <p class="ssub">Pick who this song is for</p>
+    <div style="height:20px"></div>
+    <div class="pill-wrap" id="p1">
+      <div class="pill" onclick="pick1(this)">Husband</div><div class="pill" onclick="pick1(this)">Wife</div>
+      <div class="pill" onclick="pick1(this)">Partner</div><div class="pill" onclick="pick1(this)">Girlfriend</div>
+      <div class="pill" onclick="pick1(this)">Boyfriend</div><div class="pill" onclick="pick1(this)">Son</div>
+      <div class="pill" onclick="pick1(this)">Daughter</div><div class="pill" onclick="pick1(this)">Fianc&eacute;</div>
+      <div class="pill" onclick="pick1(this)">Father</div><div class="pill" onclick="pick1(this)">Mother</div>
+      <div class="pill" onclick="pick1(this)">Grandparent</div><div class="pill" onclick="pick1(this)">Grandson</div>
+      <div class="pill" onclick="pick1(this)">Granddaughter</div><div class="pill" onclick="pick1(this)">Sibling</div>
+      <div class="pill" onclick="pick1(this)">Friend</div><div class="pill" onclick="pick1(this)">Myself</div>
+      <div class="pill" onclick="pick1(this)">Other</div>
     </div>
-  </div>
-</section>
-
-<section class="wrap sec-tight">
-  <div class="compare rv">
-    <div class="crow"><span class="l">💐 Flowers</span><span class="r">dead in a week</span></div>
-    <div class="crow"><span class="l">💍 Jewelry</span><span class="r">sits in a drawer</span></div>
-    <div class="crow"><span class="l">🍽️ A nice dinner</span><span class="r">forgotten by Friday</span></div>
-    <div class="crow win"><span class="l"><span>🎵</span><span><span data-owner>Your</span> song</span></span><span class="r">played again tonight</span></div>
-    <div class="compare-cap">Buy once. Replayed forever.</div>
-  </div>
-</section>
-
-<section class="wrap sec" id="pricing">
-  <div class="center rv" style="margin-bottom:28px">
-    <p class="eyebrow">Step one of one</p>
-    <h2 style="font-size:var(--text-2xl);margin-top:8px">Choose your delivery speed</h2>
-  </div>
-
-  <label class="opt sel rv" data-sku="fast">
-    <span class="badge">Most chosen</span>
-    <input type="radio" name="speed" value="fast" checked>
-    <span class="opt-in">
-      <span class="dot"></span>
-      <span class="opt-txt">
-        <span class="opt-name">⚡ Ready in 30 minutes</span>
-        <span class="opt-desc">Full song in your inbox tonight</span>
-      </span>
-      <span class="opt-price">
-        <span class="was" id="fastWas"></span>
-        <span class="now" id="fastNow"></span>
-        <span class="save" id="fastSave"></span>
-      </span>
-    </span>
-  </label>
-
-  <label class="opt rv" data-sku="slow">
-    <input type="radio" name="speed" value="slow">
-    <span class="opt-in">
-      <span class="dot"></span>
-      <span class="opt-txt">
-        <span class="opt-name">Ready in 48 hours</span>
-        <span class="opt-desc">Same song, same quality — you just wait</span>
-      </span>
-      <span class="opt-price">
-        <span class="was" id="slowWas"></span>
-        <span class="now" id="slowNow"></span>
-        <span class="save" id="slowSave"></span>
-      </span>
-    </span>
-  </label>
-
-  <label class="bump sel rv" id="bump">
-    <input type="checkbox" checked hidden>
-    <span class="bump-in">
-      <span class="box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
-      <span style="flex:1">
-        <span class="bump-t"><span class="bump-label">Keep <span data-owner>Your</span> lyrics forever</span><span class="bump-p" id="bumpPrice"></span></span>
-        <span class="bump-d">A print-ready PDF with the name and cover art. Frame it, or fold it into the card.</span>
-      </span>
-    </span>
-  </label>
-
-  <button class="cta rv" id="mainCta">🔓 Unlock <span data-owner>Your</span> Full Song</button>
-  <div class="cta-sub rv">
-    <span><b class="tick">✓</b> Unlimited free revisions</span>
-    <span><b class="tick">✓</b> Yours forever</span>
-  </div>
-
-  <div class="guar rv">
-    <div class="ico">🛡️</div>
-    <div>
-      <h3>The Happy Tears Guarantee</h3>
-      <p class="small muted">If it doesn't move you, we'll rewrite it free until it does. Still not right? Every penny back — no forms, no questions, 30 days.</p>
-    </div>
-  </div>
-</section>
-
-<section class="tint sec">
-  <div class="wrap">
-    <div class="center rv" style="margin-bottom:28px">
-      <p class="eyebrow">What happens next</p>
-      <h2 style="font-size:var(--text-2xl);margin-top:8px">No guesswork</h2>
-    </div>
-    <div class="step rv"><div class="num">1</div><div><h4>You unlock it</h4><p class="small muted">One payment. Your song goes into production the second you click.</p></div></div>
-    <div class="step rv"><div class="num">2</div><div><h4>The full song lands in your inbox</h4><p class="small muted">Studio-quality file, every verse, chorus and bridge. Yours to download and keep.</p></div></div>
-    <div class="step rv"><div class="num">3</div><div><h4>You play it for her</h4><p class="small muted">Quiet room. Two words: "Just listen." That's the entire setup.</p></div></div>
-  </div>
-</section>
-
-
-<section class="tint sec" id="proofSection" hidden>
-  <div class="wrap">
-    <div class="center rv" style="margin-bottom:28px">
-      <h2 style="font-size:var(--text-2xl)" id="proofHeading"></h2>
-      <p class="small muted" style="margin-top:6px">Real stories, real reactions</p>
-    </div>
-    <div class="badgecard rv" id="badgeBlock" hidden></div>
-    <div class="rating rv" id="ratingBlock" hidden></div>
-    <div id="testimonials"></div>
-  </div>
-</section>
-
-<section class="wrap sec">
-  <div class="center rv" style="margin-bottom:28px">
-    <p class="eyebrow">Questions</p>
-    <h2 style="font-size:var(--text-2xl);margin-top:8px">Everything you're wondering</h2>
-  </div>
-
-  <details class="faq rv"><summary>What if it comes across as cheesy?</summary>
-    <div class="body">The line between cheesy and moving is specificity. Generic love songs make people wince because they could be about anyone. Yours is built from real names, real memories, and moments only the two of you would recognise. That's the part that makes people cry.</div></details>
-
-  <details class="faq rv"><summary>What if I don't like the full song?</summary>
-    <div class="body">The preview you just heard comes from the same recording. Unlocking gives you the complete track — every verse, the chorus and the bridge, at the same quality. If the style, the voice or the lyrics aren't right, we'll redo it free until it feels perfect.</div></details>
-
-  <details class="faq rv"><summary>What if I'm not happy with the final result?</summary>
-    <div class="body">There's a 100% satisfaction guarantee. If you're still not happy after revisions, you get a full refund — no questions asked.</div></details>
-
-  <details class="faq rv"><summary>Is my payment secure?</summary>
-    <div class="body">Checkout runs on an encrypted, PCI-compliant payment system. All major cards, Apple Pay and Google Pay are accepted. Your card details are encrypted and never stored on our servers.</div></details>
-
-  <details class="faq rv"><summary>How quickly do I get the full song after paying?</summary>
-    <div class="body">About 30 minutes. The moment you unlock it and we finalise the track, you get full access to stream, download and share it.</div></details>
-
-  <details class="faq rv"><summary>How do I share the song with them?</summary>
-    <div class="body">You'll get a private link you can text, email, or open on any device. Most people play it in person — at dinner, in the car, or in a quiet moment together. You can also download the HD file to play through a speaker, drop into a slideshow, or simply keep forever.</div></details>
-
-  <details class="faq rv"><summary>What happens if I don't unlock the full song right now?</summary>
-    <div class="body">Your preview is held for a limited time. After that it's archived and our songwriters move on to new orders. Wanting changes or the full song later may mean recreating it from scratch — a longer wait, with no guarantee of the same result or the same price. The best version of your song is ready right now.</div></details>
-</section>
-
-<section class="wrap sec-tight">
-  <button class="cta rv" id="footCta">🔓 Unlock <span data-owner>Your</span> Full Song</button>
-  <p class="center small muted rv" style="margin-top:12px">🛡️ 30-day money-back guarantee</p>
-</section>
-
-<footer>
-  <div class="logo" style="font-size:1rem;margin-bottom:10px">Story<span>Sound</span></div>
-  <p><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refunds">Refund Policy</a> · <a href="/contact">Contact</a></p>
-  <p style="margin-top:8px">© <span id="yr"></span> StorySound. All rights reserved.</p>
-</footer>
-
-<div class="sticky" id="sticky">
-  <div class="sticky-in">
-    <div>
-      <div class="amt" id="stickyAmt"></div>
-      <div class="lbl" id="stickyLbl">30-min delivery</div>
-    </div>
-    <button class="cta" id="stickyCta">Unlock <span data-owner>Your</span> Song</button>
   </div>
 </div>
 
+<!-- S2: Name -->
+<div class="screen" id="s2">
+  <div class="screen-center">
+    <div class="stitle">What's their name?</div>
+    <p class="ssub">Add their first name</p>
+    <div style="height:28px"></div>
+    <input class="ifield" id="f-name" placeholder="Enter their first name" autocomplete="off" style="text-align:center;font-size:20px;max-width:320px;margin:0 auto;display:block">
+  </div>
+</div>
+
+<!-- S3: Occasion -->
+<div class="screen" id="s3">
+  <div class="screen-center">
+    <div class="stitle">What's the Occasion?</div>
+    <p class="ssub">Pick the occasion for your song</p>
+    <div style="height:20px"></div>
+    <div class="pill-wrap" id="p3">
+      <div class="pill" onclick="pick3(this)">Just Because</div><div class="pill" onclick="pick3(this)">I Love You</div>
+      <div class="pill" onclick="pick3(this)">Birthday</div><div class="pill" onclick="pick3(this)">Anniversary</div>
+      <div class="pill" onclick="pick3(this)">Missing You</div><div class="pill" onclick="pick3(this)">Thank You</div>
+      <div class="pill" onclick="pick3(this)">Apology</div><div class="pill" onclick="pick3(this)">Wedding</div>
+      <div class="pill" onclick="pick3(this)">Friendship</div><div class="pill" onclick="pick3(this)">In Memory</div>
+      <div class="pill" onclick="pick3(this)">Milestone</div><div class="pill" onclick="pick3(this)">Proposal</div>
+      <div class="pill" onclick="pick3(this)">Retirement</div><div class="pill" onclick="pick3(this)">Graduation</div>
+      <div class="pill" onclick="pick3(this)">Something else...</div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: Genre + Language + Voice -->
+<div class="screen" id="s4">
+  <div class="stitle">Choose a Genre</div>
+  <p class="ssub" style="margin-bottom:18px">Pick a genre</p>
+  <div class="pill-wrap" id="p4g">
+    <div class="pill" onclick="pick4g(this)">Pop</div><div class="pill" onclick="pick4g(this)">Country</div>
+    <div class="pill" onclick="pick4g(this)">Rock</div><div class="pill" onclick="pick4g(this)">R&amp;B</div>
+    <div class="pill" onclick="pick4g(this)">Jazz</div><div class="pill" onclick="pick4g(this)">Acoustic</div>
+    <div class="pill" onclick="pick4g(this)">Rap / Hip-Hop</div><div class="pill" onclick="pick4g(this)">Indie</div>
+    <div class="pill" onclick="pick4g(this)">Latin</div><div class="pill" onclick="pick4g(this)">Worship</div>
+    <div class="pill" onclick="pick4g(this)">Reggaeton</div><div class="pill" onclick="pick4g(this)">Reggae</div>
+  </div>
+  <p class="slabel">What language should the lyrics be in?</p>
+  <div class="pill-wrap" id="p4l" style="margin-bottom:18px">
+    <div class="pill sel" onclick="pick4l(this)">English</div>
+    <div class="pill" onclick="pick4l(this)">Spanish</div>
+  </div>
+  <p class="slabel">Choose a voice</p>
+  <div class="pill-wrap" id="p4v">
+    <div class="pill" onclick="pick4v(this)">Male</div>
+    <div class="pill" onclick="pick4v(this)">Female</div>
+    <div class="pill" onclick="pick4v(this)">Surprise Me</div>
+  </div>
+</div>
+
+<!-- S5: Qualities -->
+<div class="screen" id="s5">
+  <div class="stitle">What makes them special?</div>
+  <p class="ssub">Describe their character and the qualities you love most</p>
+  <p class="sbest">For best results, please include 1-2 sentences.</p>
+  <div class="igroup">
+    <label class="ilabel">Their beautiful qualities</label>
+    <textarea class="ifield" id="f-qual" placeholder="Are they patient, wise, funny, protective, encouraging? What makes them the incredible person they are?"></textarea>
+  </div>
+</div>
+
+<!-- S6: Memories -->
+<div class="screen" id="s6">
+  <div class="stitle">Share your favorite memories</div>
+  <p class="ssub">Share a favorite moment</p>
+  <p class="sbest">For best results, please include 1-2 sentences.</p>
+  <div class="igroup">
+    <label class="ilabel">Special moments together</label>
+    <textarea class="ifield" id="f-mem" placeholder="Share how you met, special years, inside jokes, or moments that made your relationship unique..."></textarea>
+  </div>
+</div>
+
+<!-- S7: Message -->
+<div class="screen" id="s7">
+  <div class="stitle">A message from your heart</div>
+  <p class="ssub">Add a short personal note</p>
+  <p class="sbest">For best results, please include 1-2 sentences.</p>
+  <div class="igroup">
+    <label class="ilabel">Special message</label>
+    <textarea class="ifield" id="f-msg" placeholder="What do you want them to know, feel, or remember?"></textarea>
+  </div>
+</div>
+
+<!-- S8: Review + Email -->
+<div class="screen" id="s8">
+  <div class="rev-wrap">
+    <div class="rev-title">Review Your Song Details</div>
+    <p class="rev-sub">Make sure everything looks good before we create your personalized song for <strong id="nameDisp" style="color:var(--rust)">them</strong>.</p>
+
+    <div class="rcard">
+      <label class="elabel">Your Email Address</label>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:8px">We'll send your song and order updates here</p>
+      <input class="efield" id="f-email" type="email" placeholder="you@email.com">
+      <div class="ph-toggle" onclick="togglePhone()">
+        <span>📱 Phone Number (Optional)</span>
+        <small>Get your song delivered faster via text</small>
+        <svg id="phArrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="ph-fields" id="phFields">
+        <input class="ph-pre" placeholder="🇺🇸 +1" id="f-prefix">
+        <input class="ph-num" type="tel" placeholder="(555) 123-4567" id="f-phone">
+      </div>
+    </div>
+
+    <button class="create-btn" onclick="goToBumps()">Create My Song →</button>
+    <p class="see-price">See pricing on the next step.</p>
+
+    <div class="rcard">
+      <div class="rct">🎵 Order Summary <button onclick="openEditModal()" style="background:none;border:none;font-size:11px;color:var(--rust);cursor:pointer;font-weight:600;margin-left:auto">✏️ Edit</button></div>
+      <div class="rrow"><span>Song for</span><strong id="rc-for">—</strong></div>
+      <div class="rrow"><span>Occasion</span><strong id="rc-occ">—</strong></div>
+      <div class="rrow"><span>Genre</span><strong id="rc-genre">—</strong></div>
+      <div class="rrow"><span>Singer Gender</span><strong id="rc-voice">—</strong></div>
+    </div>
+
+    <div class="samp-sec">
+      <div class="rct">🎵 Hear Other Songs We Made</div>
+      <div class="samp-filters">
+        <div class="sf on" onclick="filt(this,'all')">All</div>
+        <div class="sf" onclick="filt(this,'anniversary')">💗 Anniversary</div>
+        <div class="sf" onclick="filt(this,'birthday')">🎂 Birthday</div>
+        <div class="sf" onclick="filt(this,'memorial')">🕊️ Memorial</div>
+        <div class="sf" onclick="filt(this,'wedding')">💍 Wedding</div>
+      </div>
+      <div id="songList">
+        <div class="si" data-cat="anniversary">
+          <button class="splay" onclick="playSong(this,'/audio/yubito-desert-rose.mp3','b1')">
+            <svg width="11" height="14" viewBox="0 0 11 14"><path d="M0 0l11 7L0 14V0z"/></svg>
+          </button>
+          <div style="flex:1"><div class="sin">Yubito (Desert Rose)</div><div class="sisub">R&B · Anniversary</div><div class="sbar-w"><div class="sbar" id="b1"></div></div></div>
+          <div style="font-size:12px;color:var(--muted);flex-shrink:0">0:30</div>
+        </div>
+        <div class="si" data-cat="anniversary">
+          <button class="splay" onclick="playSong(this,'/audio/storysound-sample.mp3','b2')">
+            <svg width="11" height="14" viewBox="0 0 11 14"><path d="M0 0l11 7L0 14V0z"/></svg>
+          </button>
+          <div style="flex:1"><div class="sin">The Night We Found Each Other</div><div class="sisub">Pop · Anniversary</div><div class="sbar-w"><div class="sbar" id="b2"></div></div></div>
+          <div style="font-size:12px;color:var(--muted);flex-shrink:0">0:30</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wyg">
+      <div class="wyg-t">What You'll Get</div>
+      <div class="wyi"><div class="wyn">1</div><div class="wyt"><strong>A Studio-Quality Masterpiece</strong><span>Pristine production &amp; mixing</span></div></div>
+      <div class="wyi"><div class="wyn">2</div><div class="wyt"><strong>One-of-a-Kind Lyrics</strong><span>Meaningful words unique to you</span></div></div>
+      <div class="wyi"><div class="wyn">3</div><div class="wyt"><strong>5-Minute Delivery</strong><span>In your inbox, not 7 days</span></div></div>
+    </div>
+
+    <div class="why-row">
+      <div class="wc"><div class="wi">⭐</div><div class="wn">Excellent on Trustpilot</div><div class="ws">10,000+ reviews</div></div>
+      <div class="wc"><div class="wi">💧</div><div class="wn">Happy Tears Guarantee</div><div class="ws">100% money back</div></div>
+      <div class="wc"><div class="wi">❤️</div><div class="wn">Ultimate Keepsake</div><div class="ws">Cherished forever</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BUMPS PAGE -->
+<div id="bumpsPage" style="display:none">
+  <div class="bump-wrap">
+    <div class="bump-title">Almost there!</div>
+    <p class="bump-sub">You're one click away from a beautiful, personalized song for <strong id="bName" style="color:var(--rust)">them</strong></p>
+
+    <div class="osc">
+      <div class="osc-title">🎵 Your Custom Song Order <button onclick="openEditModal()" style="background:none;border:none;font-size:11px;color:var(--rust);cursor:pointer;font-weight:600;margin-left:auto">✏️ Edit</button></div>
+      <div class="osc-pills">
+        <div class="osc-pill">👤 <span id="bFor">—</span></div>
+        <div class="osc-pill">🎉 <span id="bOcc">—</span></div>
+        <div class="osc-pill">🎵 <span id="bGen">—</span></div>
+      </div>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Upgrade Your Gift</div>
+
+    <div class="bump-card" id="bc1" onclick="toggleBump('bc1','b1line',24)">
+      <div class="bump-top">
+        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="bump-label">
+          <div style="margin-bottom:4px"><span class="bump-badge">⭐ MOST POPULAR</span></div>
+          <div class="bump-name">Forever Memory™ Package</div>
+          <div class="bump-desc">Everything you need to give the gift of a lifetime.</div>
+        </div>
+        <div style="text-align:right"><div class="orig">$37</div><div class="bump-price">$24</div></div>
+      </div>
+      <ul class="bump-items">
+        <li>Frameable lyrics with QR code — anyone can scan and listen instantly</li>
+        <li>Make it personal with your own cover photo</li>
+        <li>Bonus version in another style</li>
+      </ul>
+    </div>
+
+    <div class="bump-card" id="bc2" onclick="toggleBump('bc2','b2line',10)">
+      <div class="bump-top">
+        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="bump-label">
+          <div style="margin-bottom:4px"><span class="bump-badge org">⚡ RUSH DELIVERY</span></div>
+          <div class="bump-name">Priority Processing</div>
+          <div class="bump-desc">Skip the queue — get your song delivered first.</div>
+        </div>
+        <div class="bump-price">$10</div>
+      </div>
+    </div>
+
+    <div class="bump-card free-card checked">
+      <div class="bump-top">
+        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="bump-label">
+          <div style="margin-bottom:4px"><span class="bump-badge grn">∞ UNLIMITED REDOS</span></div>
+          <div class="bump-name">Protect Your Purchase</div>
+          <div class="bump-desc">We'll keep working on your song until you love it.</div>
+          <div style="font-size:12px;font-weight:600;color:var(--green);margin-top:4px">FREE when selected today</div>
+        </div>
+        <div class="bump-price free">FREE</div>
+      </div>
+    </div>
+
+    <div class="tp">
+      <div class="tp-head">
+        <div><div style="font-size:10px;color:var(--muted);margin-bottom:2px">Excellent</div><div class="tp-stars">★★★★★</div></div>
+        <div style="margin-left:8px"><div class="tp-score">4.9 / 5</div><div class="tp-count">Based on 12,640+ reviews</div></div>
+        <div class="tp-green">Trustpilot</div>
+      </div>
+      <div class="tp-review">
+        <div class="tp-rtitle">I'm in tears right now</div>
+        <div class="tp-rtext">"I'm in tears right now. With just a few words you guys made a song that tells exactly how I feel. So amazing — I recommend this to everyone. This is the best gift ever in my eyes."</div>
+        <div class="tp-rby">Anna K. · ✓ Verified · US</div>
+      </div>
+    </div>
+
+    <div class="tot-card">
+      <div class="rct">🎵 Order Summary</div>
+      <div class="rrow"><span>Your Song for <span id="bName2" style="color:var(--rust)">them</span></span><div><span class="orig">$99</span> <strong style="color:var(--rust);font-size:16px">$39</strong></div></div>
+      <div id="b1line" style="display:none"><div class="rrow"><span>Forever Memory™ Package</span><strong>$24</strong></div></div>
+      <div id="b2line" style="display:none"><div class="rrow"><span>Priority Processing</span><strong>$10</strong></div></div>
+      <div class="rrow" style="border-top:1.5px solid var(--border);margin-top:8px;padding-top:10px">
+        <span style="font-weight:700;color:var(--ink);font-size:15px">Total</span>
+        <strong style="font-size:20px;color:var(--rust)" id="totPrice">$39</strong>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px">+ Unlimited Song Redos <span style="color:var(--green);font-weight:600">FREE</span></div>
+    </div>
+
+    <div class="trust-row">🔒 Trusted by 400,000+ customers · 100% Money-Back Guarantee</div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="btm" id="btmNav">
+  <button class="btn-back" onclick="goBack()">← Back</button>
+  <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+    <button class="btn-next" onclick="goNext()">Next →</button>
+    <p class="tos">By continuing you agree to our <a href="/terms">Terms</a> &amp; <a href="/privacy">Privacy Policy</a></p>
+  </div>
+</div>
+
 <script>
-(function(){
-  "use strict";
-  const $ = s => document.querySelector(s);
-  const money = n => "$" + (Number.isInteger(n) ? n : n.toFixed(2));
+const STEPS=8;let cur=1;
+const D={forWhom:'',name:'',occasion:'',genre:'',language:'English',voice:'',qualities:'',memories:'',message:'',email:'',phone:''};
+let bumps={b1:false,b2:false};
+const BASE=39;
+let extraCost=0;
 
-  /* ---------- variant assignment: ?v= wins, else sticky cookie, else split ---------- */
-  function cookie(k, v){
-    try{
-      if(v !== undefined){ document.cookie = k+"="+v+";path=/;max-age=2592000;SameSite=Lax"; return v; }
-      const m = document.cookie.match(new RegExp("(^|; )"+k+"=([^;]*)"));
-      return m ? m[2] : null;
-    }catch(e){ return null; }
+const PROG={1:[13,'Step 1 of 8'],2:[25,'Step 2 of 8'],3:[38,'Step 3 of 8'],4:[50,'Step 4 of 8'],5:[63,'Step 5 of 8'],6:[75,'Step 6 of 8'],7:[88,'Step 7 of 8'],8:[100,'Final step']};
+
+// ── SHOPIFY CONFIG — update these after creating your Shopify store ──
+const SHOPIFY_STORE='gut-1809.myshopify.com';
+const SHOPIFY_VARIANTS={base:'44258532819033',bump1:'44258586886233',bump2:'44258587476057'};
+
+function showStep(n){
+  for(let i=1;i<=STEPS;i++){const el=document.getElementById('s'+i);if(el)el.classList.remove('active');}
+  document.getElementById('bumpsPage').style.display='none';
+  document.getElementById('btmNav').classList.remove('hide');
+  if(n==='bumps'){
+    document.getElementById('bumpsPage').style.display='block';
+    document.getElementById('btmNav').classList.add('hide');
+    document.getElementById('pf').style.width='100%';
+    document.getElementById('ps').textContent='Almost done!';
+    document.getElementById('pp').textContent='100%';
+    updateBumps();window.scrollTo({top:0});return;
   }
-  const params = new URLSearchParams(location.search);
-  let vKey = CONFIG.activeVariant;
-  if(CONFIG.allowUrlOverride){
-    const q = params.get("v");
-    if(q && CONFIG.variants[q]) vKey = q;
-  }
-  const V = CONFIG.variants[vKey];
+  const el=document.getElementById('s'+n);if(el)el.classList.add('active');
+  if(n===8)updateReview();
+  const[pct,label]=PROG[n]||[100,''];
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('ps').textContent=label;
+  document.getElementById('pp').textContent=pct+'% Complete';
+  window.scrollTo({top:0,behavior:'smooth'});
+  cur=n;
+  if(typeof updateStickyBar==='function') updateStickyBar();
+}
 
-  /* ---------- personalisation + preview clip ---------- */
-  const token = params.get("o");
-  let name  = params.get("name")  || "";
-  let rel   = params.get("rel")   || "";
-  let genre = params.get("genre") || "";
-  const DUR = CONFIG.previewSeconds;
+function goTo(n){showStep(n);}
+function goBack(){if(cur==='bumps'||cur===9)showStep(8);else if(cur>1)showStep(cur-1);}
 
-  // Margaret -> Margaret's | James -> James' | Chris -> Chris' | (blank) -> Your
-  function poss(n){
-    if(!n) return "Your";
-    const t = n.trim();
-    return /[sS]$/.test(t) ? t + "\u2019" : t + "\u2019s";
-  }
-  function paintSong(){
-    const owner = poss(name);
-    $("#songTitle").innerHTML = owner + ' <em>Song</em>';
-    $("#songMeta").textContent = [genre, rel && ("written for " + rel)].filter(Boolean).join(" \u00b7 ");
-    document.title = name ? owner + " Song is ready \u2014 StorySound" : "Your song is almost ready \u2014 StorySound";
-    document.querySelectorAll("[data-owner]").forEach(el => el.textContent = owner);
-  }
-  paintSong();
-  $("#yr").textContent = new Date().getFullYear();
+function goNext(){
+  if(cur===1&&!D.forWhom){tip('Pick who this song is for');return;}
+  if(cur===2){D.name=document.getElementById('f-name').value.trim()||D.forWhom;}
+  if(cur===4&&!D.genre){tip('Pick a genre');return;}
+  if(cur===4&&!D.voice){tip('Choose a voice');return;}
+  if(cur===5)D.qualities=document.getElementById('f-qual').value.trim();
+  if(cur===6)D.memories=document.getElementById('f-mem').value.trim();
+  if(cur===7)D.message=document.getElementById('f-msg').value.trim();
+  if(cur===7){updateReview();showStep(8);}
+  else if(cur<STEPS){showStep(cur+1);}
+  else{showStep('bumps');}
+}
 
-  function esc(t){ return String(t).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
-  function showLyrics(lines, total){
-    if(!lines || !lines.length) return;
-    const re = name ? new RegExp("(" + name.trim().replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + ")", "ig") : null;
-    $("#lyricsLines").innerHTML = lines.map(function(l){
-      const safe = esc(l);
-      return '<div class="line">' + (re ? safe.replace(re, "<b>$1</b>") : safe) + '</div>';
-    }).join("");
-    const rest = Math.max(0, (total || 0) - lines.length);
-    $("#lyricsMore").textContent = rest ? "+ " + rest + " more lines written for " + (rel || name || "them")
-                                        : "The rest of the song is written";
-    $("#lyricsSection").hidden = false;
-    track("lyrics_teaser_shown", { lines: lines.length, total: total });
-  }
+function goToBumps(){
+  const em=document.getElementById('f-email').value.trim();
+  if(!em||!em.includes('@')){tip('Enter a valid email address');return;}
+  D.email=em;D.phone=document.getElementById('f-phone').value.trim();
+  
+  // Create/update Shopify customer in background (fire and forget)
+  fetch('/.netlify/functions/create-customer', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      email: D.email,
+      name: D.name || D.forWhom,
+      forWhom: D.forWhom,
+      occasion: D.occasion,
+      genre: D.genre,
+      voice: D.voice,
+      language: D.language,
+      qualities: D.qualities,
+      memories: D.memories,
+      message: D.message
+    })
+  }).then(r=>r.json()).then(d=>{
+    console.log('Customer:', d.action, d.customerId);
+  }).catch(e=>console.log('Customer create skipped:', e.message));
 
-  let audio = null, ready = false;
-  function loadPreview(url){
-    audio = new Audio(url);
-    audio.preload = "auto";
-    audio.crossOrigin = "anonymous";
-    ready = true;
-    $("#play").disabled = false;
-    $("#playHint").textContent = "";
-  }
+  showStep('bumps');
+}
 
-  if(token){
-    $("#play").disabled = true;
-    $("#playHint").textContent = "Finishing your preview…";
-    (function poll(tries){
-      fetch(CONFIG.previewApi + "?o=" + encodeURIComponent(token))
-        .then(r => r.json())
-        .then(function(d){
-          if(d.name){ name = d.name; rel = d.relationship || rel; genre = d.genre || genre; paintSong(); }
-          if(d.lyricsTeaser && d.lyricsTeaser.length) showLyrics(d.lyricsTeaser, d.lyricsTotal);
-          if(d.ready && d.previewUrl){ loadPreview(d.previewUrl); track("preview_ready", {}); return; }
-          if(tries < 40) setTimeout(() => poll(tries + 1), 3000);
-          else $("#playHint").textContent = "Taking longer than usual — we'll email your preview.";
-        })
-        .catch(function(){ if(tries < 40) setTimeout(() => poll(tries + 1), 3000); });
-    })(0);
-  } else if(params.get("preview")){
-    loadPreview(params.get("preview"));   // direct URL, for testing only
-  } else {
-    ready = true;                          // silent demo mode: waveform animates, no audio
-  }
+function pick1(el){selP('p1',el);D.forWhom=el.textContent;setTimeout(()=>goNext(),300);}
+function pick3(el){selP('p3',el);D.occasion=el.textContent;setTimeout(()=>goNext(),300);}
+function pick4g(el){selP('p4g',el);D.genre=el.textContent;}
+function pick4l(el){selP('p4l',el);D.language=el.textContent;}
+function pick4v(el){selP('p4v',el);D.voice=el.textContent;}
+function selP(id,el){document.querySelectorAll('#'+id+' .pill').forEach(p=>p.classList.remove('sel'));el.classList.add('sel');}
 
-  /* ---------- render prices ---------- */
-  const pct = Math.round((1 - V.fast.now / V.fast.was) * 100);
-  $("#offPct").textContent = pct + "% OFF";
-  $("#offAmt").textContent = money(V.fast.was - V.fast.now);
-  $("#fastWas").textContent = money(V.fast.was);
-  $("#fastNow").textContent = money(V.fast.now);
-  $("#fastSave").textContent = "save " + money(V.fast.was - V.fast.now);
-  $("#slowWas").textContent = money(V.slow.was);
-  $("#slowNow").textContent = money(V.slow.now);
-  $("#slowSave").textContent = "save " + money(V.slow.was - V.slow.now);
-  $("#bumpPrice").textContent = "+" + money(V.bump);
+function updateReview(){
+  const n=D.name||D.forWhom||'them';
+  document.getElementById('nameDisp').textContent=n;
+  document.getElementById('rc-for').textContent=n+' ('+D.forWhom+')';
+  document.getElementById('rc-occ').textContent=D.occasion||'—';
+  document.getElementById('rc-genre').textContent=D.genre||'—';
+  document.getElementById('rc-voice').textContent=D.voice||'—';
+}
 
-  let sku = "fast", bumpOn = true;
-  const total = () => V[sku].now + (bumpOn ? V.bump : 0);
-  function paint(){
-    const t = money(total());
-    $("#stickyAmt").textContent = t;
-    $("#stickyLbl").textContent = (sku === "fast" ? "30-min delivery" : "48-hour delivery") + (bumpOn ? " + lyrics" : "");
-  }
+function updateBumps(){
+  const n=D.name||D.forWhom||'them';
+  ['bName','bName2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=n;});
+  const bFor=document.getElementById('bFor');if(bFor)bFor.textContent=n+' ('+D.forWhom+')';
+  const bOcc=document.getElementById('bOcc');if(bOcc)bOcc.textContent=D.occasion||'—';
+  const bGen=document.getElementById('bGen');if(bGen)bGen.textContent=D.genre||'—';
+  calcTotal();
+}
 
-  document.querySelectorAll(".opt").forEach(function(o){
-    o.addEventListener("click", function(){
-      document.querySelectorAll(".opt").forEach(x => x.classList.remove("sel"));
-      o.classList.add("sel");
-      o.querySelector("input").checked = true;
-      sku = o.dataset.sku;
-      paint();
-      track("select_speed", { sku: sku });
-    });
-  });
-  $("#bump").addEventListener("click", function(e){
-    e.preventDefault();
-    bumpOn = !bumpOn;
-    $("#bump").classList.toggle("sel", bumpOn);
-    paint();
-    track("toggle_bump", { on: bumpOn });
-  });
+function toggleBump(cardId,lineId,amt){
+  if(typeof updateStickyBar==='function') setTimeout(updateStickyBar,10);
+  const card=document.getElementById(cardId);
+  const key=cardId==='bc1'?'b1':'b2';
+  bumps[key]=!bumps[key];
+  card.classList.toggle('checked',bumps[key]);
+  document.getElementById(lineId).style.display=bumps[key]?'block':'none';
+  calcTotal();
+}
 
-  /* ---------- proof (renders only when real data exists) ---------- */
-  const DEMO = {
-    familiesCount: 1240,
-    commonReaction: "How did you remember all of that?",
-    avatars: [],
-    ratingScore: 4.5, ratingCount: 3723,
-    ratingDist: {5:70,4:20,3:7,2:0,1:0},
-    badge: null,   // see CONFIG.proof.badge — needs a real profile URL to render
-    testimonials: [
-      {stars:5, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace with a real customer quote. Aim for one specific detail from their song, one reaction, one line about what they'd have bought otherwise.]"},
-      {stars:5, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace. Skeptic-turned-believer angle: what they expected, what actually happened.]"},
-      {stars:5, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace. Milestone birthday for a parent. Include the reaction, not the product description.]"},
-      {stars:5, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace. Male recipient, unsentimental type. Counters the 'he'll think it's corny' objection.]"},
-      {stars:4, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace. Keep one 4-star. An all-5 wall reads fake and converts worse.]"},
-      {stars:5, ago:"[date]",  name:"[Customer name]", text:"[SAMPLE — replace. Repeat-play behaviour: how often they've listened since.]"}
-    ]
+function calcTotal(){
+  let t=BASE;
+  if(bumps.b1)t+=24;if(bumps.b2)t+=10;
+  document.getElementById('totPrice').textContent='$'+t;
+  document.getElementById('btnTot').textContent='$'+t;
+  document.getElementById('totPrice').textContent='$'+t;
+}
+
+function togglePhone(){
+  const f=document.getElementById('phFields'),a=document.getElementById('phArrow');
+  f.classList.toggle('open');
+  a.style.transform=f.classList.contains('open')?'rotate(180deg)':'';
+}
+
+function goToShopify(){   // FREE-PREVIEW FLOW: generate first, charge after they hear it
+  const btn=document.getElementById('payBtn');
+  if(btn){btn.disabled=true;btn.textContent='Writing your song...';}
+  const sBtn=document.querySelector('.sticky-pay .btn-pay');
+  if(sBtn){sBtn.disabled=true;sBtn.textContent='Writing your song...';}
+
+  const fullStory=[
+    `Song for: ${D.name} (${D.forWhom})`,
+    `Occasion: ${D.occasion}`,
+    `Genre: ${D.genre}`,
+    `Language: ${D.language}`,
+    `Voice: ${D.voice}`,
+    D.qualities?`Their qualities: ${D.qualities}`:'',
+    D.memories?`Memories: ${D.memories}`:'',
+    D.message?`Message: ${D.message}`:''
+  ].filter(Boolean).join(' | ');
+
+  // same note_attributes contract generate-song-background already expects
+  const orderId = 'p2_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  const payload = {
+    id: orderId,
+    email: D.email,
+    source: 'create2',
+    note_attributes: [
+      {name:'Song For',        value: D.name+' ('+D.forWhom+')'},
+      {name:'Recipient Name',  value: D.name},
+      {name:'Relationship',    value: D.forWhom},
+      {name:'Occasion',        value: D.occasion},
+      {name:'Genre',           value: D.genre},
+      {name:'Language',        value: D.language},
+      {name:'Singer Voice',    value: D.voice},
+      {name:'Their Qualities', value: D.qualities},
+      {name:'Memories',        value: D.memories},
+      {name:'Special Message', value: D.message},
+      {name:'Customer Email',  value: D.email},
+      {name:'_full_story',     value: fullStory}
+    ].filter(a=>a.value)
   };
-  const p = CONFIG.demoProof ? DEMO : CONFIG.proof;
-  if(CONFIG.demoProof){
-    document.documentElement.style.setProperty("--demo","1");
-  }
-  if(p.familiesCount){
-    $("#proofstrip").hidden = false;
-    const faces = (p.avatars||[]).map(u => '<img src="'+u+'" alt="">').join("");
-    $("#proofstrip").innerHTML =
-      (faces ? '<div class="avatars">'+faces+'</div>' : '') +
-      '<strong>' + p.familiesCount.toLocaleString() + '+ families</strong> have given this gift' +
-      (p.commonReaction ? '<div class="small muted" style="margin-top:6px">“' + p.commonReaction + '” — the most common reaction</div>' : '');
-  }
-  function starRow(score, size){
-    const full = Math.floor(score), frac = score - full;
-    let out = "";
-    for(let i=1;i<=5;i++){
-      if(i <= full) out += '<span style="color:#E5A400">★</span>';
-      else if(i === full+1 && frac >= .25)
-        out += '<span class="halfstar">★<span style="width:'+Math.round(frac*100)+'%">★</span></span>';
-      else out += '<span style="color:var(--bg-tertiary)">★</span>';
-    }
-    return '<span style="font-size:'+(size||24)+'px;letter-spacing:2px">'+out+'</span>';
-  }
 
-  if(p.badge && p.badge.url && p.badge.platform){
-    $("#badgeBlock").hidden = false;
-    const filled = Math.round((p.badge.score||0));
-    $("#badgeBlock").innerHTML =
-      '<span class="word">' + (p.badge.word || "Excellent") + '</span>' +
-      '<span class="sq">' + [1,2,3,4,5].map(function(i){
-        return '<i class="' + (i <= filled ? 'f' : '') + '">★</i>';
-      }).join("") + '</span>' +
-      '<a href="' + p.badge.url + '" target="_blank" rel="noopener">' + p.badge.platform + '</a>';
-  }
+  const next = '/create2-preview?o=' + encodeURIComponent(orderId)
+    + '&name='  + encodeURIComponent(D.name||'')
+    + '&rel='   + encodeURIComponent(D.forWhom||'')
+    + '&genre=' + encodeURIComponent(D.genre||'');
 
-  if(p.ratingScore && p.ratingCount){
-    $("#ratingBlock").hidden = false;
-    const dist = p.ratingDist || {};
-    $("#ratingBlock").innerHTML =
-      '<div class="rating-top">' +
-        '<div class="rating-score">' + p.ratingScore + '</div>' +
-        '<div><div>' + starRow(p.ratingScore, 22) + '</div>' +
-        '<div class="small muted" style="margin-top:2px">Based on ' + p.ratingCount.toLocaleString() + ' reviews</div></div>' +
-      '</div>' +
-      '<div class="bars">' + [5,4,3,2,1].filter(n => dist[n] > 0).map(function(n){
-        return '<div class="barrow"><span class="n">' + n + ' <span style="color:#8A7F70">★</span></span>' +
-               '<span class="track"><span class="fill" style="width:' + dist[n] + '%"></span></span>' +
-               '<span class="pc">' + dist[n] + '%</span></div>';
-      }).join("") + '</div>';
-  }
+  fetch('/.netlify/functions/start-song', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  }).then(()=>{ window.location.href = next; })
+    .catch(()=>{ window.location.href = next; });   // generation is async; page polls anyway
+}
 
-  if(p.testimonials && p.testimonials.length){
-    $("#proofSection").hidden = false;
-    if(CONFIG.demoProof){
-      $("#testimonials").insertAdjacentHTML("beforebegin",
-        '<div class="demoflag">⚠ Sample layout only — replace every review before sending traffic</div>');
-    }
-    $("#proofHeading").textContent = p.familiesCount ? "Loved by " + p.familiesCount.toLocaleString() + "+ families" : "What people said";
-    $("#testimonials").innerHTML = p.testimonials.map(function(t){
-      return '<div class="tcard rv">' +
-        (t.photo ? '<img class="tphoto" src="'+t.photo+'" alt="">' : '') +
-        '<div class="tmeta"><span class="stars">' + "★".repeat(t.stars || 5) + '</span>' +
-        '<span class="xs muted">' + (t.ago||"") + '</span></div>' +
-        '<p class="small">' + t.text + '</p>' +
-        '<div class="tfoot">' + (t.face ? '<img class="tface" src="'+t.face+'" alt="">' : '') +
-        '<span><span class="tname" style="margin:0">' + t.name + '</span>' +
-        '<span class="tver" style="display:block">✓ Verified purchase</span></span></div></div>';
-    }).join("");
-  }
 
-  /* ---------- vsl ---------- */
-  const VSL_URL = CONFIG.vslUrl || params.get("vsl");
-  $("#vslPh").addEventListener("click", function(){
-    if(!VSL_URL){ track("vsl_click_no_source", {}); return; }
-    const tag = /\.(mp4|webm|m3u8)$/i.test(VSL_URL)
-      ? '<video src="'+VSL_URL+'" controls autoplay playsinline></video>'
-      : '<iframe src="'+VSL_URL+'" allow="autoplay; fullscreen" allowfullscreen></iframe>';
-    $("#vslInner").innerHTML = tag;
-    track("play_vsl", {});
+// Audio
+const audios={};
+function playSong(btn,src,barId){
+  Object.entries(audios).forEach(([k,a])=>{
+    if(k!==barId){a.pause();const b=document.getElementById(k);if(b)b.style.width='0%';}
   });
-
-  /* ---------- honest countdown: survives refresh, does not reset ---------- */
-  const KEY = "ss_hold";
-  let started = Number(params.get("t")) || Number(cookie(KEY));
-  if(!started || isNaN(started)){
-    started = Date.now();
-    cookie(KEY, started);
+  if(!audios[barId]){
+    const a=new Audio(src);audios[barId]=a;
+    a.addEventListener('timeupdate',()=>{const p=(a.currentTime/a.duration)*100;const b=document.getElementById(barId);if(b)b.style.width=p+'%';});
+    a.addEventListener('ended',()=>{const b=document.getElementById(barId);if(b)b.style.width='0%';
+      btn.innerHTML='<svg width="11" height="14" viewBox="0 0 11 14"><path d="M0 0l11 7L0 14V0z" fill="white"/></svg>';});
   }
-  const endsAt = started + CONFIG.timerMinutes * 60000;
-  const clock = $("#clock");
-  (function tick(){
-    const left = endsAt - Date.now();
-    if(left <= 0){
-      clock.textContent = "00:00";
-      clock.style.color = "var(--text-muted)";
-      document.querySelector(".timer .note").textContent = "Your hold has expired — your file is back in the general queue. The rate above is still honoured on this page for now.";
-      return;
-    }
-    const m = Math.floor(left / 60000), s = Math.floor(left % 60000 / 1000);
-    clock.textContent = String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
-    setTimeout(tick, 1000);
-  })();
+  const a=audios[barId];
+  if(a.paused){a.play();btn.innerHTML='<svg width="10" height="12" viewBox="0 0 10 12" fill="white"><rect x="0" y="0" width="3" height="12"/><rect x="7" y="0" width="3" height="12"/></svg>';}
+  else{a.pause();btn.innerHTML='<svg width="11" height="14" viewBox="0 0 11 14"><path d="M0 0l11 7L0 14V0z" fill="white"/></svg>';}
+}
 
-  /* ---------- preview player ---------- */
-  const wave = $("#wave"), BARS = 48;
-  for(let i=0;i<BARS;i++){
-    const b = document.createElement("i");
-    b.style.height = (18 + Math.sin(i*0.55)*14 + Math.random()*22) + "px";
-    wave.appendChild(b);
-  }
-  const bars = wave.querySelectorAll("i");
-  const ICON_PLAY  = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-  const ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
-  let playing = false, pos = 0, timer = null, everPlayed = false;
+function filt(el,cat){
+  document.querySelectorAll('.sf').forEach(s=>s.classList.remove('on'));el.classList.add('on');
+  document.querySelectorAll('.si').forEach(s=>{s.style.display=(cat==='all'||s.dataset.cat===cat)?'flex':'none';});
+}
 
-  function render(){
-    const done = Math.floor(pos / DUR * BARS);
-    bars.forEach((b,i) => b.classList.toggle("on", i <= done));
-    $("#cur").textContent = "0:" + String(Math.min(Math.floor(pos), DUR)).padStart(2,"0");
-  }
-  function stop(){
-    playing = false;
-    $("#play").innerHTML = ICON_PLAY;
-    clearInterval(timer);
-    if(audio) audio.pause();
-  }
+function tip(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1A0E08;color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;font-weight:500;z-index:999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.3)';
+  t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200);
+}
 
-  $("#play").addEventListener("click", function(){
-    if(!ready) return;
-    playing = !playing;
-    this.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
-    if(!playing){ stop(); return; }
+// ── STICKY PAY BAR ──
+function updateStickyBar(){
+  const isOnBumps = document.getElementById('bumpsPage').style.display !== 'none';
+  const isOnReview = document.getElementById('s8') && document.getElementById('s8').classList.contains('active');
+  const bar = document.getElementById('stickyPay');
+  bar.classList.toggle('show', isOnBumps || isOnReview);
+  // No price sync needed - clean button
+}
 
-    if(!everPlayed){ everPlayed = true; track("play_preview", {}); }
-    if(audio){
-      if(pos >= DUR) { pos = 0; audio.currentTime = 0; }
-      audio.play().catch(() => {});
-    }
-    timer = setInterval(function(){
-      pos = audio ? audio.currentTime : Math.min(pos + 0.25, DUR);
-      render();
-      if(pos >= DUR){                       // hard stop at the clip length
-        if(audio) audio.pause();
-        pos = DUR; render(); stop();
-        track("preview_complete", {});
-        $("#playHint").textContent = "That's the first " + DUR + " seconds.";
-      }
-    }, 200);
+function handleStickyBtn(){
+  const isOnReview = document.getElementById('s8') && document.getElementById('s8').classList.contains('active');
+  if(isOnReview){ goToBumps(); }
+  else { goToShopify(); }
+}
+
+
+
+// ── EDIT MODAL ──
+function openEditModal() {
+  const modal = document.getElementById('editModal');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Pre-fill with current D values
+  document.getElementById('mName').value = D.name || '';
+  document.getElementById('mQualities').value = D.qualities || '';
+  document.getElementById('mMemories').value = D.memories || '';
+  document.getElementById('mMessage').value = D.message || '';
+
+  // Pre-select pills
+  if(D.forWhom) preSelectPill('mForPills', D.forWhom);
+  if(D.occasion) preSelectPill('mOccPills', D.occasion);
+  if(D.genre) preSelectPill('mGenrePills', D.genre);
+
+  setTimeout(()=>{ modal.scrollTop = 0; }, 10);
+}
+
+function closeEditModal(e) {
+  if(e && e.target !== document.getElementById('editModal')) return;
+  document.getElementById('editModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function mPick(groupId, el, field) {
+  document.querySelectorAll('#'+groupId+' .modal-pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  D[field] = el.textContent.trim();
+}
+
+function preSelectPill(groupId, value) {
+  document.querySelectorAll('#'+groupId+' .modal-pill').forEach(p=>{
+    p.classList.toggle('sel', p.textContent.trim() === value);
   });
+}
 
-  /* ---------- sticky bar ---------- */
-  const sticky = $("#sticky"), pricing = $("#pricing");
-  new IntersectionObserver(function(en){
-    sticky.classList.toggle("show", !en[0].isIntersecting && en[0].boundingClientRect.top < 0);
-  }, { threshold: 0 }).observe(pricing);
+function saveModalChanges() {
+  D.name = document.getElementById('mName').value.trim() || D.name;
+  D.qualities = document.getElementById('mQualities').value.trim();
+  D.memories = document.getElementById('mMemories').value.trim();
+  D.message = document.getElementById('mMessage').value.trim();
+  document.getElementById('editModal').classList.remove('open');
+  document.body.style.overflow = '';
+  // Update all UI displays
+  updateBumps();
+  updateReview();
+  // Show confirmation tip
+  tip('✓ Changes saved!');
+}
 
-  /* ---------- scroll reveal ---------- */
-  const io = new IntersectionObserver(function(en){
-    en.forEach(function(e,i){ if(e.isIntersecting){ setTimeout(()=>e.target.classList.add("in"), i*70); io.unobserve(e.target); } });
-  }, { threshold: .12 });
-  document.querySelectorAll(".rv").forEach(el => io.observe(el));
+// ── EDIT MODAL ──
+let mData = {}; // tracks modal pill selections
 
-  /* ---------- tracking: variant + price must land with every event ---------- */
-  function track(event, data){
-    const payload = Object.assign({
-      event: event, offer: CONFIG.offerId, variant: vKey, sku: sku, bump: bumpOn, total: total(),
-      ts: Date.now(), path: location.pathname
-    }, data || {});
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push(payload);
-    try{
-      navigator.sendBeacon(CONFIG.trackEndpoint, new Blob([JSON.stringify(payload)], {type:"application/json"}));
-    }catch(e){}
-  }
-  function go(kind, extra){
-    track("begin_checkout", Object.assign({ kind: kind }, extra || {}));
-    const q = new URLSearchParams(Object.assign({
-      offer: CONFIG.offerId, v: vKey, kind: kind, sku: sku, bump: bumpOn ? 1 : 0, amount: total(),
-      name: name, rel: rel, genre: genre
-    }, extra || {}));
-    location.href = CONFIG.checkoutBase + "?" + q.toString();
-  }
-  $("#mainCta").addEventListener("click", () => go("song"));
-  $("#stickyCta").addEventListener("click", () => go("song"));
-  $("#footCta").addEventListener("click", () => go("song"));
-  $("#lyricsUnlock").addEventListener("click", function(){
-    track("lyrics_unlock_click", {});
-    document.getElementById("pricing").scrollIntoView({ behavior: "smooth", block: "start" });
+function openEditModal() {
+  const modal = document.getElementById('editModal');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Pre-fill with current data
+  if(D.name) document.getElementById('m-name').value = D.name;
+  if(D.qualities) document.getElementById('m-qualities').value = D.qualities;
+  if(D.memories) document.getElementById('m-memories').value = D.memories;
+  if(D.message) document.getElementById('m-message').value = D.message;
+
+  // Pre-select current pills
+  if(D.forWhom) preSel('mp1', D.forWhom);
+  if(D.occasion) preSel('mp2', D.occasion);
+  if(D.genre) preSel('mp3', D.genre);
+  if(D.voice) preSel('mp4', D.voice);
+
+  mData = { forWhom: D.forWhom, occasion: D.occasion, genre: D.genre, voice: D.voice };
+}
+
+function preSel(groupId, val) {
+  document.querySelectorAll('#'+groupId+' .mpill').forEach(p => {
+    p.classList.toggle('sel', p.textContent.trim() === val);
   });
+}
 
-  $("#clipLen").textContent = CONFIG.previewSeconds + " second preview";
-  paint();
-  track("view_offer", { pct: pct });
-})();
+function closeEditModal(e) {
+  if(e.target.id === 'editModal') closeEditModalBtn();
+}
+function closeEditModalBtn() {
+  document.getElementById('editModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function mPick(groupId, el, field) {
+  document.querySelectorAll('#'+groupId+' .mpill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  mData[field] = el.textContent.trim();
+}
+
+function saveModalChanges() {
+  // Apply changes to D
+  if(mData.forWhom) D.forWhom = mData.forWhom;
+  if(mData.occasion) D.occasion = mData.occasion;
+  if(mData.genre) D.genre = mData.genre;
+  if(mData.voice) D.voice = mData.voice;
+  const name = document.getElementById('m-name').value.trim();
+  if(name) D.name = name;
+  const qual = document.getElementById('m-qualities').value.trim();
+  if(qual) D.qualities = qual;
+  const mem = document.getElementById('m-memories').value.trim();
+  if(mem) D.memories = mem;
+  const msg = document.getElementById('m-message').value.trim();
+  if(msg) D.message = msg;
+
+  // Update all displayed order summaries
+  updateBumps();
+  updateReview();
+
+  closeEditModalBtn();
+  tip('Changes saved ✓');
+}
+
+// ── STICKY BUTTON PULSE ON SCROLL ──
+let pulseTimer = null;
+window.addEventListener('scroll', () => {
+  const btn = document.querySelector('.sticky-pay .btn-pay');
+  if (!btn) return;
+  // Clear existing pulse timer
+  clearTimeout(pulseTimer);
+  btn.classList.remove('pulse');
+  // Add pulse after user stops scrolling for 800ms
+  pulseTimer = setTimeout(() => {
+    const bar = document.getElementById('stickyPay');
+    if (bar && bar.classList.contains('show')) {
+      btn.classList.add('pulse');
+      // Remove after 6s
+      setTimeout(() => btn.classList.remove('pulse'), 6000);
+    }
+  }, 800);
+}, { passive: true });
 </script>
+
+<!-- STICKY PAY BAR (shows on bump + review pages) -->
+<div class="sticky-pay" id="stickyPay">
+  <button class="btn-pay" onclick="handleStickyBtn()">Get My Song Now →</button>
+  <div class="sec-row"><span>🔒 Secure checkout</span><span>✓ 100% Money-Back</span></div>
+</div>
+
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Edit Order Details</div>
+      <button class="modal-close" onclick="closeEditModal()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section">
+        <label class="modal-section-label">Who's this for?</label>
+        <div class="modal-pills" id="mForPills">
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Husband</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Wife</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Partner</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Girlfriend</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Boyfriend</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Son</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Daughter</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Fiancé</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Father</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Mother</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Grandparent</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Sibling</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Friend</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Myself</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Other</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">Their name</label>
+        <input class="modal-input" id="mName" placeholder="Enter their first name">
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">Occasion</label>
+        <div class="modal-pills" id="mOccPills">
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Just Because</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">I Love You</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Birthday</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Anniversary</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Missing You</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Thank You</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Apology</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Wedding</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Friendship</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">In Memory</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Milestone</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Proposal</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Retirement</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Graduation</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Something else...</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">Genre</label>
+        <div class="modal-pills" id="mGenrePills">
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Pop</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Country</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Rock</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">R&amp;B</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Jazz</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Acoustic</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Rap / Hip-Hop</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Latin</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Reggaeton</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Reggae</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">What makes them special?</label>
+        <textarea class="modal-textarea" id="mQualities" placeholder="Their beautiful qualities..."></textarea>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">Favorite memories</label>
+        <textarea class="modal-textarea" id="mMemories" placeholder="Special moments together..."></textarea>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">Message from your heart</label>
+        <textarea class="modal-textarea" id="mMessage" placeholder="What do you want them to feel?"></textarea>
+      </div>
+
+      <button class="btn-save-changes" onclick="saveModalChanges()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- EDIT ORDER MODAL -->
+<div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h2>Edit Order Details</h2>
+      <button class="modal-close" onclick="closeEditModalBtn()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section">
+        <label class="modal-label">Who's this for?</label>
+        <div class="modal-pills" id="mp1">
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Husband</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Wife</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Partner</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Girlfriend</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Boyfriend</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Son</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Daughter</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Fianc&eacute;</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Father</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Mother</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Grandparent</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Grandson</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Granddaughter</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Sibling</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Friend</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Myself</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Other</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Their name</label>
+        <input class="modal-input" id="m-name" placeholder="Enter their first name">
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Occasion</label>
+        <div class="modal-pills" id="mp2">
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Just Because</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Graduation</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">I Love You</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Missing You</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Anniversary</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Father's Day</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">In Memory</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Milestone</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Birthday</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Retirement</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Wedding</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Proposal</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Friendship</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Thank You</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Apology</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Something else...</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Genre</label>
+        <div class="modal-pills" id="mp3">
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Pop</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Country</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Rock</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">R&amp;B</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Jazz</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Acoustic</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Rap / Hip-Hop</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Indie</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Latin</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Worship</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Reggaeton</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Reggae</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Singer voice</label>
+        <div class="modal-pills" id="mp4">
+          <div class="mpill" onclick="mPick('mp4',this,'voice')">Male</div>
+          <div class="mpill" onclick="mPick('mp4',this,'voice')">Female</div>
+          <div class="mpill" onclick="mPick('mp4',this,'voice')">Surprise Me</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">What makes them special?</label>
+        <textarea class="modal-input" id="m-qualities" placeholder="Their qualities, what you love about them..."></textarea>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Your favorite memories</label>
+        <textarea class="modal-input" id="m-memories" placeholder="How you met, special moments, inside jokes..."></textarea>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Message from your heart</label>
+        <textarea class="modal-input" id="m-message" placeholder="What you want them to know..."></textarea>
+      </div>
+
+      <button class="btn-save" onclick="saveModalChanges()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
