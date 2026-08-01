@@ -53,9 +53,12 @@ exports.handler = async (event) => {
 
     if (song.status === "error") return json(200, { ready: false, failed: true });
 
+    const created = song.created || null;   // anchors the queue-hold countdown
+
     if (song.status !== "done" || !song.audio_b64) {
       return json(200, {
         ready: false,
+        created,
         stage: song.stage || "processing",
         name: song.recipient_name || null,
         title: song.song_title || null
@@ -66,6 +69,7 @@ exports.handler = async (event) => {
     return json(200, {
       ready: true,
       paid,
+      created,
       title: song.song_title || null,
       name: song.recipient_name || null,
       relationship: song.relationship || null,
