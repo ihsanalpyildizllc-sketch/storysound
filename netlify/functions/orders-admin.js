@@ -9,10 +9,12 @@ exports.handler = async (event) => {
 
   try {
     const idx = await redis([["LRANGE", "orders_index", "0", "199"], ["GET", "agent:last"],
-      ["GET","ev:view_offer"],["GET","ev:play_preview"],["GET","ev:begin_checkout"]]);
+      ["GET","ev:view_offer"],["GET","ev:play_preview"],["GET","ev:begin_checkout"],
+      ["GET","ev:lyrics_upsell_click"],["GET","ev:video_upsell_click"],["GET","ev:another_song_upsell_click"]]);
     const ids = idx?.[0]?.result || [];
     let agent = null; try { agent = JSON.parse(idx?.[1]?.result || "null"); } catch (e) {}
-    const funnel = { views:+(idx?.[2]?.result||0), plays:+(idx?.[3]?.result||0), checkouts:+(idx?.[4]?.result||0) };
+    const funnel = { views:+(idx?.[2]?.result||0), plays:+(idx?.[3]?.result||0), checkouts:+(idx?.[4]?.result||0),
+      lyricsClicks:+(idx?.[5]?.result||0), videoClicks:+(idx?.[6]?.result||0), anotherSongClicks:+(idx?.[7]?.result||0) };
 
     const rows = [];
     const seen = new Set();
