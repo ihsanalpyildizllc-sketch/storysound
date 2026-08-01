@@ -19,7 +19,9 @@ exports.handler = async () => {
       headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=300" },
       body: JSON.stringify({
         count, avg, dist,
-        reviews: pub.map(r => ({ stars: r.stars, text: r.text, name: r.name, ago: ago(r.ts) }))
+        reviews: pub.map(r => ({ stars: r.stars, text: r.text, name: r.name, ago: ago(r.ts),
+          verified: r.verified !== false && r.source !== "manual" ? true : !!r.verified,
+          photo: r.photo ? "/.netlify/functions/review-photo?id=" + encodeURIComponent(r.photo) : null }))
       })
     };
   } catch (e) { return { statusCode: 500, body: JSON.stringify({ error: e.message }) }; }
