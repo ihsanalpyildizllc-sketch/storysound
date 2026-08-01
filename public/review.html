@@ -37,6 +37,9 @@ background:linear-gradient(135deg,var(--rust),var(--rustD));color:#fff;font-fami
 <textarea id="text" placeholder="She stopped halfway through and said…"></textarea>
 <label>Your name</label>
 <input type="text" id="name" placeholder="First name and last initial is perfect">
+<label>Add a photo <span style="font-weight:400;color:var(--fade)">(optional)</span></label>
+<p class="hint">A real photo of the moment, the two of you, or the print on the wall — makes your review 10× more helpful.</p>
+<input type="file" id="photo" accept="image/*" style="font-size:13px">
 <div class="perm"><input type="checkbox" id="perm" checked><span>You can publish my review on StorySound with my first name and last initial.</span></div>
 <button class="btn" id="go">Submit my review</button>
 </div></div>
@@ -52,18 +55,33 @@ for(var i=1;i<=5;i++){(function(n){
  var b=document.createElement("button");b.className="st";b.textContent="★";
  b.onclick=function(){stars=n;[].forEach.call(box.children,function(c,idx){c.classList.toggle("on",idx<n)});};
  box.appendChild(b);})(i);}
+function readPhoto(cb){
+ var f=(document.getElementById("photo").files||[])[0];
+ if(!f){cb(null);return;}
+ if(f.size>4_000_000){alert("Photo too large — under 4MB please");cb(null);return;}
+ var img=new Image(),rd=new FileReader();
+ rd.onload=function(){img.onload=function(){
+   var c=document.createElement("canvas"),m=900/Math.max(img.width,img.height);
+   c.width=Math.round(img.width*Math.min(1,m));c.height=Math.round(img.height*Math.min(1,m));
+   c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+   cb(c.toDataURL("image/jpeg",.82));
+ };img.src=rd.result;};
+ rd.readAsDataURL(f);
+}
 document.getElementById("go").onclick=function(){
  var text=document.getElementById("text").value.trim();
  if(!stars){alert("Tap a star rating first");return;}
  if(text.length<20){alert("A sentence or two helps — what happened when they heard it?");return;}
- this.disabled=true;this.textContent="Sending…";
+ var btn=this;btn.disabled=true;btn.textContent="Sending…";
+ readPhoto(function(photo){
  fetch("/.netlify/functions/review-submit",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({o:o,stars:stars,text:text,name:document.getElementById("name").value,permission:document.getElementById("perm").checked})})
+  body:JSON.stringify({o:o,stars:stars,text:text,name:document.getElementById("name").value,permission:document.getElementById("perm").checked,photo:photo})})
  .then(function(r){return r.json();}).then(function(d){
   if(d.error){alert(d.error);document.getElementById("go").disabled=false;document.getElementById("go").textContent="Submit my review";return;}
   document.getElementById("form").style.display="none";document.getElementById("done").style.display="block";
   if(stars<=3)document.getElementById("doneMsg").textContent="We read every word — and we'd love to make it right. Reply to your delivery email and we'll revise the song free until you love it.";
- }).catch(function(){alert("Couldn't send — try again");document.getElementById("go").disabled=false;document.getElementById("go").textContent="Submit my review";});
+ }).catch(function(){alert("Couldn't send — try again");btn.disabled=false;btn.textContent="Submit my review";});
+ });
 };
 })();
 </script></body></html>
