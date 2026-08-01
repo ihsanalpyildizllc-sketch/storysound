@@ -205,8 +205,7 @@ Return ONLY valid JSON (no markdown):
       ['INCR', `dash:songs:date:${today}`],
       ['EXPIRE', `dash:songs:date:${today}`, '2592000']
     ];
-    // revenue only for pay-first orders; create2 revenue is recorded at unlock by the webhook
-    if (source === 'create') dashCmds.push(['INCRBY', 'dash:revenue:total', '39']);
+    // revenue is recorded ONLY by the webhook (real totals incl. bumps), never here
     await fetch(`${REDIS_URL}/pipeline`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${REDIS_TOKEN}`, 'Content-Type': 'application/json' },
