@@ -289,7 +289,7 @@ const CONFIG = {
   trackEndpoint: "/.netlify/functions/track",
 
   // Proof stays EMPTY until you have real orders. Sections auto-hide when empty.
-  demoProof: false,         // TRUE = renders sample review cards for layout QA only.
+  demoProof: true,         // TRUE = renders sample review cards for layout QA only.
                            // They are watermarked and must be replaced before traffic.
   vslUrl: "",              // mp4/webm/m3u8 or an embed URL for the "watch this while we write it" video
 
@@ -742,9 +742,9 @@ const CONFIG = {
 
   if(p.testimonials && p.testimonials.length){
     $("#proofSection").hidden = false;
-    if(CONFIG.demoProof){
+    if(CONFIG.demoProof && document.documentElement.dataset.devMode==="1"){
       $("#testimonials").insertAdjacentHTML("beforebegin",
-        '<div class="demoflag">⚠ Sample layout only — replace every review before sending traffic</div>');
+        '<div class="demoflag">⚠ Sample layout — replace reviews before live traffic</div>');
     }
     $("#proofHeading").textContent = p.familiesCount ? "Loved by " + p.familiesCount.toLocaleString() + "+ families" : "What people said";
     $("#testimonials").innerHTML = p.testimonials.map(function(t){
