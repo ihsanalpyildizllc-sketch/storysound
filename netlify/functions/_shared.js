@@ -40,14 +40,15 @@ async function persistSong(orderId, event) {
   } catch (e) { console.log("blob backup skipped:", e.message); }
 }
 
-async function sendEmail({ to, subject, html, text }) {
+async function sendEmail({ to, subject, html, text, stream }) {
   if (!to || !process.env.POSTMARK_SERVER_TOKEN) return { ok: false, reason: "no email or token" };
   const res = await fetch("https://api.postmarkapp.com/email", {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Postmark-Server-Token": process.env.POSTMARK_SERVER_TOKEN },
     body: JSON.stringify({
       From: process.env.FROM_EMAIL || "songs@storysound.ai",
-      To: to, Subject: subject, HtmlBody: html, TextBody: text, MessageStream: "outbound"
+      To: to, Subject: subject, HtmlBody: html, TextBody: text,
+      MessageStream: stream || "outbound"   // transactional by default; pass the broadcast stream for marketing
     })
   });
   const body = await res.json().catch(() => ({}));
