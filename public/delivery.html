@@ -64,7 +64,7 @@ function load(){
 function render(d){
  var lyricsBlock = d.lyricsBought
   ? '<div class="card"><div class="cap">\ud83d\udcdc Your lyrics</div><div class="lyr">'+esc(d.lyrics.join("\n"))+'</div>'+
-    '<button class="btn ghost" style="margin-top:18px" onclick="window.print()">\ud83d\udda8 Print my lyrics</button></div>'
+    '<a class="btn ghost" style="margin-top:18px" href="/lyrics-print?o='+encodeURIComponent(d.orderId)+'">\ud83d\udda8 Open my printable lyric sheet</a></div>'
   : '<div class="card"><div class="cap">\ud83d\udcdc From your lyrics</div><div class="lyr">'+esc(d.lyrics.join("\n"))+'</div>'+
     '<div class="blurbox">'+
      '<div class="bl" style="width:86%"></div><div class="bl" style="width:74%"></div><div class="bl" style="width:90%"></div><div class="bl" style="width:68%"></div><div class="bl" style="width:82%"></div>'+
