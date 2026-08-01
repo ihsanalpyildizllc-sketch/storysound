@@ -12,13 +12,28 @@ exports.handler = async () => {
   const out = { checked: 0, retried: 0, emailedDelivery: 0, emailedPreview: 0, flagged: 0, errors: [] };
   try {
     const idx = await redis([["LRANGE", "orders_index", "0", "299"]]);
-    const ids = idx?.[0]?.result || [];
+    const ids = [...new Set(idx?.[0]?.result || [])];
 
     for (const orderId of ids) {
       out.checked++;
       try {
         const [song, meta] = await Promise.all([getJSON(`song_${orderId}`), getJSON(`meta_${orderId}`)]);
-        if (!song) continue;
+        // orphan: order registered but generation never started (e.g. trigger lost)
+        if (!song) {
+          const m0 = meta || {};
+          const attempts0 = m0.attempts || 0;
+          if ((m0.created || 0) && Date.now() - m0.created > 5 * 60 * 1000 && attempts0 < MAX_ATTEMPTS) {
+            const payload = await getJSON(`payload_${orderId}`);
+            if (payload) {
+              await mergeMeta(orderId, { attempts: attempts0 + 1, last_retry: Date.now() });
+              fetch(`${SITE}/.netlify/functions/generate-song-background`, {
+                method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+              }).catch(() => {});
+              out.retried++;
+            }
+          }
+          continue;
+        }
         const m = meta || {};
         const attempts = m.attempts || 1;
 
