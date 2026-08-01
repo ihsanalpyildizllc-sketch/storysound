@@ -188,9 +188,7 @@ Return ONLY valid JSON (no markdown):
     const dashCmds = [
       ['INCR', 'dash:songs:total'],
       ['INCR', `dash:songs:date:${today}`],
-      ['EXPIRE', `dash:songs:date:${today}`, '2592000'],
-      ['LPUSH', 'orders_index', orderId],
-      ['LTRIM', 'orders_index', '0', '4999']
+      ['EXPIRE', `dash:songs:date:${today}`, '2592000']
     ];
     // revenue only for pay-first orders; create2 revenue is recorded at unlock by the webhook
     if (source === 'create') dashCmds.push(['INCRBY', 'dash:revenue:total', '39']);
