@@ -17,6 +17,7 @@ exports.handler = async (event) => {
         ["GET", "dash:revenue:total"], ["GET", `dash:revenue:date:${today}`],
         ["LRANGE", "orders_index", "0", "19"], ["GET", "agent:last"],
         ["GET", "ev:view_offer"], ["GET", "ev:play_preview"], ["GET", "ev:begin_checkout"],
+        ["GET", "ev:lyrics_upsell_click"], ["GET", "ev:video_upsell_click"],
         ["LRANGE", "reviews_all", "0", "499"]
       ])
     ]);
@@ -26,8 +27,9 @@ exports.handler = async (event) => {
     const totalRev = +(g(2) || 0), todayRev = +(g(3) || 0);
     const ids = [...new Set(g(4) || [])].slice(0, 10);
     let agent = null; try { agent = JSON.parse(g(5) || "null"); } catch (e) {}
-    const funnel = { views: +(g(6) || 0), plays: +(g(7) || 0), checkouts: +(g(8) || 0) };
-    const reviewsAll = (g(9) || []).map(x => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean);
+    const funnel = { views: +(g(6) || 0), plays: +(g(7) || 0), checkouts: +(g(8) || 0),
+      lyricsClicks: +(g(9) || 0), videoClicks: +(g(10) || 0) };
+    const reviewsAll = (g(11) || []).map(x => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean);
 
     // recent songs straight from the single source of truth
     const recent = [];
