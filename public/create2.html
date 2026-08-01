@@ -356,16 +356,8 @@ const SHOPIFY_STORE='gut-1809.myshopify.com';
 
 function showStep(n){
   for(let i=1;i<=STEPS;i++){const el=document.getElementById('s'+i);if(el)el.classList.remove('active');}
-  document.getElementById('bumpsPage').style.display='none';
+  const _bp=document.getElementById('bumpsPage'); if(_bp)_bp.style.display='none';
   document.getElementById('btmNav').classList.remove('hide');
-  if(n==='bumps'){
-    document.getElementById('bumpsPage').style.display='block';
-    document.getElementById('btmNav').classList.add('hide');
-    document.getElementById('pf').style.width='100%';
-    document.getElementById('ps').textContent='Almost done!';
-    document.getElementById('pp').textContent='100%';
-    updateBumps();window.scrollTo({top:0});return;
-  }
   const el=document.getElementById('s'+n);if(el)el.classList.add('active');
   if(n===8)updateReview();
   const[pct,label]=PROG[n]||[100,''];
@@ -402,11 +394,11 @@ function selP(id,el){document.querySelectorAll('#'+id+' .pill').forEach(p=>p.cla
 
 function updateReview(){
   const n=D.name||D.forWhom||'them';
-  document.getElementById('nameDisp').textContent=n;
-  document.getElementById('rc-for').textContent=n+' ('+D.forWhom+')';
-  document.getElementById('rc-occ').textContent=D.occasion||'—';
-  document.getElementById('rc-genre').textContent=D.genre||'—';
-  document.getElementById('rc-voice').textContent=D.voice||'—';
+  {const _e=document.getElementById('nameDisp'); if(_e)_e.textContent=n;}
+  {const _e=document.getElementById('rc-for'); if(_e)_e.textContent=n+' ('+D.forWhom+')';}
+  {const _e=document.getElementById('rc-occ'); if(_e)_e.textContent=D.occasion||'—';}
+  {const _e=document.getElementById('rc-genre'); if(_e)_e.textContent=D.genre||'—';}
+  {const _e=document.getElementById('rc-voice'); if(_e)_e.textContent=D.voice||'—';}
 }
 
 function updateBumps(){
