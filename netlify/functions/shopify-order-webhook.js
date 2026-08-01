@@ -54,7 +54,10 @@ exports.handler = async (event) => {
 
       const g = await fetch(`${REDIS_URL}/pipeline`, { method:"POST",
         headers:{ Authorization:`Bearer ${REDIS_TOKEN}`,"Content-Type":"application/json" },
-        body: JSON.stringify([["GET", `meta_${origOrderId}`], ["GET", `song_${origOrderId}`], ["PERSIST", `song_${origOrderId}`], ["INCRBY", "dash:revenue:total", String(Math.round(total))]]) });
+        body: JSON.stringify([["GET", `meta_${origOrderId}`], ["GET", `song_${origOrderId}`], ["PERSIST", `song_${origOrderId}`],
+          ["INCRBY", "dash:revenue:total", String(Math.round(total))],
+          ["INCRBY", `dash:revenue:date:${new Date().toISOString().slice(0,10)}`, String(Math.round(total))],
+          ["EXPIRE", `dash:revenue:date:${new Date().toISOString().slice(0,10)}`, "2592000"]]) });
       const rows = await g.json();
       let meta = {}; try { meta = JSON.parse(rows[0]?.result || "{}") || {}; } catch(e){}
       let songRec = null; try { songRec = JSON.parse(rows[1]?.result || "null"); } catch(e){}
@@ -108,6 +111,9 @@ exports.handler = async (event) => {
     headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
     body: JSON.stringify([
       ["SET", `song_${orderId}`, JSON.stringify({ status: "processing", created: Date.now() }), "EX", "86400"],
+      ["INCRBY", "dash:revenue:total", String(Math.round(meta.total))],
+      ["INCRBY", `dash:revenue:date:${new Date().toISOString().slice(0,10)}`, String(Math.round(meta.total))],
+      ["EXPIRE", `dash:revenue:date:${new Date().toISOString().slice(0,10)}`, "2592000"],
       ["SET", `meta_${orderId}`, JSON.stringify(meta)],
       ["SET", `payload_${orderId}`, event.body, "EX", "172800"],
       ["LPUSH", "orders_index", orderId],
