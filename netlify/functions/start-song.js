@@ -17,6 +17,7 @@ exports.handler = async (event) => {
     email: body.email || attrs["Customer Email"] || "",
     name: attrs["Recipient Name"] || "",
     rel: attrs["Relationship"] || "",
+    bumps: body.bumps || null,
     country, created: Date.now(), attempts: 0
   };
   try {
@@ -46,3 +47,4 @@ exports.handler = async (event) => {
 
   return { statusCode: 200, body: JSON.stringify({ jobId, message: "Song generation started" }) };
 };
+
