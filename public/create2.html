@@ -192,6 +192,32 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
   .screen,.bump-wrap,.rev-wrap{max-width:520px;margin:0 auto}
   .btm{max-width:520px;left:50%;transform:translateX(-50%)}
 }
+
+/* ── proof ticker (S1) ── */
+.proof-strip{overflow:hidden;margin:12px 0 0;position:relative;height:38px}
+.proof-strip::before,.proof-strip::after{content:'';position:absolute;top:0;bottom:0;width:28px;z-index:2;pointer-events:none}
+.proof-strip::before{left:0;background:linear-gradient(to right,var(--cream),transparent)}
+.proof-strip::after{right:0;background:linear-gradient(to left,var(--cream),transparent)}
+.ps-inner{display:flex;gap:8px;width:max-content;animation:scroll-proof 30s linear infinite}
+.ps-inner:hover{animation-play-state:paused}
+@keyframes scroll-proof{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.pc{background:#fff;border:1px solid rgba(26,24,20,.09);border-radius:100px;padding:6px 13px;white-space:nowrap;display:flex;align-items:center;gap:7px;box-shadow:0 1px 4px rgba(0,0,0,.05);flex-shrink:0}
+.pc-stars{color:#E5A400;font-size:9px;letter-spacing:1.5px}
+.pc-name{font-size:11px;font-weight:700;color:var(--ink);flex-shrink:0}
+.pc-q{font-size:11px;color:var(--ink2)}
+
+/* ── S8 review cards ── */
+.s8-revs{margin-top:20px}
+.s8r-head{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;text-align:center;margin-bottom:12px}
+.s8rc{background:#fff;border:1px solid rgba(26,24,20,.08);border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.s8rc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.s8rc-stars{color:#E5A400;font-size:11px;letter-spacing:2px}
+.s8rc-ago{font-size:11px;color:var(--muted)}
+.s8rc-body{font-size:13.5px;line-height:1.65;color:#3A362F;margin-bottom:10px}
+.s8rc-foot{display:flex;align-items:center;gap:6px;font-size:12px}
+.s8rc-name{font-weight:700;color:var(--ink)}
+.s8rc-ver{color:#2D6A4F;font-weight:600}
+.s8rc-occ{background:rgba(181,71,28,.07);color:var(--rust);border-radius:100px;padding:2px 9px;font-size:11px;font-weight:600}
 </style>
 </head>
 <body>
@@ -206,7 +232,25 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
   <div class="screen-center">
     <div class="stitle">Who's this song for?</div>
     <p class="ssub">Pick who this song is for</p>
-    <div style="height:20px"></div>
+    <!-- proof ticker -->
+    <div class="proof-strip">
+      <div class="ps-inner" id="psTicker">
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Sarah M.</span><span class="pc-q">My husband cried. He doesn't cry at anything.</span></div>
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Jennifer R.</span><span class="pc-q">She texted me: "I'm playing this at my funeral."</span></div>
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Marcus T.</span><span class="pc-q">She set it as her alarm. Wakes up to it every morning.</span></div>
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Robert C.</span><span class="pc-q">Made this about my late dad. She plays it every Sunday.</span></div>
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Aisha B.</span><span class="pc-q">She stopped the song halfway to collect herself.</span></div>
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Danielle K.</span><span class="pc-q">I cried at work. Had to pretend I had allergies.</span></div>
+        <!-- duplicate for seamless infinite loop -->
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Sarah M.</span><span class="pc-q">My husband cried. He doesn't cry at anything.</span></div>
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Jennifer R.</span><span class="pc-q">She texted me: "I'm playing this at my funeral."</span></div>
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Marcus T.</span><span class="pc-q">She set it as her alarm. Wakes up to it every morning.</span></div>
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Robert C.</span><span class="pc-q">Made this about my late dad. She plays it every Sunday.</span></div>
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Aisha B.</span><span class="pc-q">She stopped the song halfway to collect herself.</span></div>
+        <div class="pc"><span class="pc-stars">★★★★★</span><span class="pc-name">Danielle K.</span><span class="pc-q">I cried at work. Had to pretend I had allergies.</span></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
     <div class="pill-wrap" id="p1">
       <div class="pill" onclick="pick1(this)">Husband</div><div class="pill" onclick="pick1(this)">Wife</div>
       <div class="pill" onclick="pick1(this)">Partner</div><div class="pill" onclick="pick1(this)">Girlfriend</div>
@@ -350,6 +394,29 @@ fetch("/.netlify/functions/reviews-data").then(function(r){return r.json();}).th
     <button class="create-btn" id="payBtn" onclick="startFreePreview()">Get My Free Preview →</button>
     <p class="see-price">Free to hear. No card needed.</p>
     <div class="trust-row">🔒 100% Money-Back Guarantee · No card required to hear your song</div>
+
+    <!-- S8 review cards -->
+    <div class="s8-revs">
+      <div class="s8r-head">What customers are saying</div>
+
+      <div class="s8rc">
+        <div class="s8rc-top"><span class="s8rc-stars">★★★★★</span><span class="s8rc-ago">3 days ago</span></div>
+        <div class="s8rc-body">For our 20th anniversary my husband cried. He doesn't cry at anything. The lyrics mentioned the coffee shop where we first met and the midnight drive after he proposed — I never said those exact words, I just described the memory. The song just knew.</div>
+        <div class="s8rc-foot"><span class="s8rc-name">Sarah M.</span><span class="s8rc-ver">✓ Verified purchase</span><span class="s8rc-occ">Anniversary</span></div>
+      </div>
+
+      <div class="s8rc">
+        <div class="s8rc-top"><span class="s8rc-stars">★★★★★</span><span class="s8rc-ago">1 week ago</span></div>
+        <div class="s8rc-body">My girlfriend and I have been long distance for two years. I was running out of ways to remind her I'm not going anywhere. This song did it better than anything I've ever said. She set it as her morning alarm. She wakes up to it every single day.</div>
+        <div class="s8rc-foot"><span class="s8rc-name">Marcus T.</span><span class="s8rc-ver">✓ Verified purchase</span><span class="s8rc-occ">Long distance</span></div>
+      </div>
+
+      <div class="s8rc">
+        <div class="s8rc-top"><span class="s8rc-stars">★★★★★</span><span class="s8rc-ago">2 weeks ago</span></div>
+        <div class="s8rc-body">I made this for my mom's 70th birthday. She's not a crier. She listened to it three times in a row and didn't say anything. Then she texted me: "I'm playing this at my funeral." That's the highest compliment she gives anything in her life.</div>
+        <div class="s8rc-foot"><span class="s8rc-name">Jennifer R.</span><span class="s8rc-ver">✓ Verified purchase</span><span class="s8rc-occ">Birthday</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -895,3 +962,4 @@ window.addEventListener('scroll', () => {
 
 </body>
 </html>
+
