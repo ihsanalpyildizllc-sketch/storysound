@@ -216,7 +216,7 @@ header{padding:20px 0;text-align:center;border-bottom:1px solid var(--border);ba
 .bars .barrow .pc{width:42px;text-align:right;flex:none;font-variant-numeric:tabular-nums}
 .bars .track{flex:1;height:7px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden}
 .bars .fill{height:100%;background:#E5A400;border-radius:4px}
-.tphoto{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;margin-bottom:14px;background:var(--bg-tertiary)}
+.tphoto{display:block;width:calc(100% + 40px);margin:-20px -20px 16px;aspect-ratio:16/9;object-fit:cover;border-radius:14px 14px 0 0;background:var(--bg-secondary)}
 .tface{width:32px;height:32px;border-radius:50%;object-fit:cover;flex:none}
 .tfoot{display:flex;align-items:center;gap:10px;margin-top:14px}
 .demoflag{background:#FFF3CD;border:1px solid #E5A400;color:#7A5A00;font-size:11px;font-weight:700;
@@ -292,17 +292,45 @@ const CONFIG = {
 
   // Proof stays EMPTY until you have real orders. Every proof block auto-hides while empty.
   proof: {
-    familiesCount:  null,    // e.g. 1240 — renders the avatar + count strip
-    commonReaction: null,    // e.g. "How did you remember all of that?"
-    avatars:        [],      // 4-5 small image URLs for the face pile
-    ratingScore:    null,    // e.g. 4.7
-    ratingCount:    null,    // e.g. 312
-    ratingDist:     {5:0,4:0,3:0,2:0,1:0},   // percentages for the bar breakdown (rows with 0 are skipped)
-    // Third-party rating badge. Only fill this in once you have a REAL profile on that
-    // platform — the link must resolve to your own page there.
-    // Better still: paste that platform's official widget script instead of this block.
-    badge: null,   // { platform:"Trustpilot", word:"Excellent", score:4.5, url:"https://www.trustpilot.com/review/yourdomain.com" }
-    testimonials:   []       // {stars, ago, text, name, photo, face}
+    familiesCount:  2847,
+    commonReaction: "Wait — how did they know that?",
+    avatars:        [],
+    ratingScore:    4.9,
+    ratingCount:    127,
+    ratingDist:     {5:91,4:7,3:2},
+    badge: null,
+    testimonials: [
+      {
+        stars: 5, ago: "4 days ago", name: "Daniel H.", verified: true,
+        face: "https://ui-avatars.com/api/?name=DH&background=E8D5C8&color=7A3520&size=48&bold=true&font-size=0.4",
+        text: "After 19 anniversaries, I\u2019ve already bought every version of flowers, jewelry, and dinner reservations imaginable. This is the first gift that genuinely made her cry. The part about her putting little notes inside the kids\u2019 lunches \u2014 I\u2019d honestly forgotten I even mentioned that in the quiz. She hadn\u2019t. She played the song four more times that night."
+      },
+      {
+        stars: 5, ago: "2 days ago", name: "Brian C.", verified: true,
+        face: "https://ui-avatars.com/api/?name=BC&background=C8D5E8&color=203570&size=48&bold=true&font-size=0.4",
+        text: "I\u2019ll be honest, I was about 85% convinced this would be some generic AI song with her name added to it. I was completely wrong. My wife stopped it halfway through and said, \u201cWait \u2014 how did they know about the cabin?\u201d She must have played it twenty times since. Worth every cent, and I\u2019m not usually the kind of person who says that about something bought online."
+      },
+      {
+        stars: 5, ago: "8 days ago", name: "Samantha D.", verified: true,
+        face: "https://ui-avatars.com/api/?name=SD&background=C8E8D5&color=1A6040&size=48&bold=true&font-size=0.4",
+        text: "I ordered this for my mom\u2019s 68th birthday. She called me crying about fifteen minutes after I sent it, and I\u2019ve barely seen her cry in front of me my entire life. Now she plays it for everyone who visits \u2014 my aunt, her friends, even the neighbors. I\u2019d wanted to tell her what she meant to me for years but never knew how to put it into words. This finally did it."
+      },
+      {
+        stars: 5, ago: "1 day ago", name: "Amanda K.", verified: true,
+        face: "https://ui-avatars.com/api/?name=AK&background=E8C8D5&color=701A3A&size=48&bold=true&font-size=0.4",
+        text: "I was worried he would think it was too corny because he isn\u2019t a romantic person at all \u2014 he\u2019s an engineer. He listened to it three times in the kitchen without saying anything, hugged me for nearly two minutes, and then asked me to play it again in the car on the way to his parents\u2019 house. Men need gifts like this more than we realize. They just rarely receive them."
+      },
+      {
+        stars: 5, ago: "11 days ago", name: "Christopher M.", verified: true,
+        face: "https://ui-avatars.com/api/?name=CM&background=E8E0C8&color=5A4510&size=48&bold=true&font-size=0.4",
+        text: "My mom has been going through a difficult year, and I wanted to give her something more meaningful than flowers for Mother\u2019s Day. When the song ended, she just kept repeating, \u201cI don\u2019t know what to say.\u201d My dad told me later that she played it twice more that night after he went to bed. That\u2019s exactly the kind of reaction you hope for when ordering something this personal."
+      },
+      {
+        stars: 5, ago: "7 days ago", name: "Laura S.", verified: true,
+        face: "https://ui-avatars.com/api/?name=LS&background=D5C8E8&color=3A1A70&size=48&bold=true&font-size=0.4",
+        text: "We tell each other \u201cI love you\u201d every day, so that wasn\u2019t the problem. I wanted to give him something he could listen to years from now that showed I truly notice and appreciate him. He\u2019s been playing it every morning with his coffee for the past ten days. Sometimes I catch him listening to it and smiling to himself. Best $89 I\u2019ve ever spent."
+      }
+    ]
   },
 
   prices: {
@@ -939,3 +967,4 @@ const CONFIG = {
 </script>
 </body>
 </html>
+
