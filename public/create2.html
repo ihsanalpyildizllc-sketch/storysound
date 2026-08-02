@@ -193,19 +193,6 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
   .btm{max-width:520px;left:50%;transform:translateX(-50%)}
 }
 
-/* ── proof ticker (S1) ── */
-.proof-strip{overflow:hidden;margin:12px 0 0;position:relative;height:38px}
-.proof-strip::before,.proof-strip::after{content:'';position:absolute;top:0;bottom:0;width:28px;z-index:2;pointer-events:none}
-.proof-strip::before{left:0;background:linear-gradient(to right,var(--cream),transparent)}
-.proof-strip::after{right:0;background:linear-gradient(to left,var(--cream),transparent)}
-.ps-inner{display:flex;gap:8px;width:max-content;animation:scroll-proof 30s linear infinite}
-.ps-inner:hover{animation-play-state:paused}
-@keyframes scroll-proof{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.pc{background:#fff;border:1px solid rgba(26,24,20,.09);border-radius:100px;padding:6px 13px;white-space:nowrap;display:flex;align-items:center;gap:7px;box-shadow:0 1px 4px rgba(0,0,0,.05);flex-shrink:0}
-.pc-stars{color:#E5A400;font-size:9px;letter-spacing:1.5px}
-.pc-name{font-size:11px;font-weight:700;color:var(--ink);flex-shrink:0}
-.pc-q{font-size:11px;color:var(--ink2)}
-
 /* ── S8 review cards ── */
 .s8-revs{margin-top:20px}
 .s8r-head{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;text-align:center;margin-bottom:12px}
