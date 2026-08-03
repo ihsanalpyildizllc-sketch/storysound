@@ -80,4 +80,19 @@ function previewEmail({ title, orderId, siteUrl, name }) {
   };
 }
 
-module.exports = { redis, getJSON, mergeMeta, persistSong, sendEmail, deliveryEmail, previewEmail };
+function paywallReadyEmail({ title, orderId, siteUrl, name }) {
+  const link = `${siteUrl}/delivery?o=${encodeURIComponent(orderId)}`;
+  const t = title ? `"${title}"` : "your song";
+  return {
+    subject: `${name ? name + "'s" : "Your"} song is ready to hear 🎵`,
+    html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2">
+      <h1 style="font-style:italic;color:#0F0A06">${title ? '"' + title + '"' : "Your song is ready"}</h1>
+      <p style="color:#7A6A5A;margin:12px 0 8px">We just finished writing and composing ${t} — fully ready to hear.</p>
+      <p style="color:#7A6A5A;margin:0 0 24px">Listen to the whole thing free before you decide to download and keep it forever.</p>
+      <a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">▶ Hear My Song</a>
+      <p style="color:#9A8F82;font-size:12px;margin-top:20px">If you love it, download it for $39.99 — yours forever.</p></div>`,
+    text: `${name ? name + "'s" : "Your"} song is ready!\n\nListen to the full song free: ${link}\n\nIf you love it, download it for $39.99.`
+  };
+}
+
+module.exports = { redis, getJSON, mergeMeta, persistSong, sendEmail, deliveryEmail, previewEmail, paywallReadyEmail };
