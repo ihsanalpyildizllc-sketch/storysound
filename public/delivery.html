@@ -52,7 +52,6 @@ document.getElementById("yr").textContent=new Date().getFullYear();
 if(!o){app.innerHTML='<p style="text-align:center;padding:60px 0;color:var(--mut)">Missing order link. Check your email for the correct one.</p>';return;}
 var esc=function(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};
 var fmt=function(s){if(!isFinite(s)||isNaN(s)||s<0)return "\u2013:\u2013\u2013";s=Math.floor(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
-
 function attachPlayer(src){
  var a=new Audio(src),pl=document.getElementById("pl"),fill=document.getElementById("fill"),
      cur=document.getElementById("cur"),dur=document.getElementById("dur"),playing=false;
@@ -67,7 +66,6 @@ function attachPlayer(src){
  document.getElementById("bar").addEventListener("click",function(e){
   var r=this.getBoundingClientRect();if(a.duration)a.currentTime=(e.clientX-r.left)/r.width*a.duration;});
 }
-
 function load(){
  fetch("/.netlify/functions/delivery-data?o="+encodeURIComponent(o)).then(function(r){return r.json();}).then(function(d){
   if(d.redirect){location.href=d.redirect;return;}
@@ -77,7 +75,6 @@ function load(){
   render(d);
  }).catch(function(){setTimeout(load,5000);});
 }
-
 function renderPaywall(d){
  var ph="",lh="",sh="";
  if(!d.ready){
@@ -95,53 +92,48 @@ function renderPaywall(d){
  var ctaBlock=d.ready?(
   '<a class="btn" href="'+esc(d.shopifyUrl)+'" style="margin-top:8px">&#11015; Download &#38; Share &#8212; $39.99</a>'+
   '<p style="text-align:center;font-size:11px;color:var(--fade);margin:6px 0 4px">Download your MP3 &#183; Share via WhatsApp or iMessage &#183; Yours forever</p>'+
-  '<div style="display:flex;align-items:center;gap:10px;margin:14px 0">'+
-   '<div style="flex:1;height:0.5px;background:var(--bd)"></div>'+
-   '<span style="font-size:11px;color:var(--fade);white-space:nowrap">or get it free</span>'+
-   '<div style="flex:1;height:0.5px;background:var(--bd)"></div>'+
-  '</div>'+
-  '<div class="card" style="margin-bottom:0;border:1.5px solid var(--rust);background:rgba(200,85,61,.03)">'+
-   '<div style="text-align:center;margin-bottom:10px">'+
-    '<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">&#9733; VIP Club</div>'+
-    '<div style="font-size:18px;font-weight:700;color:var(--ink)">Unlock Free <span style="font-size:13px;font-weight:400;color:var(--mut)">with membership</span></div>'+
-    '<div style="font-size:13px;color:var(--mut);margin-top:2px">$29.99 / month &middot; cancel anytime</div>'+
-   '</div>'+
-   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-bottom:14px;font-size:13px;color:var(--ink)">'+
-    '<div>&#10003; Download your song</div>'+
-    '<div>&#10003; Memory video</div>'+
-    '<div>&#10003; Printable lyrics</div>'+
-    '<div>&#10003; Free song vault</div>'+
-   '</div>'+
-   '<a class="btn" href="'+esc(d.vipUrl||d.shopifyUrl)+'" style="background:var(--ink)">&#9733; Join VIP &#8212; Unlock Free</a>'+
-  '</div>'+
   '<div style="text-align:center;margin-top:14px">'+
    '<button id="cpbtn" onclick="checkPaid()" style="background:none;border:1.5px solid var(--bd);border-radius:12px;padding:10px 20px;cursor:pointer;font-size:12px;color:var(--mut);font-family:inherit">Already paid or joined? Click to unlock &#8594;</button>'+
   '</div>'
  ):'';
  app.innerHTML=
   '<h1>'+(d.title?'&#8220;'+esc(d.title)+'&#8221;':'Your song is almost ready')+'</h1>'+
-  '<p class="sub">'+(d.ready?'Your song is ready. Download it, share it, or join VIP to unlock it free.':'We&#8217;re composing your song now.')+'</p>'+
+  '<p class="sub">'+(d.ready?'Your song is ready.':'We&#8217;re composing your song now.')+'</p>'+
   sh+ph+lh+ctaBlock;
  if(d.ready)attachPlayer(d.audioUrl);
 }
-
 function checkPaid(){
  var btn=document.getElementById("cpbtn");
  if(btn){btn.textContent="Checking\u2026";btn.disabled=true;}
  load();
 }
-
 function render(d){
+ var Q='attributes[Original_Order]='+encodeURIComponent(d.orderId)+'&return_to=/checkout';
+ var DL_URL='https://gut-1809.myshopify.com/cart/44339845791833:1?'+Q;
+ var V3_URL='https://gut-1809.myshopify.com/cart/44263046381657:1?'+Q;
  var lb=d.lyricsBought
   ?'<div class="card"><div class="cap">&#128220; Your lyrics</div><div class="lyr">'+esc(d.lyrics.join("\n"))+'</div><a class="btn ghost" style="margin-top:18px" href="/lyrics-print?o='+encodeURIComponent(d.orderId)+'">Open printable lyric sheet</a></div>'
   :'<div class="card"><div class="cap">&#128220; From your lyrics</div><div class="lyr">'+esc(d.lyrics.join("\n"))+'</div><div class="blurbox"><div class="bl" style="width:86%"></div><div class="bl" style="width:74%"></div><div class="bl" style="width:90%"></div><div class="bl" style="width:68%"></div><div class="bl" style="width:82%"></div><div class="veil"><b>&#128274; +'+Math.max(0,d.lyricsTotal-3)+' more lines</b></div></div><a class="btn" style="margin-top:16px" href="https://gut-1809.myshopify.com/cart/44263011287129:1?attributes[Original_Order]='+encodeURIComponent(d.orderId)+'&attributes[Lyrics_Addon]=Yes">Get the printable lyrics &#8212; $19</a></div>';
  app.innerHTML=
-  '<h1>&#8220;'+esc(d.title)+'&#8221;</h1><p class="sub">Yours forever. Download it, share it, play it loud.</p>'+
+  '<h1>&#8220;'+esc(d.title)+'&#8221;</h1><p class="sub">'+(d.downloadBought?'Yours forever. Download it, share it, play it loud.':'Your song is ready. Play it as many times as you like.')+'</p>'+
+  '<div class="cap" style="margin-top:4px">&#127911; Listen Online</div>'+
   '<div class="card playcard"><button class="play" id="pl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><div class="bar" id="bar"><i id="fill"></i></div><div class="tl"><span id="cur">0:00</span><span id="dur">&#8211;:&#8211;&#8211;</span></div></div>'+
-  '<a class="btn" href="'+d.downloadUrl+'" download>&#11015; Download MP3 &#8212; yours forever</a>'+
-  '<div class="share" style="margin-top:12px"><a href="https://wa.me/?text='+encodeURIComponent('\uD83C\uDFB5 Listen to this: '+location.origin+'/delivery?o='+d.orderId)+'" target="_blank" rel="noopener">WhatsApp</a><a href="#" id="cp">Copy link</a></div>'+
+  (d.downloadBought
+   ? '<a class="btn" href="'+d.downloadUrl+'" download>&#11015; Download MP3 &#8212; yours forever</a>'+
+     '<div class="share" style="margin-top:12px"><a href="https://wa.me/?text='+encodeURIComponent('\uD83C\uDFB5 Listen to this: '+location.origin+'/delivery?o='+d.orderId)+'" target="_blank" rel="noopener">WhatsApp</a><a href="#" id="cp">Copy link</a></div>'
+   : '<div class="card" style="border:1.5px solid var(--rust);background:rgba(200,85,61,.03)">'+
+      '<div class="cap" style="color:var(--rust)">&#128274; Download &amp; Share</div>'+
+      '<p style="font-size:14px;color:var(--mut);text-align:center;margin-bottom:14px">Your song streams here anytime. Unlock to keep the MP3 on your phone, play it with no internet, and share it as a file.</p>'+
+      '<a class="btn" href="'+DL_URL+'">&#11015; Unlock Download &amp; Share &#8212; $39</a>'+
+      '<p style="text-align:center;font-size:12px;color:var(--fade);margin-top:10px">One-time &middot; yours forever</p>'+
+     '</div>'
+  )+
   lb+
   '<div class="card" id="revCard"><div class="cap">&#128260; Want something changed?</div><p style="font-size:14px;color:var(--mut);text-align:center;margin-bottom:14px">Revisions are free until you love it.</p><button class="btn ghost" id="revOpen">Request a free revision</button><div id="revForm" style="display:none;margin-top:16px"><label style="font-weight:700;font-size:14px;display:block;margin-bottom:6px">What should change?</label><textarea id="revText" style="width:100%;border:1.5px solid var(--bd);border-radius:12px;padding:12px;font-family:inherit;font-size:14px;min-height:100px" placeholder="e.g. Less repetition in the chorus, slower tempo..."></textarea><label style="font-weight:700;font-size:14px;display:block;margin:12px 0 6px">Keep exactly as-is? <span style="font-weight:400;color:var(--fade)">(optional)</span></label><input id="revKeep" style="width:100%;border:1.5px solid var(--bd);border-radius:12px;padding:12px;font-family:inherit;font-size:14px" placeholder="e.g. The opening verse"><button class="btn" id="revSend" style="margin-top:14px">Send revision request</button><p id="revMsg" style="text-align:center;font-size:13px;margin-top:10px;min-height:18px"></p></div></div>'+
+  (d.grief||d.verse3Bought ? '' : '<div class="card" style="border:1.5px dashed var(--rust)">'+
+    '<div class="cap" style="color:var(--rust)">&#127925; Add a 3rd Verse</div>'+
+    '<p style="font-size:14px;color:var(--mut);text-align:center;margin-bottom:14px">Two verses tell the story. A third one finishes it &#8212; more of your memories, more of them, a fuller song.</p>'+
+    '<a class="btn ghost" href="'+V3_URL+'">Add a 3rd Verse &#8212; $39.20</a></div>')+
   (d.grief ? '' : ('<div class="up"><h3>&#127916; Turn it into a video</h3><p>Your photos, set to '+esc(d.title)+' &#8212; ready for the party TV.</p><a class="btn" href="/memory-video?o='+encodeURIComponent(d.orderId)+'">Make the Memory Video &#8212; $39</a></div>'+
    '<div class="up" style="background:linear-gradient(160deg,#1F3D2E,#16301F)"><h3>Who else deserves one?</h3><p>Make the gift nobody else will think of.</p><a class="btn" style="color:#16301F" href="/create">&#127925; Make another song &#8212; $39</a></div>'));
  attachPlayer(d.audioUrl);
