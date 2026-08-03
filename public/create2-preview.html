@@ -254,6 +254,14 @@ header{padding:20px 0;text-align:center;border-bottom:1px solid var(--border);ba
 .rv.in{opacity:1;transform:none}
 footer{padding:32px 20px 40px;text-align:center;color:var(--text-muted);font-size:var(--text-xs);border-top:1px solid var(--border)}
 footer a{color:var(--text-secondary)}
+/* ── generation progress card ── */
+.gen-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px 20px;margin:14px 0 10px;box-shadow:var(--shadow-sm);display:none}
+.gen-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.gen-label{font-size:var(--text-sm);font-weight:500;color:var(--text-primary)}
+.gen-pct{font-size:var(--text-sm);font-weight:700;color:var(--accent)}
+.gen-bar{height:8px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden}
+.gen-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#E08A6F);border-radius:4px;transition:width 1s linear}
+.gen-notice{background:rgba(200,85,61,.06);border:1px solid rgba(200,85,61,.18);border-radius:14px;padding:14px 18px;text-align:center;font-size:var(--text-sm);font-weight:600;color:var(--accent-dark);margin-top:6px;display:none}
 </style>
 </head>
 <body>
@@ -358,6 +366,18 @@ const CONFIG = {
   </div>
 
   <p class="hint rv">Press play. Headphones in, if you have them.</p>
+
+  <!-- Generation progress card — appears 10s after load, fills over 5 min -->
+  <div class="gen-card rv" id="genCard">
+    <div class="gen-top">
+      <span class="gen-label" id="genLabel">Lyrics being written&hellip;</span>
+      <span class="gen-pct" id="genPct">0%</span>
+    </div>
+    <div class="gen-bar"><div class="gen-fill" id="genFill"></div></div>
+  </div>
+  <div class="gen-notice rv" id="genNotice">
+    &#128071; Your FREE song preview will appear here at the end of the video.
+  </div>
 
   <div class="player rv">
     <h2 class="song-title" id="songTitle">Margaret's <em>Song</em></h2>
@@ -649,7 +669,14 @@ const CONFIG = {
           if(d.failed){ $("#playHint").textContent = "Something went wrong \u2014 we\u2019ll email you shortly."; return; }
           if(d.title) $("#songTitle").innerHTML = esc(d.title).replace(/(Song|song)$/,'<em>$1</em>');
           if(d.lyricsTeaser && d.lyricsTeaser.length) showLyrics(d.lyricsTeaser, d.lyricsTotal);
-          if(d.ready && d.previewUrl){ loadPreview(d.previewUrl); track("preview_ready", {}); return; }
+          if(d.ready && d.previewUrl){
+            // snap progress to 100% when song is actually ready
+            if(window._genInterval) clearInterval(window._genInterval);
+            var gf=document.getElementById("genFill"), gp=document.getElementById("genPct"), gl=document.getElementById("genLabel");
+            if(gf){gf.style.width="100%";} if(gp){gp.textContent="100%";} if(gl){gl.textContent="Your preview is ready!";}
+            var gn=document.getElementById("genNotice"); if(gn) gn.style.display="none";
+            loadPreview(d.previewUrl); track("preview_ready", {}); return;
+          }
           if(tries < 40) setTimeout(() => poll(tries + 1), 3000);
           else $("#playHint").textContent = "Taking longer than usual — we'll email your preview.";
         })
@@ -963,6 +990,45 @@ const CONFIG = {
   $("#clipLen").textContent = CONFIG.previewSeconds + " second preview";
   paint();
   track("view_offer", { pct: pct });
+})();
+
+/* ── Generation progress bar: starts 10s after load, fills over 5 minutes ── */
+(function(){
+  var GEN_SECS = 5 * 60;   // 5-minute fill duration
+  var elapsed  = 0;
+  var stages   = [
+    [0,   "Lyrics being written\u2026"],
+    [30,  "Composing your melody\u2026"],
+    [60,  "Recording your song\u2026"],
+    [85,  "Adding the final touches\u2026"]
+  ];
+
+  function getStage(pct){
+    var label = stages[0][1];
+    for(var i=0;i<stages.length;i++){ if(pct>=stages[i][0]) label=stages[i][1]; }
+    return label;
+  }
+
+  function tick(){
+    elapsed++;
+    var pct = Math.min(Math.round(elapsed / GEN_SECS * 100), 99);
+    var fill = document.getElementById("genFill");
+    var pctEl = document.getElementById("genPct");
+    var lblEl = document.getElementById("genLabel");
+    if(fill)  fill.style.width  = pct + "%";
+    if(pctEl) pctEl.textContent = pct + "%";
+    if(lblEl) lblEl.textContent = getStage(pct);
+    if(elapsed < GEN_SECS) window._genInterval = setTimeout(tick, 1000);
+  }
+
+  // Show card + notice after 10 seconds, then start animating
+  setTimeout(function(){
+    var card   = document.getElementById("genCard");
+    var notice = document.getElementById("genNotice");
+    if(card)   card.style.display   = "";
+    if(notice) notice.style.display = "";
+    window._genInterval = setTimeout(tick, 1000);
+  }, 10000);
 })();
 </script>
 </body>
