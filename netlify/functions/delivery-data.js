@@ -8,6 +8,8 @@ const { getJSON } = require("./_shared");
 const GRIEF = /\b(memorial|in memory|passed away|passing|rest in peace|rip\b|funeral|celebration of life|died|death|loss of|late (husband|wife|father|mother|son|daughter|brother|sister)|miss (you|him|her) so much|forever in our hearts|gone too soon|would have been|would be our|first anniversary without|since (he|she) (passed|left us))/i;
 
 function isGrief(meta, song) {
+  if (meta && meta.grief === true) return true;      // explicit manual flag wins
+  if (meta && meta.grief === false) return false;    // explicit override off
   const hay = [
     meta && meta.occasion, meta && meta.rel,
     song && song.lyrics ? "" : "",              // never infer from generated lyrics
