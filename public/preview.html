@@ -1,0 +1,133 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Your song preview — StorySound</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAF9F6;--bg2:#F3F1EC;--ink:#1A1814;--mut:#5C564D;--fade:#9A9389;--rust:#C8553D;--rustD:#9E3E2C;--green:#2D6A4F;
+--bd:rgba(26,24,20,.08);--sh:0 10px 25px -5px rgba(26,24,20,.08);--font:'Inter',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);min-height:100vh}
+.wrap{max-width:560px;margin:0 auto;padding:0 20px 60px}
+header{padding:20px 0 0;text-align:center}
+.logo{font-weight:800;font-size:18px;letter-spacing:-.04em;color:var(--ink)}.logo span{color:var(--rust)}
+h1{font-size:clamp(24px,6vw,32px);letter-spacing:-.03em;line-height:1.15;text-align:center;margin:28px 0 6px}
+.sub{text-align:center;color:var(--mut);font-size:14px;margin-bottom:24px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:18px;padding:24px 20px;box-shadow:var(--sh);margin-bottom:16px}
+.prelabel{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--fade);text-align:center;margin-bottom:14px}
+.play{width:66px;height:66px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,var(--rust),var(--rustD));color:#fff;display:grid;place-items:center;margin:0 auto 14px;box-shadow:0 8px 24px -4px rgba(200,85,61,.35);transition:transform .2s}
+.play:hover{transform:scale(1.05)}.play svg{width:24px;height:24px;margin-left:3px}
+.bar{height:6px;background:var(--bg2);border-radius:4px;overflow:hidden;cursor:pointer;margin-bottom:6px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rust),#E08A6F);border-radius:4px;transition:width .1s linear}
+.tl{display:flex;justify-content:space-between;font-size:11px;color:var(--fade);font-variant-numeric:tabular-nums}
+.lyr{font-size:16px;line-height:1.9;text-align:center;white-space:pre-line;margin-bottom:10px}
+.bl{height:12px;margin:8px auto;border-radius:4px;background:linear-gradient(90deg,#E8E4DD,#F3F1EC);filter:blur(3px)}
+.blurbox{position:relative;margin-top:6px}
+.veil{position:absolute;inset:auto 0 0 0;height:60%;background:linear-gradient(180deg,transparent,#fff 75%);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px}
+.veil b{font-size:13px;color:var(--mut)}
+.btn{display:block;width:100%;text-align:center;border:none;cursor:pointer;border-radius:14px;padding:16px;
+background:linear-gradient(135deg,var(--rust),var(--rustD));color:#fff;font-family:var(--font);font-size:16px;font-weight:700;text-decoration:none;
+box-shadow:0 8px 24px -4px rgba(200,85,61,.32);transition:transform .2s}
+.btn:hover{transform:translateY(-2px)}
+.trust{font-size:11px;color:var(--fade);text-align:center;margin-top:10px}
+.spin{width:40px;height:40px;border:3px solid var(--bg2);border-top-color:var(--rust);border-radius:50%;margin:60px auto;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style></head><body>
+<div class="wrap">
+<header><div class="logo">Story<span>Sound</span></div></header>
+<div id="app"><div class="spin"></div></div>
+</div>
+<script>
+(function(){
+"use strict";
+var q=new URLSearchParams(location.search), o=q.get("o"), app=document.getElementById("app");
+if(!o){app.innerHTML='<p style="text-align:center;padding:60px 0;color:var(--mut)">Missing order link.</p>';return;}
+var esc=function(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};
+var fmt=function(s){if(!isFinite(s)||isNaN(s)||s<0)return "\u2013:\u2013\u2013";s=Math.floor(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
+
+// Detect funnel from orderId prefix
+var isCreate2 = o.startsWith("p2_");
+
+function load(){
+  fetch("/.netlify/functions/preview-song?o="+encodeURIComponent(o))
+  .then(function(r){return r.json();})
+  .then(function(d){
+    // Already paid → redirect to full delivery
+    if(d.paid){location.href="/delivery?o="+encodeURIComponent(o);return;}
+    if(!d.ready){
+      app.innerHTML='<h1>Almost ready\u2026</h1><p class="sub">Composing your song \u2014 this page will update automatically.</p><div class="spin"></div>';
+      setTimeout(load,5000);return;
+    }
+    render(d);
+  })
+  .catch(function(){setTimeout(load,5000);});
+}
+
+function render(d){
+  var more = Math.max(0,(d.lyricsTotal||0)-3);
+  var lyrHtml = "";
+  if(d.lyricsTeaser && d.lyricsTeaser.length){
+    var teaser = d.lyricsTeaser.map(function(l){return esc(l);}).join("\n");
+    lyrHtml = '<div class="card">'+
+      '<div class="prelabel">\uD83D\uDCDC From your lyrics</div>'+
+      '<div class="lyr">'+teaser+'</div>'+
+      (more>0?
+        '<div class="blurbox">'+
+          '<div class="bl" style="width:84%"></div><div class="bl" style="width:70%"></div><div class="bl" style="width:88%"></div>'+
+          '<div class="veil"><b>\uD83D\uDD12 +'+more+' more lines \u2014 unlock below</b></div>'+
+        '</div>':'')+
+      '</div>';
+  }
+
+  // CTA: create2 → create2-preview (existing $79/$119 unlock flow)
+  //      create  → delivery paywall ($39.99 unlock)
+  var ctaUrl = isCreate2
+    ? "/create2-preview?o="+encodeURIComponent(o)
+    : "/delivery?o="+encodeURIComponent(o);
+  var ctaText = isCreate2
+    ? "\uD83D\uDD13 Unlock My Full Song"
+    : "\u2B07 Download My Full Song \u2014 $39.99";
+
+  app.innerHTML =
+    '<h1>\u201c'+esc(d.title)+'\u201d</h1>'+
+    '<p class="sub">Here\u2019s your 20-second preview. Unlock below to get the full song \u2014 all '+d.lyricsTotal+' lines, forever yours.</p>'+
+    '<div class="card">'+
+      '<div class="prelabel">\uD83C\uDFB5 20-Second Preview</div>'+
+      '<button class="play" id="pl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>'+
+      '<div class="bar" id="bar"><i id="fill"></i></div>'+
+      '<div class="tl"><span id="cur">0:00</span><span id="dur">\u2013:\u2013\u2013</span></div>'+
+    '</div>'+
+    lyrHtml+
+    '<a class="btn" href="'+esc(ctaUrl)+'">'+ctaText+'</a>'+
+    '<p class="trust">One-time payment \u00b7 30-Day Money-Back Guarantee \u00b7 Yours forever</p>';
+
+  // Audio player
+  var a=new Audio(d.previewUrl), pl=document.getElementById("pl"),
+      fill=document.getElementById("fill"), cur=document.getElementById("cur"),
+      dur=document.getElementById("dur"), playing=false;
+  var sd=function(){if(isFinite(a.duration)&&a.duration>0)dur.textContent=fmt(a.duration);};
+  a.addEventListener("loadedmetadata",sd); a.addEventListener("durationchange",sd);
+  a.addEventListener("timeupdate",function(){
+    cur.textContent=fmt(a.currentTime);sd();
+    if(isFinite(a.duration)&&a.duration>0)fill.style.width=(a.currentTime/a.duration*100)+"%";
+  });
+  a.addEventListener("ended",function(){
+    playing=false;pl.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  });
+  pl.addEventListener("click",function(){
+    playing=!playing;
+    pl.innerHTML=playing
+      ?'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>'
+      :'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    playing?a.play():a.pause();
+  });
+  document.getElementById("bar").addEventListener("click",function(e){
+    var r=this.getBoundingClientRect();if(a.duration)a.currentTime=(e.clientX-r.left)/r.width*a.duration;
+  });
+  // Auto-play on load (mobile may block, that's fine)
+  setTimeout(function(){a.play().then(function(){playing=true;pl.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';}).catch(function(){});},300);
+}
+
+load();
+})();
+</script></body></html>
