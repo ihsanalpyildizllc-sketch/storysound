@@ -54,13 +54,15 @@ exports.handler = async (event) => {
       // song ready — show paywall with full audio (listen free, pay to download)
       const lines = String(song.lyrics || "")
         .split("\n").map(l => l.trim()).filter(l => l && !/^\[.*\]$/.test(l));
+      const vipVariant = process.env.SHOPIFY_VIP_VARIANT || "44263011287129"; // replace with VIP subscription variant
+      const vipUrl = `https://${SHOPIFY_STORE}/cart/${vipVariant}:1?attributes[Job_ID]=${encodeURIComponent(orderId)}&attributes[Customer_Email]=${encodeURIComponent((meta&&meta.email)||"")}`;
       return json(200, {
         ready: true, paywall: true,
         title: song.song_title || "Your Song",
         audioUrl: `/.netlify/functions/get-audio?orderId=${encodeURIComponent(orderId)}`,
         lyricsTeaser: lines.slice(0, 3),
         lyricsTotal: lines.length,
-        shopifyUrl, orderId
+        shopifyUrl, vipUrl, orderId
       });
     }
 
