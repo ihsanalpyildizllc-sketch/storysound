@@ -263,6 +263,18 @@ footer a{color:var(--text-secondary)}
 .gen-bar{height:8px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden;margin-top:2px}
 .gen-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#E08A6F);border-radius:4px;transition:width .8s linear}
 .gen-notice{background:rgba(200,85,61,.06);border:1px solid rgba(200,85,61,.18);border-radius:14px;padding:14px 18px;text-align:center;font-size:var(--text-sm);font-weight:600;color:var(--accent-dark);margin-top:6px}
+/* families strip */
+.families-strip{text-align:center;padding:20px 0 6px}
+.face-pile{display:flex;justify-content:center;margin-bottom:10px}
+.face-pile img{width:46px;height:46px;border-radius:50%;border:2.5px solid var(--bg-primary);object-fit:cover;object-position:top;margin-left:-12px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.face-pile img:first-child{margin-left:0}
+.families-count{font-size:var(--text-lg);font-weight:800;letter-spacing:-.02em;color:var(--text-primary);margin-bottom:5px}
+.families-quote{font-size:var(--text-sm);font-style:italic;color:var(--text-secondary)}
+/* hint now shows above player in accent color */
+.hint{font-size:var(--text-sm);font-weight:700;color:var(--accent);text-align:center;margin:18px 0 2px;letter-spacing:.01em}
+/* late reveal fade-in */
+#lateReveal{display:none;opacity:0;transition:opacity .6s}
+#lateRevealOuter{display:none;opacity:0;transition:opacity .7s}
 </style>
 </head>
 <body>
@@ -366,8 +378,6 @@ const CONFIG = {
     </vturb-smartplayer>
   </div>
 
-  <p class="hint rv">Press play. Headphones in, if you have them.</p>
-
   <!-- Generation progress — always visible, 5-min dynamic bar -->
   <div class="gen-card rv" id="genCard">
     <div class="gen-top">
@@ -380,6 +390,22 @@ const CONFIG = {
     &#128071; Your FREE song preview will appear here at the end of the video.
   </div>
 
+  <!-- 10,000+ families strip — always visible -->
+  <div class="families-strip rv">
+    <div class="face-pile">
+      <img src="https://i.pravatar.cc/80?img=47" alt="" onerror="this.style.display='none'">
+      <img src="https://i.pravatar.cc/80?img=12" alt="" onerror="this.style.display='none'">
+      <img src="https://i.pravatar.cc/80?img=25" alt="" onerror="this.style.display='none'">
+      <img src="https://i.pravatar.cc/80?img=33" alt="" onerror="this.style.display='none'">
+      <img src="https://i.pravatar.cc/80?img=9"  alt="" onerror="this.style.display='none'">
+    </div>
+    <p class="families-count">10,000+ families have given this gift</p>
+    <p class="families-quote">&#8220;How did you remember all of that?&#8221; &mdash; the most common reaction</p>
+  </div>
+
+  <!-- Late reveal: hint + player — shown when preview is ready -->
+  <div id="lateReveal">
+    <p class="hint">Press play. Headphones in, if you have them.</p>
   <div class="player rv">
     <h2 class="song-title" id="songTitle">Margaret's <em>Song</em></h2>
     <p class="song-meta" id="songMeta">Acoustic folk · written for your mother</p>
@@ -392,8 +418,10 @@ const CONFIG = {
   </div>
 
   <div class="proofstrip rv" id="proofstrip" hidden></div>
+  </div><!-- /lateReveal -->
 </section>
 
+<div id="lateRevealOuter">
 <div class="ratebar rv">
   <div class="t">🔓 Preview-Unlocked Rate <span class="hl" id="offPct">—</span></div>
   <div class="d">You listened all the way to the preview. That earns you <strong id="offAmt">—</strong> off the full song — a rate we don't show on the public site.</div>
@@ -650,6 +678,16 @@ const CONFIG = {
     ready = true;
     $("#play").disabled = false;
     $("#playHint").textContent = "";
+
+    // Reveal the player + everything below — fade in smoothly
+    var lr  = document.getElementById("lateReveal");
+    var lro = document.getElementById("lateRevealOuter");
+    function fadeIn(el){ if(!el) return; el.style.display="block"; requestAnimationFrame(function(){ el.style.opacity="1"; }); }
+    fadeIn(lr);
+    setTimeout(function(){ fadeIn(lro); }, 200);
+
+    // Hide notice now that preview is here
+    var gn = document.getElementById("genNotice"); if(gn) gn.style.display="none";
   }
 
   if(token){
@@ -1100,6 +1138,7 @@ const CONFIG = {
   }, 1000);
 })();
 </script>
+</div><!-- /lateRevealOuter -->
 </body>
 </html>
 
