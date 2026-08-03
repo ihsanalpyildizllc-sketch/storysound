@@ -624,8 +624,8 @@ function togglePhone(){
 function goToShopify(){
   const btn=document.getElementById('payBtn');
   const sBtn=document.querySelector('.sticky-pay .btn-pay');
-  if(btn){btn.disabled=true;btn.textContent='Creating your song…';}
-  if(sBtn){sBtn.disabled=true;sBtn.textContent='Creating your song…';}
+  if(btn){btn.disabled=true;btn.textContent='Redirecting to checkout…';}
+  if(sBtn){sBtn.disabled=true;sBtn.textContent='Redirecting to checkout…';}
 
   const fullStory=[
     `Song for: ${D.name} (${D.forWhom})`,
@@ -638,42 +638,31 @@ function goToShopify(){
     D.message?`Message: ${D.message}`:''
   ].filter(Boolean).join(' | ');
 
-  const payload={
-    source:'create',
-    email:D.email,
-    bumps:{b1:bumps.b1,b2:bumps.b2,b3:bumps.b3},
-    note_attributes:[
-      {name:'Recipient Name',value:D.name},
-      {name:'Relationship',value:D.forWhom},
-      {name:'Occasion',value:D.occasion},
-      {name:'Genre',value:D.genre},
-      {name:'Language',value:D.language},
-      {name:'Singer Voice',value:D.voice},
-      {name:'Their Qualities',value:D.qualities},
-      {name:'Memories',value:D.memories},
-      {name:'Special Message',value:D.message},
-      {name:'Customer Email',value:D.email},
-      {name:'_full_story',value:fullStory}
-    ]
-  };
+  const attrs=[
+    ['Song For',D.name+' ('+D.forWhom+')'],
+    ['Occasion',D.occasion],
+    ['Genre',D.genre],
+    ['Language',D.language],
+    ['Singer Voice',D.voice],
+    ['Their Qualities',D.qualities],
+    ['Memories',D.memories],
+    ['Special Message',D.message],
+    ['Customer Email',D.email],
+    ['_full_story',fullStory]
+  ];
 
-  fetch('/.netlify/functions/start-song',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
-  })
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if(!data.jobId) throw new Error('no job id');
-    window.location.href='/delivery?o='+encodeURIComponent(data.jobId);
-  })
-  .catch(function(err){
-    console.error('submit error:',err);
-    if(btn){btn.disabled=false;btn.textContent='Create My Song';}
-    if(sBtn){sBtn.disabled=false;sBtn.textContent='Get My Song Now →';}
-    alert('Something went wrong — please try again.');
-  });
+  let items=SHOPIFY_VARIANTS.base+':1';
+  if(bumps.b1)items+=','+SHOPIFY_VARIANTS.bump1+':1';
+  if(bumps.b2)items+=','+SHOPIFY_VARIANTS.bump2+':1';
+  if(bumps.b3)items+=','+SHOPIFY_VARIANTS.bump3+':1';
+
+  const qs=attrs.filter(([k,v])=>v).map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
+  const note=encodeURIComponent(fullStory);
+  const email=encodeURIComponent(D.email||'');
+
+  window.location.href=`https://${SHOPIFY_STORE}/cart/${items}?${qs}&note=${note}&checkout[email]=${email}&return_to=/checkout`;
 }
+
 
 // Audio
 const audios={};
