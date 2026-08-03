@@ -7,45 +7,58 @@ const MAX_ATTEMPTS = 3;
 const STUCK_AFTER_MS = 20 * 60 * 1000;
 // abandonment ladder (create2 only): hours after the preview email
 const AB_STEPS = [
-  { key: "ab1", afterMs: 1  * 60 * 60 * 1000 },
-  { key: "ab2", afterMs: 24 * 60 * 60 * 1000 },
-  { key: "ab3", afterMs: 6  * 24 * 60 * 60 * 1000 }
+  { key: "ab1", afterMs:  1 * 60 * 60 * 1000 },       // +1h  — still waiting
+  { key: "ab2", afterMs:  3 * 60 * 60 * 1000 },       // +3h  — nudge
+  { key: "ab3", afterMs: 26 * 60 * 60 * 1000 },       // +26h — getting deleted
+  { key: "ab4", afterMs: 50 * 60 * 60 * 1000 },       // +50h — 15% off
+  { key: "ab5", afterMs:  6 * 24 * 60 * 60 * 1000 }   // +6d  — $19 last call
 ];
 const BROADCAST = process.env.POSTMARK_BROADCAST_STREAM || "broadcast";
 
 function abEmail(step, { name, title, orderId, siteUrl }) {
-  const link  = `${siteUrl}/create2-preview?o=${encodeURIComponent(orderId)}`;
+  const previewLink = `${siteUrl}/preview?o=${encodeURIComponent(orderId)}`;
+  const unlockLink  = `${siteUrl}/create2-preview?o=${encodeURIComponent(orderId)}`;
+  const disc15Link  = `https://gut-1809.myshopify.com/discount/SAVE15?redirect=%2Fcart%2F44263007518809%3A1%26attributes%5BOriginal_Order%5D%3D${encodeURIComponent(orderId)}`;
+  const disc19Link  = `https://gut-1809.myshopify.com/discount/SONG19?redirect=%2Fcart%2F44263007518809%3A1%26attributes%5BOriginal_Order%5D%3D${encodeURIComponent(orderId)}`;
   const unsub = `${siteUrl}/.netlify/functions/ab-unsub?o=${encodeURIComponent(orderId)}`;
-  const who = name || "them";
   const t = title ? `"${title}"` : "Your song";
   const M = {
     ab1: {
-      subject: `${who}'s song is waiting 🎧`,
+      subject: `${name || "Your"}'s song preview is ready`,
       lead: `The 20-second preview of ${t} is ready whenever you are. Most people say the chorus is the moment.`,
-      cta: "▶ Hear the preview"
+      cta: "Listen to the preview", link: previewLink
     },
     ab2: {
-      subject: `${t} — still yours to unlock`,
-      lead: `Your preview-unlocked rate is still being honoured on your page. One listen, and you'll know if it's the one.`,
-      cta: "▶ Listen again"
+      subject: `${t} is still right here`,
+      lead: `Your song is finished and ready. Come back and hear it — one click is all it takes.`,
+      cta: "Listen now", link: previewLink
     },
     ab3: {
-      subject: `Your song is deleted tomorrow`,
-      lead: `Free previews are stored for 7 days, and ${t} reaches that limit tomorrow. After that it's gone and can't be recovered — this is the last reminder we'll send.`,
-      cta: "🔓 Keep my song"
+      subject: `${t} gets deleted in 5 days`,
+      lead: `Songs that aren't unlocked are removed after 7 days to clear storage. ${t} is approaching that limit. Once it's gone it can't be recovered.`,
+      cta: "Unlock before it's gone", link: unlockLink, code: null
+    },
+    ab4: {
+      subject: `15% off — 24 hours only`,
+      lead: `We don't do this often. Use code SAVE15 at checkout to get 15% off unlocking ${t}. This code expires in 24 hours.`,
+      cta: "Unlock with 15% off", link: disc15Link, code: "SAVE15"
+    },
+    ab5: {
+      subject: `Get your song for $19 — last offer`,
+      lead: `${t} is still here, but this is the final email we will send. Unlock it for just $19 today using code SONG19. After today the song is deleted and this offer disappears.`,
+      cta: "Get it for $19", link: disc19Link, code: "SONG19"
     }
   }[step];
-  const foot = `<p style="color:#B8AC9E;font-size:11px;margin-top:26px;line-height:1.6">You're receiving this because you created a song preview at StorySound.
-  <a href="${unsub}" style="color:#B8AC9E">Unsubscribe from reminders</a><br>StorySound · Dubai, UAE</p>`;
+  if (!M) return null;
+  const foot = `<p style="color:#B8AC9E;font-size:11px;margin-top:26px;line-height:1.6">You are receiving this because you created a song at StorySound. <a href="${unsub}" style="color:#B8AC9E">Unsubscribe</a> &middot; Dubai, UAE</p>`;
+  const codeBlock = M.code ? `<div style="margin:0 0 20px;text-align:center"><span style="display:inline-block;background:#F3EFE9;border:1px dashed #C8A882;border-radius:8px;padding:8px 20px;font-family:monospace;font-size:18px;letter-spacing:.1em;color:#5A3A1A;font-weight:700">${M.code}</span><p style="font-size:12px;color:#9A8F82;margin-top:6px">Enter at checkout</p></div>` : "";
   return {
     subject: M.subject,
-    html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2">
-      <h1 style="font-style:italic;color:#0F0A06">${t}</h1>
-      <p style="color:#7A6A5A;margin:12px 0 24px">${M.lead}</p>
-      <a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">${M.cta}</a>${foot}</div>`,
-    text: `${M.subject}\n\n${M.lead}\n\n${link}\n\nUnsubscribe: ${unsub}`
+    html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">${t}</h1><p style="color:#7A6A5A;margin:12px 0 24px">${M.lead}</p>${codeBlock}<a href="${M.link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">${M.cta}</a>${foot}</div>`,
+    text: `${M.subject}\n\n${M.lead}${M.code ? "\n\nUse code: " + M.code : ""}\n\n${M.link}\n\nUnsubscribe: ${unsub}`
   };
 }
+
 const MIN_SIZE_KB = 500;                      // a real full song is ~3MB; below this = broken file
 const SITE = process.env.SITE_URL || "https://storysound.netlify.app";
 
@@ -191,26 +204,39 @@ exports.handler = async () => {
         // abandonment ladder: /create, unpaid, song heard but not downloaded
         if (!isPaid && m.source === "create" && m.email && !m.ab_optout && m.paywall_email === "sent") {
           const anchor = m.paywall_emailed_at || m.created || 0;
+          const STORE = "gut-1809.myshopify.com";
+          const jobIdEnc = encodeURIComponent(orderId);
+          const dlLink = `${SITE}/delivery?o=${jobIdEnc}`;
+          const disc15Url = `https://${STORE}/discount/SAVE15?redirect=%2Fcart%2F44258532819033%3A1%26attributes%5BJob_ID%5D%3D${jobIdEnc}`;
+          const disc19Url = `https://${STORE}/discount/SONG19?redirect=%2Fcart%2F44258532819033%3A1%26attributes%5BJob_ID%5D%3D${jobIdEnc}`;
+          const unsub = `${SITE}/.netlify/functions/ab-unsub?o=${jobIdEnc}`;
+          const t = song.song_title ? '"' + song.song_title + '"' : "your song";
           const createAbMsgs = {
-            ab1: { subject: `Your song is still waiting to be downloaded`,
-                   lead: `You heard it — now make it yours. One click and you can download ${song.song_title ? '"' + song.song_title + '"' : "your song"} and keep it forever.` },
-            ab2: { subject: `${song.song_title ? '"' + song.song_title + '"' : "Your song"} — still yours to download`,
-                   lead: `Nobody else will give a gift like this. The song is ready. Download it today and keep it forever.` },
-            ab3: { subject: `Your song is deleted tomorrow`,
-                   lead: `Songs are stored for 7 days. ${song.song_title ? '"' + song.song_title + '"' : "Your song"} reaches that limit tomorrow — after that it's gone. This is the last reminder we'll send.` }
+            ab1: { subject: "Your song is still waiting to be downloaded",
+                   lead: "You heard it. Now make it yours. One click and you can download " + t + " and keep it forever.",
+                   cta: "Download my song", link: dlLink, code: null },
+            ab2: { subject: t + " is still right here",
+                   lead: "Your song is finished and ready to download. Come back whenever you are ready.",
+                   cta: "Download now", link: dlLink, code: null },
+            ab3: { subject: t + " gets deleted in 5 days",
+                   lead: "Songs that are not downloaded are removed after 7 days. " + t + " is approaching that limit. Once it is gone it cannot be recovered.",
+                   cta: "Download before it is gone", link: dlLink, code: null },
+            ab4: { subject: "15% off your song download — 24 hours only",
+                   lead: "Use code SAVE15 at checkout to get 15% off downloading " + t + ". This code expires in 24 hours.",
+                   cta: "Download with 15% off", link: disc15Url, code: "SAVE15" },
+            ab5: { subject: "Get your song for $19 — final offer",
+                   lead: t + " is still here, but this is the final email we will send. Download it for just $19 today using code SONG19. After today the song is deleted and this offer disappears.",
+                   cta: "Get it for $19", link: disc19Url, code: "SONG19" }
           };
           for (const step of AB_STEPS) {
             if (m[step.key]) continue;
             if (Date.now() - anchor < step.afterMs) break;
             const msg = createAbMsgs[step.key];
-            const link = `${SITE}/delivery?o=${encodeURIComponent(orderId)}`;
-            const unsub = `${SITE}/.netlify/functions/ab-unsub?o=${encodeURIComponent(orderId)}`;
-            const html = `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2">
-              <h1 style="font-style:italic;color:#0F0A06">${song.song_title ? '"' + song.song_title + '"' : "Your Song"}</h1>
-              <p style="color:#7A6A5A;margin:12px 0 24px">${msg.lead}</p>
-              <a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">⬇ Download My Song — $39.99</a>
-              <p style="color:#B8AC9E;font-size:11px;margin-top:26px">You created a song at StorySound. <a href="${unsub}" style="color:#B8AC9E">Unsubscribe</a></p></div>`;
-            const r = await sendEmail({ to: m.email, subject: msg.subject, html, text: msg.lead + "\n\n" + link, stream: BROADCAST });
+            if (!msg) continue;
+            const codeBlock = msg.code ? '<div style="margin:0 0 20px;text-align:center"><span style="display:inline-block;background:#F3EFE9;border:1px dashed #C8A882;border-radius:8px;padding:8px 20px;font-family:monospace;font-size:18px;letter-spacing:.1em;color:#5A3A1A;font-weight:700">' + msg.code + '</span><p style="font-size:12px;color:#9A8F82;margin-top:6px">Enter at checkout</p></div>' : "";
+            const foot = '<p style="color:#B8AC9E;font-size:11px;margin-top:26px">You created a song at StorySound. <a href="' + unsub + '" style="color:#B8AC9E">Unsubscribe</a></p>';
+            const html = '<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">' + t + '</h1><p style="color:#7A6A5A;margin:12px 0 24px">' + msg.lead + '</p>' + codeBlock + '<a href="' + msg.link + '" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">' + msg.cta + '</a>' + foot + '</div>';
+            const r = await sendEmail({ to: m.email, subject: msg.subject, html, text: msg.lead + (msg.code ? "\n\nCode: " + msg.code : "") + "\n\n" + msg.link, stream: BROADCAST });
             if (!r.ok && r.reason === "no email or token") break;
             await mergeMeta(orderId, { [step.key]: r.ok ? "sent" : "failed", [step.key + "_at"]: Date.now() });
             m[step.key] = r.ok ? "sent" : "failed";
