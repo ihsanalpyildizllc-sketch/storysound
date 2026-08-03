@@ -721,10 +721,12 @@ const CONFIG = {
             var gn=document.getElementById("genNotice"); if(gn) gn.style.display="none";
             loadPreview(d.previewUrl); track("preview_ready", {}); return;
           }
-          if(tries < 40) setTimeout(() => poll(tries + 1), 3000);
-          else { $("#playHint").textContent = "Still composing — won't be long now."; setTimeout(function(){ (function poll2(t){ fetch(CONFIG.previewApi + "?o=" + encodeURIComponent(token)).then(function(r){return r.json();}).then(function(d){ if(d.ready&&d.previewUrl){ window._songReady=true; var gf=document.getElementById("genFill"); if(gf) gf.style.width="100%"; loadPreview(d.previewUrl); } else if(t<20) setTimeout(function(){poll2(t+1);},5000); }).catch(function(){if(t<20) setTimeout(function(){poll2(t+1);},5000);}); })(0); },1000); }
+          // First 2min: poll every 3s. Then every 6s for up to 10min. No refresh needed.
+          var next = tries < 40 ? 3000 : 6000;
+          if(tries < 150) setTimeout(() => poll(tries + 1), next);
+          else $("#playHint").textContent = "Still working on it \u2014 we'll email your preview shortly.";
         })
-        .catch(function(){ if(tries < 40) setTimeout(() => poll(tries + 1), 3000); });
+        .catch(function(){ var next = tries < 40 ? 3000 : 6000; if(tries < 150) setTimeout(() => poll(tries + 1), next); });
     })(0);
   } else if(params.get("preview")){
     loadPreview(params.get("preview"));   // direct URL, for testing only
