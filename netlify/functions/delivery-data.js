@@ -42,9 +42,9 @@ exports.handler = async (event) => {
     // Download & Share is its own SKU on the /create funnel.
     // create2 buyers paid $119 for the full song -> download included.
     // Legacy /create buyers before the split are grandfathered.
-    const SPLIT_LAUNCH = Number(process.env.DOWNLOAD_SPLIT_TS || 1785780000000);
-    const grandfathered = (m.created || 0) < SPLIT_LAUNCH;
-    const downloadBought = !!m.download || m.source === "create2" || grandfathered;
+    // download requires explicit purchase of variant 44339845791833
+    // create2 buyers paid $119 for full unlock — download included
+    const downloadBought = !!m.download || m.source === "create2";
     const lyricsBought = !!m.lyrics;
     const verse3Bought = !!m.verse3;
     const lines = String(song.lyrics || "").split("\n").map(l => l.trim()).filter(l => l && !/^\[.*\]$/.test(l));
