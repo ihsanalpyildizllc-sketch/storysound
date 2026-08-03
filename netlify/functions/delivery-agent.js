@@ -147,15 +147,19 @@ exports.handler = async () => {
           await mergeMeta(orderId, { persisted: true });
         }
 
-        // review request: 48h after delivery email, once, only if not yet reviewed
+        // review request: 48h after delivery email — 5-star gate
         if (isPaid && m.email && m.email_status === "sent" && !m.reviewed && m.review_request !== "sent" && !m.ab_optout) {
           if (Date.now() - (m.emailed_at || 0) > 48 * 60 * 60 * 1000) {
-            const rl = `${SITE}/review?o=${encodeURIComponent(orderId)}`;
+            const t = song.song_title || "your song";
+            const rg = (stars) => `${SITE}/.netlify/functions/review-gate?o=${encodeURIComponent(orderId)}&stars=${stars}`;
+            const starRow = [1,2,3,4,5].map(s =>
+              `<a href="${rg(s)}" style="display:inline-block;text-decoration:none;margin:0 3px;background:#fff;border:1.5px solid #E8E0D8;border-radius:10px;padding:10px 12px;font-size:20px;line-height:1">${"&#9733;".repeat(s)}</a>`
+            ).join("");
             const r = await sendEmail({
               to: m.email,
-              subject: `Did "${song.song_title || "your song"}" land? (1 minute)`,
-              html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">How did it go?</h1><p style="color:#7A6A5A;margin:12px 0 24px">What was their reaction when they heard it? One minute of your time helps the next person decide — and we read every single word.</p><a href="${rl}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">⭐ Leave a 1-minute review</a></div>`,
-              text: `How did it go? Tell us in one minute: ${rl}`
+              subject: `How did "${t}" land?`,
+              html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">"${t}"</h1><p style="color:#7A6A5A;margin:12px 0 6px">Did they love it? Did it make them cry? Did it miss?</p><p style="color:#7A6A5A;margin:0 0 24px">Tap the stars — takes one second and we read every response.</p><div style="text-align:center;margin-bottom:8px">${starRow}</div><p style="text-align:center;font-size:12px;color:#B8AC9E;margin-top:16px">1 star = missed the mark &nbsp;&nbsp;&middot;&nbsp;&nbsp; 5 stars = they cried</p></div>`,
+              text: `How did "${t}" land?\n\n1 star: ${rg(1)}\n2 stars: ${rg(2)}\n3 stars: ${rg(3)}\n4 stars: ${rg(4)}\n5 stars: ${rg(5)}`
             });
             if (!(r.reason === "no email or token")) {
               await mergeMeta(orderId, { review_request: r.ok ? "sent" : "failed", review_requested_at: Date.now() });
