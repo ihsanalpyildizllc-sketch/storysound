@@ -92,15 +92,36 @@ function renderPaywall(d){
    lh='<div class="card"><div class="cap">&#128220; From your lyrics</div><div class="lyr">'+teaser+'</div><div class="blurbox"><div class="bl" style="width:84%"></div><div class="bl" style="width:71%"></div><div class="bl" style="width:90%"></div><div class="bl" style="width:66%"></div><div class="veil"><b>&#128274; +'+more+' more lines</b></div></div></div>';
   }
  }
+ var ctaBlock=d.ready?(
+  '<a class="btn" href="'+esc(d.shopifyUrl)+'" style="margin-top:8px">&#11015; Download &#38; Share &#8212; $39.99</a>'+
+  '<p style="text-align:center;font-size:11px;color:var(--fade);margin:6px 0 4px">Download your MP3 &#183; Share via WhatsApp or iMessage &#183; Yours forever</p>'+
+  '<div style="display:flex;align-items:center;gap:10px;margin:14px 0">'+
+   '<div style="flex:1;height:0.5px;background:var(--bd)"></div>'+
+   '<span style="font-size:11px;color:var(--fade);white-space:nowrap">or get it free</span>'+
+   '<div style="flex:1;height:0.5px;background:var(--bd)"></div>'+
+  '</div>'+
+  '<div class="card" style="margin-bottom:0;border:1.5px solid var(--rust);background:rgba(200,85,61,.03)">'+
+   '<div style="text-align:center;margin-bottom:10px">'+
+    '<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">&#9733; VIP Club</div>'+
+    '<div style="font-size:18px;font-weight:700;color:var(--ink)">Unlock Free <span style="font-size:13px;font-weight:400;color:var(--mut)">with membership</span></div>'+
+    '<div style="font-size:13px;color:var(--mut);margin-top:2px">$29.99 / month &middot; cancel anytime</div>'+
+   '</div>'+
+   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-bottom:14px;font-size:13px;color:var(--ink)">'+
+    '<div>&#10003; Download your song</div>'+
+    '<div>&#10003; Memory video</div>'+
+    '<div>&#10003; Printable lyrics</div>'+
+    '<div>&#10003; Free song vault</div>'+
+   '</div>'+
+   '<a class="btn" href="'+esc(d.vipUrl||d.shopifyUrl)+'" style="background:var(--ink)">&#9733; Join VIP &#8212; Unlock Free</a>'+
+  '</div>'+
+  '<div style="text-align:center;margin-top:14px">'+
+   '<button id="cpbtn" onclick="checkPaid()" style="background:none;border:1.5px solid var(--bd);border-radius:12px;padding:10px 20px;cursor:pointer;font-size:12px;color:var(--mut);font-family:inherit">Already paid or joined? Click to unlock &#8594;</button>'+
+  '</div>'
+ ):'';
  app.innerHTML=
   '<h1>'+(d.title?'&#8220;'+esc(d.title)+'&#8221;':'Your song is almost ready')+'</h1>'+
-  '<p class="sub">'+(d.ready?'Listen to your full song below. Pay once to download and keep it forever.':'We&#8217;re composing your song now.')+'</p>'+
-  sh+ph+lh+
-  (d.ready?
-   '<a class="btn" href="'+esc(d.shopifyUrl)+'" style="margin-top:8px">&#11015; Download My Full Song &#8212; $39.99</a>'+
-   '<p style="text-align:center;font-size:12px;color:var(--fade);margin:8px 0 20px">One-time payment &middot; Yours forever &middot; 30-Day Money-Back Guarantee</p>'+
-   '<div style="text-align:center"><button id="cpbtn" onclick="checkPaid()" style="background:none;border:1.5px solid var(--bd);border-radius:12px;padding:12px 22px;cursor:pointer;font-size:13px;color:var(--mut);font-family:inherit">Just paid? Click here to unlock &#8594;</button></div>'
-  :'');
+  '<p class="sub">'+(d.ready?'Your song is ready. Download it, share it, or join VIP to unlock it free.':'We&#8217;re composing your song now.')+'</p>'+
+  sh+ph+lh+ctaBlock;
  if(d.ready)attachPlayer(d.audioUrl);
 }
 
