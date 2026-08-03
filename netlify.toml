@@ -23,6 +23,11 @@
   status = 200
 
 [[redirects]]
+  from = "/revision"
+  to = "/revision.html"
+  status = 200
+
+[[redirects]]
   from = "/review"
   to = "/review.html"
   status = 200
