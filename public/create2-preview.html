@@ -255,13 +255,14 @@ header{padding:20px 0;text-align:center;border-bottom:1px solid var(--border);ba
 footer{padding:32px 20px 40px;text-align:center;color:var(--text-muted);font-size:var(--text-xs);border-top:1px solid var(--border)}
 footer a{color:var(--text-secondary)}
 /* ── generation progress card ── */
-.gen-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px 20px;margin:14px 0 10px;box-shadow:var(--shadow-sm);display:none}
+.gen-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px 20px;margin:14px 0 10px;box-shadow:var(--shadow-sm)}
 .gen-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.gen-label{font-size:var(--text-sm);font-weight:500;color:var(--text-primary)}
-.gen-pct{font-size:var(--text-sm);font-weight:700;color:var(--accent)}
-.gen-bar{height:8px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden}
-.gen-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#E08A6F);border-radius:4px;transition:width 1s linear}
-.gen-notice{background:rgba(200,85,61,.06);border:1px solid rgba(200,85,61,.18);border-radius:14px;padding:14px 18px;text-align:center;font-size:var(--text-sm);font-weight:600;color:var(--accent-dark);margin-top:6px;display:none}
+.gen-label{font-size:var(--text-sm);font-weight:600;color:var(--text-primary)}
+.gen-dots{font-size:var(--text-sm);font-weight:700;color:var(--accent);min-width:18px;letter-spacing:1px}
+.gen-pct{font-size:var(--text-sm);font-weight:700;color:var(--accent);margin-left:auto;padding-left:12px;white-space:nowrap}
+.gen-bar{height:8px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden;margin-top:2px}
+.gen-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#E08A6F);border-radius:4px;transition:width .8s linear}
+.gen-notice{background:rgba(200,85,61,.06);border:1px solid rgba(200,85,61,.18);border-radius:14px;padding:14px 18px;text-align:center;font-size:var(--text-sm);font-weight:600;color:var(--accent-dark);margin-top:6px}
 </style>
 </head>
 <body>
@@ -367,10 +368,10 @@ const CONFIG = {
 
   <p class="hint rv">Press play. Headphones in, if you have them.</p>
 
-  <!-- Generation progress card — appears 10s after load, fills over 5 min -->
+  <!-- Generation progress — always visible, 5-min dynamic bar -->
   <div class="gen-card rv" id="genCard">
     <div class="gen-top">
-      <span class="gen-label" id="genLabel">Lyrics being written&hellip;</span>
+      <span class="gen-label" id="genLabel">Team received &middot; reading your story</span><span class="gen-dots" id="genDots"></span>
       <span class="gen-pct" id="genPct">0%</span>
     </div>
     <div class="gen-bar"><div class="gen-fill" id="genFill"></div></div>
@@ -670,12 +671,15 @@ const CONFIG = {
           if(d.title) $("#songTitle").innerHTML = esc(d.title).replace(/(Song|song)$/,'<em>$1</em>');
           if(d.lyricsTeaser && d.lyricsTeaser.length) showLyrics(d.lyricsTeaser, d.lyricsTotal);
           if(d.ready && d.previewUrl){
-            // mark song ready so the progress bar timer doesn't fire
             window._songReady = true;
-            // snap progress to 100% if bar is already visible
-            if(window._genInterval) clearInterval(window._genInterval);
-            var gf=document.getElementById("genFill"), gp=document.getElementById("genPct"), gl=document.getElementById("genLabel");
-            if(gf){gf.style.width="100%";} if(gp){gp.textContent="100%";} if(gl){gl.textContent="Your preview is ready!";}
+            if(window._genInterval) clearTimeout(window._genInterval);
+            if(window._dotsTimer) clearTimeout(window._dotsTimer);
+            var gf=document.getElementById("genFill"), gp=document.getElementById("genPct"),
+                gl=document.getElementById("genLabel"), gd=document.getElementById("genDots");
+            if(gf) gf.style.width="100%";
+            if(gp) gp.textContent="100%";
+            if(gl) gl.textContent="&#10003; Your preview is ready";
+            if(gd) gd.textContent="";
             var gn=document.getElementById("genNotice"); if(gn) gn.style.display="none";
             loadPreview(d.previewUrl); track("preview_ready", {}); return;
           }
@@ -994,45 +998,106 @@ const CONFIG = {
   track("view_offer", { pct: pct });
 })();
 
-/* ── Generation progress bar: starts 10s after load, fills over 5 minutes ── */
+/* ── Generation progress: 55 steps, animated dots, 5-min fill ── */
 (function(){
-  var GEN_SECS = 5 * 60;   // 5-minute fill duration
+  var GEN_SECS = 5 * 60;
   var elapsed  = 0;
-  var stages   = [
-    [0,   "Lyrics being written\u2026"],
-    [30,  "Composing your melody\u2026"],
-    [60,  "Recording your song\u2026"],
-    [85,  "Adding the final touches\u2026"]
+
+  // 55 steps mapped to percentage thresholds
+  var STEPS = [
+    [0,  "Team received \u00b7 reading your story"],
+    [2,  "Understanding the occasion"],
+    [4,  "Finding the emotional core"],
+    [6,  "Mapping your memories"],
+    [8,  "Selecting the narrative arc"],
+    [10, "Crafting the opening line"],
+    [12, "Writing Verse 1"],
+    [14, "Developing the character"],
+    [16, "Building the first hook"],
+    [18, "Finding the perfect rhymes"],
+    [20, "Writing the pre-chorus"],
+    [22, "Crafting the chorus"],
+    [24, "Refining the imagery"],
+    [26, "Writing Verse 2"],
+    [28, "Weaving in your memories"],
+    [30, "Adding the personal details"],
+    [32, "Strengthening the bridge"],
+    [34, "Writing the outro"],
+    [36, "Checking the lyric flow"],
+    [38, "Polishing the lyrics"],
+    [40, "Final lyrics review"],
+    [42, "Selecting the musical key"],
+    [44, "Crafting the chord progression"],
+    [46, "Setting the tempo"],
+    [48, "Designing the intro melody"],
+    [50, "Building the verse arrangement"],
+    [52, "Adding harmonic layers"],
+    [54, "Composing the chorus melody"],
+    [56, "Developing the hook melody"],
+    [58, "Adding bridge instrumentation"],
+    [60, "Creating the outro melody"],
+    [62, "Adding percussion and rhythm"],
+    [64, "Layering background instruments"],
+    [66, "Adjusting the mood and feel"],
+    [68, "Finalizing the arrangement"],
+    [70, "Preparing the vocal track"],
+    [72, "Recording the first take"],
+    [74, "Recording lead vocals"],
+    [76, "Adding harmony vocals"],
+    [78, "Recording the chorus vocals"],
+    [80, "Adding emotional expression"],
+    [82, "Recording backing vocals"],
+    [84, "Blending the vocal layers"],
+    [86, "Tuning and refining vocals"],
+    [88, "Final vocal performance"],
+    [90, "Mixing all audio tracks"],
+    [92, "Adding reverb and depth"],
+    [94, "Balancing the final mix"],
+    [96, "Mastering the audio"],
+    [97, "Final quality check"],
+    [98, "Optimizing for your device"],
+    [99, "Preparing your preview"]
   ];
 
-  function getStage(pct){
-    var label = stages[0][1];
-    for(var i=0;i<stages.length;i++){ if(pct>=stages[i][0]) label=stages[i][1]; }
+  function getStep(pct){
+    var label = STEPS[0][1];
+    for(var i=0;i<STEPS.length;i++){
+      if(pct >= STEPS[i][0]) label = STEPS[i][1];
+      else break;
+    }
     return label;
   }
 
+  // Animated dots — cycles every 400ms
+  var dotsSeq = ["",".","..","\u2026"];
+  var dotsIdx  = 0;
+  function tickDots(){
+    if(window._songReady) return;
+    dotsIdx = (dotsIdx + 1) % dotsSeq.length;
+    var el = document.getElementById("genDots");
+    if(el) el.textContent = dotsSeq[dotsIdx];
+    window._dotsTimer = setTimeout(tickDots, 400);
+  }
+
+  // Progress tick — every second
   function tick(){
+    if(window._songReady) return;
     elapsed++;
-    var pct = Math.min(Math.round(elapsed / GEN_SECS * 100), 99);
+    var pct  = Math.min(Math.round(elapsed / GEN_SECS * 100), 99);
     var fill = document.getElementById("genFill");
-    var pctEl = document.getElementById("genPct");
-    var lblEl = document.getElementById("genLabel");
+    var pctEl= document.getElementById("genPct");
+    var lblEl= document.getElementById("genLabel");
     if(fill)  fill.style.width  = pct + "%";
     if(pctEl) pctEl.textContent = pct + "%";
-    if(lblEl) lblEl.textContent = getStage(pct);
+    if(lblEl) lblEl.textContent = getStep(pct);
     if(elapsed < GEN_SECS) window._genInterval = setTimeout(tick, 1000);
   }
 
-  // Show card + notice after 3 seconds, then start animating
-  // (only if song isn't already ready — _songReady flag set by poll)
+  // Start immediately (1s delay for page paint)
   setTimeout(function(){
-    if(window._songReady) return;          // song already done — don't show bar
-    var card   = document.getElementById("genCard");
-    var notice = document.getElementById("genNotice");
-    if(card)   card.style.display   = "";
-    if(notice) notice.style.display = "";
+    tickDots();
     window._genInterval = setTimeout(tick, 1000);
-  }, 3000);
+  }, 1000);
 })();
 </script>
 </body>
