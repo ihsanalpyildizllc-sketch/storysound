@@ -130,7 +130,17 @@ function render(d){
   )+
   lb+
   '<div class="card" id="revCard"><div class="cap">&#128260; Want something changed?</div><p style="font-size:14px;color:var(--mut);text-align:center;margin-bottom:14px">Revisions are free until you love it. Tell us what to adjust and a new version lands in your inbox.</p><a class="btn ghost" href="https://gut-1809.myshopify.com/pages/contact?order='+encodeURIComponent(d.orderId)+'&title='+encodeURIComponent(d.title)+'&email='+encodeURIComponent(d.email||'')+'">&#128260; Request a free revision</a></div>'+
-  (d.grief ? '' : ('<div class="up"><h3>&#127916; Turn it into a video</h3><p>Your photos, set to '+esc(d.title)+' &#8212; ready for the party TV.</p><a class="btn" href="/memory-video?o='+encodeURIComponent(d.orderId)+'">Make the Memory Video &#8212; $39</a></div>'+
+  (d.grief ? '' : ('<div class="up" style="position:relative;overflow:hidden">'+
+   '<div style="position:absolute;top:12px;right:14px;background:#E5A400;color:#1A1814;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px">50% OFF</div>'+
+   '<h3>&#127916; Gift a video full of your memories</h3>'+
+   '<p style="font-size:13px;opacity:.85;margin:8px 0 4px">The slideshow that only you and '+esc(d.name||'them')+' will understand.</p>'+
+   '<p>Your photos, set to \u201c'+esc(d.title)+'\u201d \u2014 ready for the party TV, the family group chat, or a quiet moment together.</p>'+
+   '<div style="display:flex;align-items:baseline;gap:10px;margin:14px 0 10px">'+
+    '<span style="font-size:28px;font-weight:800">$19</span>'+
+    '<span style="font-size:14px;opacity:.6;text-decoration:line-through">$39</span>'+
+   '</div>'+
+   '<a class="btn" href="https://gut-1809.myshopify.com/cart/44344385732697:1?attributes[Original_Order]='+encodeURIComponent(d.orderId)+'&return_to=/checkout">&#127916; Get the Memory Video &#8212; $19</a>'+
+  '</div>'+
    '<div class="up" style="background:linear-gradient(160deg,#1F3D2E,#16301F)"><h3>Who else deserves one?</h3><p>Make the gift nobody else will think of.</p><a class="btn" style="color:#16301F" href="/create">&#127925; Make another song &#8212; $39</a></div>'))+
   (d.grief||d.verse3Bought ? '' : '<div class="card" style="border:1.5px dashed var(--rust);margin-top:12px">'+
     '<div class="cap" style="color:var(--rust)">&#127925; Add a 3rd Verse</div>'+
