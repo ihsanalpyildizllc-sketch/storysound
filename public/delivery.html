@@ -129,7 +129,7 @@ function render(d){
      '</div>'
   )+
   lb+
-  '<div class="card" id="revCard"><div class="cap">&#128260; Want something changed?</div><p style="font-size:14px;color:var(--mut);text-align:center;margin-bottom:14px">Revisions are free until you love it.</p><button class="btn ghost" id="revOpen">Request a free revision</button><div id="revForm" style="display:none;margin-top:16px"><label style="font-weight:700;font-size:14px;display:block;margin-bottom:6px">What should change?</label><textarea id="revText" style="width:100%;border:1.5px solid var(--bd);border-radius:12px;padding:12px;font-family:inherit;font-size:14px;min-height:100px" placeholder="e.g. Less repetition in the chorus, slower tempo..."></textarea><label style="font-weight:700;font-size:14px;display:block;margin:12px 0 6px">Keep exactly as-is? <span style="font-weight:400;color:var(--fade)">(optional)</span></label><input id="revKeep" style="width:100%;border:1.5px solid var(--bd);border-radius:12px;padding:12px;font-family:inherit;font-size:14px" placeholder="e.g. The opening verse"><button class="btn" id="revSend" style="margin-top:14px">Send revision request</button><p id="revMsg" style="text-align:center;font-size:13px;margin-top:10px;min-height:18px"></p></div></div>'+
+  '<div class="card" id="revCard"><div class="cap">&#128260; Want something changed?</div><p style="font-size:14px;color:var(--mut);text-align:center;margin-bottom:14px">Revisions are free until you love it. Tell us what to adjust and a new version lands in your inbox.</p><a class="btn ghost" href="https://gut-1809.myshopify.com/pages/contact?order='+encodeURIComponent(d.orderId)+'&title='+encodeURIComponent(d.title)+'&email='+encodeURIComponent(d.email||'')+'">&#128260; Request a free revision</a></div>'+
   (d.grief||d.verse3Bought ? '' : '<div class="card" style="border:1.5px dashed var(--rust)">'+
     '<div class="cap" style="color:var(--rust)">&#127925; Add a 3rd Verse</div>'+
     '<p style="font-size:14px;color:var(--mut);text-align:center;margin-bottom:14px">Two verses tell the story. A third one finishes it &#8212; more of your memories, more of them, a fuller song.</p>'+
@@ -142,17 +142,6 @@ function render(d){
  var lyrA=document.querySelector('a[href*="44263011287129"]');if(lyrA)lyrA.addEventListener("click",function(){ping("lyrics");});
  var vidA=document.querySelector('a[href*="memory-video"]');if(vidA)vidA.addEventListener("click",function(){ping("video");});
  var newA=document.querySelector('a[href="/create"]');if(newA)newA.addEventListener("click",function(){ping("another_song");});
- document.getElementById("revOpen").addEventListener("click",function(){ping("revision");this.style.display="none";document.getElementById("revForm").style.display="block";});
- document.getElementById("revSend").addEventListener("click",function(){
-  var t=document.getElementById("revText").value.trim(),msg=document.getElementById("revMsg");
-  if(t.length<10){msg.textContent="A sentence or two helps";msg.style.color="var(--rust)";return;}
-  var btn=this;btn.disabled=true;btn.textContent="Sending...";
-  fetch("/.netlify/functions/revision-request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({o:d.orderId,feedback:t,keep:document.getElementById("revKeep").value.trim()})})
-  .then(function(r){return r.json();}).then(function(x){
-   if(x.ok){document.getElementById("revForm").innerHTML='<p style="text-align:center;font-weight:700;padding:10px">Got it &#8212; check your email. New version usually within a few hours.</p>';}
-   else{msg.textContent=x.error||"Could not send &#8212; try again";msg.style.color="var(--rust)";btn.disabled=false;btn.textContent="Send revision request";}
-  }).catch(function(){msg.textContent="Could not send &#8212; try again";btn.disabled=false;btn.textContent="Send revision request";});
- });
 }
 load();
 })();
