@@ -85,7 +85,7 @@ function renderPaywall(d){
   setTimeout(load,5000);
  }
  if(d.ready){
-  ph='<div class="card playcard"><div style="text-align:center;font-size:11px;font-weight:700;color:var(--fade);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px">&#128274; 20-Second Preview</div><button class="play" id="pl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><div class="bar" id="bar"><i id="fill"></i></div><div class="tl"><span id="cur">0:00</span><span id="dur">&#8211;:&#8211;&#8211;</span></div></div>';
+  ph='<div class="card playcard"><button class="play" id="pl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><div class="bar" id="bar"><i id="fill"></i></div><div class="tl"><span id="cur">0:00</span><span id="dur">&#8211;:&#8211;&#8211;</span></div></div>';
   if(d.lyricsTeaser&&d.lyricsTeaser.length){
    var teaser=d.lyricsTeaser.map(function(l){return esc(l);}).join("\n");
    var more=Math.max(0,(d.lyricsTotal||0)-3);
@@ -94,14 +94,14 @@ function renderPaywall(d){
  }
  app.innerHTML=
   '<h1>'+(d.title?'&#8220;'+esc(d.title)+'&#8221;':'Your song is almost ready')+'</h1>'+
-  '<p class="sub">'+(d.ready?'Hear your 20-second preview below. Pay once to download and keep forever.':'We&#8217;re composing your song now.')+'</p>'+
+  '<p class="sub">'+(d.ready?'Listen to your full song below. Pay once to download and keep it forever.':'We&#8217;re composing your song now.')+'</p>'+
   sh+ph+lh+
   (d.ready?
    '<a class="btn" href="'+esc(d.shopifyUrl)+'" style="margin-top:8px">&#11015; Download My Full Song &#8212; $39.99</a>'+
    '<p style="text-align:center;font-size:12px;color:var(--fade);margin:8px 0 20px">One-time payment &middot; Yours forever &middot; 30-Day Money-Back Guarantee</p>'+
    '<div style="text-align:center"><button id="cpbtn" onclick="checkPaid()" style="background:none;border:1.5px solid var(--bd);border-radius:12px;padding:12px 22px;cursor:pointer;font-size:13px;color:var(--mut);font-family:inherit">Just paid? Click here to unlock &#8594;</button></div>'
   :'');
- if(d.ready)attachPlayer(d.previewUrl);
+ if(d.ready)attachPlayer(d.audioUrl);
 }
 
 function checkPaid(){
