@@ -1,7 +1,7 @@
 // netlify/functions/delivery-agent.js — scheduled watchdog. Runs every 10 minutes.
 // Deterministic by design: retries stuck generations, blocks empty files,
 // sends any unsent emails, and keeps per-order state honest.
-const { redis, getJSON, mergeMeta, persistSong, sendEmail, deliveryEmail, previewEmail } = require("./_shared");
+const { redis, getJSON, mergeMeta, persistSong, sendEmail, deliveryEmail, previewEmail, paywallReadyEmail } = require("./_shared");
 
 const MAX_ATTEMPTS = 3;
 const STUCK_AFTER_MS = 20 * 60 * 1000;
@@ -122,7 +122,7 @@ exports.handler = async () => {
 
         // 4 ── done: make sure it's permanent, then make sure emails went out
         const unlocked = await getJSON(`unlocked_${orderId}`);
-        const isPaid = !!unlocked || m.source === "create";
+        const isPaid = !!unlocked || (m.source === "create" && m.paid === true);
 
         if (isPaid && !m.persisted) {
           await persistSong(orderId, null);
@@ -159,19 +159,58 @@ exports.handler = async () => {
           if (r.ok) out.emailedPreview++;
         }
 
+        // "song ready to hear" email for /create paywall orders (unpaid)
+        if (!isPaid && m.source === "create" && m.email && m.paywall_email !== "sent") {
+          const e = paywallReadyEmail({ title: song.song_title, orderId, siteUrl: SITE, name: m.name });
+          const r = await sendEmail({ to: m.email, subject: e.subject, html: e.html, text: e.text });
+          await mergeMeta(orderId, { paywall_email: r.ok ? "sent" : "failed", paywall_emailed_at: r.ok ? Date.now() : null });
+          if (r.ok) out.emailedPreview++;
+        }
+
         // 5 ── abandonment ladder: create2, unpaid, previewed, not opted out
         if (!isPaid && m.source === "create2" && m.email && !m.ab_optout && m.preview_email === "sent") {
           const anchor = m.preview_emailed_at || m.created || 0;
           for (const step of AB_STEPS) {
-            if (m[step.key]) continue;                          // already handled
-            if (Date.now() - anchor < step.afterMs) break;      // ladder is sequential
+            if (m[step.key]) continue;
+            if (Date.now() - anchor < step.afterMs) break;
             const e = abEmail(step.key, { name: m.name, title: song.song_title, orderId, siteUrl: SITE });
             const r = await sendEmail({ to: m.email, subject: e.subject, html: e.html, text: e.text, stream: BROADCAST });
-            if (!r.ok && r.reason === "no email or token") break;   // token missing: try again next pass, don't mark
+            if (!r.ok && r.reason === "no email or token") break;
             await mergeMeta(orderId, { [step.key]: r.ok ? "sent" : "failed", [step.key + "_at"]: Date.now() });
             m[step.key] = r.ok ? "sent" : "failed";
             if (r.ok) out.abandonment = (out.abandonment || 0) + 1;
-            break;                                              // max one ladder email per pass per order
+            break;
+          }
+        }
+
+        // abandonment ladder: /create, unpaid, song heard but not downloaded
+        if (!isPaid && m.source === "create" && m.email && !m.ab_optout && m.paywall_email === "sent") {
+          const anchor = m.paywall_emailed_at || m.created || 0;
+          const createAbMsgs = {
+            ab1: { subject: `Your song is still waiting to be downloaded`,
+                   lead: `You heard it — now make it yours. One click and you can download ${song.song_title ? '"' + song.song_title + '"' : "your song"} and keep it forever.` },
+            ab2: { subject: `${song.song_title ? '"' + song.song_title + '"' : "Your song"} — still yours to download`,
+                   lead: `Nobody else will give a gift like this. The song is ready. Download it today and keep it forever.` },
+            ab3: { subject: `Your song is deleted tomorrow`,
+                   lead: `Songs are stored for 7 days. ${song.song_title ? '"' + song.song_title + '"' : "Your song"} reaches that limit tomorrow — after that it's gone. This is the last reminder we'll send.` }
+          };
+          for (const step of AB_STEPS) {
+            if (m[step.key]) continue;
+            if (Date.now() - anchor < step.afterMs) break;
+            const msg = createAbMsgs[step.key];
+            const link = `${SITE}/delivery?o=${encodeURIComponent(orderId)}`;
+            const unsub = `${SITE}/.netlify/functions/ab-unsub?o=${encodeURIComponent(orderId)}`;
+            const html = `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2">
+              <h1 style="font-style:italic;color:#0F0A06">${song.song_title ? '"' + song.song_title + '"' : "Your Song"}</h1>
+              <p style="color:#7A6A5A;margin:12px 0 24px">${msg.lead}</p>
+              <a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">⬇ Download My Song — $39.99</a>
+              <p style="color:#B8AC9E;font-size:11px;margin-top:26px">You created a song at StorySound. <a href="${unsub}" style="color:#B8AC9E">Unsubscribe</a></p></div>`;
+            const r = await sendEmail({ to: m.email, subject: msg.subject, html, text: msg.lead + "\n\n" + link, stream: BROADCAST });
+            if (!r.ok && r.reason === "no email or token") break;
+            await mergeMeta(orderId, { [step.key]: r.ok ? "sent" : "failed", [step.key + "_at"]: Date.now() });
+            m[step.key] = r.ok ? "sent" : "failed";
+            if (r.ok) out.abandonment = (out.abandonment || 0) + 1;
+            break;
           }
         }
       } catch (inner) { out.errors.push(orderId + ": " + inner.message); }
@@ -183,3 +222,4 @@ exports.handler = async () => {
     return { statusCode: 500, body: String(err.message || err) };
   }
 };
+
