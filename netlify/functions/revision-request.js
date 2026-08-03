@@ -9,6 +9,9 @@ exports.handler = async (event) => {
   const orderId = String(b.o || "").slice(0, 64);
   const feedback = String(b.feedback || "").trim().slice(0, 2000);
   const keep = String(b.keep || "").trim().slice(0, 1000);
+  const context = String(b.context || "").trim().slice(0, 1000);
+  const customerName = String(b.name || "").trim().slice(0, 80);
+  const customerEmail = String(b.email || "").trim().slice(0, 120);
   if (!orderId || feedback.length < 10) return j(400, { error: "tell us what to change (a sentence or two)" });
 
   const [meta, unlocked] = await Promise.all([getJSON(`meta_${orderId}`), getJSON(`unlocked_${orderId}`)]);
@@ -30,16 +33,18 @@ exports.handler = async (event) => {
     to: owner,
     subject: `🔁 Revision request #${count + 1} — "${title}"`,
     html: `<div style="font-family:ui-monospace,monospace;font-size:13px;max-width:640px;margin:0 auto;padding:24px">
-      <p><b>Order:</b> ${orderId} · <b>Customer:</b> ${meta.email || "?"}</p>
+      <p><b>Order:</b> ${orderId} · <b>Customer:</b> ${customerEmail || meta.email || "?"} ${customerName ? "("+customerName+")" : ""}</p>
       <p><b>What to change:</b><br>${esc(feedback)}</p>
       ${keep ? `<p><b>What to keep:</b><br>${esc(keep)}</p>` : ""}
+      ${context ? `<p><b>Additional context:</b><br>${esc(context)}</p>` : ""}``
       <p><a href="https://storysound.netlify.app/admin-orders?key=${process.env.DASH_KEY || "ss-admin-2026"}">Open dashboard</a> ·
          <a href="https://storysound.netlify.app/delivery?o=${orderId}">Hear current version</a></p></div>`,
     text: `Revision for ${orderId} (${meta.email})\n\nChange: ${feedback}\n\nKeep: ${keep}`
   });
 
   // confirm to customer
-  if (meta.email) {
+  const emailTo = meta.email || customerEmail;
+  if (emailTo) {
     await sendEmail({
       to: meta.email,
       subject: `Got it — we're revising "${title}"`,
