@@ -239,6 +239,7 @@ Return ONLY valid JSON (no markdown):
 
     await save(orderId, {
       status: 'done',
+      completed_at: Date.now(),
       song_title:   song.song_title,
       song_meta:    song.song_meta || `For ${songFor} - ${occasion} - ${genre}`,
       lyrics:       song.lyrics,
@@ -291,42 +292,7 @@ Return ONLY valid JSON (no markdown):
       }
     } catch(e) { console.log('meta merge skipped:', e.message); }
 
-    // ── Step 4: email (funnel-aware, status recorded for the watchdog) ───────
-    if (email && process.env.POSTMARK_SERVER_TOKEN) {
-      const siteUrl = process.env.SITE_URL || 'https://storysound.netlify.app';
-      const isFree = source === 'create2';
-      const link = isFree
-        ? `${siteUrl}/create2-preview?o=${orderId}`
-        : `${siteUrl}/delivery?o=${orderId}`;
-      const subject = isFree
-        ? `${(attrs['Recipient Name'] || songFor)}'s song preview is ready 🎧`
-        : `"${song.song_title}" is ready to download 🎵`;
-      const cta = isFree ? '▶ Hear My Free Preview' : '🎵 Listen & Download';
-      const body = isFree
-        ? 'The first 20 seconds are ready to hear — free.'
-        : 'Your song is ready. Stream it, download it, keep it forever.';
-      const er = await fetch('https://api.postmarkapp.com/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Postmark-Server-Token': process.env.POSTMARK_SERVER_TOKEN },
-        body: JSON.stringify({
-          From: process.env.FROM_EMAIL || 'songs@storysound.ai',
-          To: email, Subject: subject,
-          HtmlBody: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">"${song.song_title}"</h1><p style="color:#7A6A5A;margin:12px 0 24px">${body}</p><a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">${cta}</a><p style="color:#9A8F82;font-size:12px;margin-top:20px">Save this email — your link is here whenever you need it.</p></div>`,
-          TextBody: `"${song.song_title}"\n\n${body}\n${link}`
-        })
-      });
-      const eOk = er.ok;
-      const statusField = isFree ? 'preview_email' : 'email_status';
-      const tsField = isFree ? 'preview_emailed_at' : 'emailed_at';
-      try {
-        const g = await fetch(`${REDIS_URL}/get/meta_${orderId}`, { headers:{ Authorization:`Bearer ${REDIS_TOKEN}` } });
-        let m2 = {}; try { m2 = JSON.parse((await g.json())?.result || '{}') || {}; } catch(e){}
-        m2[statusField] = eOk ? 'sent' : 'failed'; m2[tsField] = Date.now();
-        await fetch(`${REDIS_URL}/pipeline`, { method:'POST',
-          headers:{ Authorization:`Bearer ${REDIS_TOKEN}`,'Content-Type':'application/json' },
-          body: JSON.stringify([['SET', `meta_${orderId}`, JSON.stringify(m2)]]) });
-      } catch(e){}
-    }
+    // Email is handled by delivery-agent (10-min delay after completed_at)
 
     return { statusCode: 200, body: 'Done: ' + song.song_title + ' (' + sizeKb + 'KB)' };
 
@@ -336,4 +302,5 @@ Return ONLY valid JSON (no markdown):
     return { statusCode: 500, body: err.message };
   }
 };
+
 
