@@ -273,8 +273,8 @@ footer a{color:var(--text-secondary)}
 /* hint now shows above player in accent color */
 .hint{font-size:var(--text-sm);font-weight:700;color:var(--accent);text-align:center;margin:18px 0 2px;letter-spacing:.01em}
 /* late reveal fade-in */
-#lateReveal{display:none;opacity:0;transition:opacity .6s}
-#lateRevealOuter{display:none;opacity:0;transition:opacity .7s}
+#lateReveal{opacity:0;transition:opacity .5s}
+#lateRevealOuter{opacity:0;transition:opacity .6s}
 </style>
 </head>
 <body>
@@ -404,7 +404,7 @@ const CONFIG = {
   </div>
 
   <!-- Late reveal: hint + player — shown when preview is ready -->
-  <div id="lateReveal">
+  <div id="lateReveal" style="display:none">
     <p class="hint">Press play. Headphones in, if you have them.</p>
   <div class="player rv">
     <h2 class="song-title" id="songTitle">Margaret's <em>Song</em></h2>
@@ -421,7 +421,7 @@ const CONFIG = {
   </div><!-- /lateReveal -->
 </section>
 
-<div id="lateRevealOuter">
+<div id="lateRevealOuter" style="display:none">
 <div class="ratebar rv">
   <div class="t">🔓 Preview-Unlocked Rate <span class="hl" id="offPct">—</span></div>
   <div class="d">You listened all the way to the preview. That earns you <strong id="offAmt">—</strong> off the full song — a rate we don't show on the public site.</div>
@@ -682,9 +682,9 @@ const CONFIG = {
     // Reveal the player + everything below — fade in smoothly
     var lr  = document.getElementById("lateReveal");
     var lro = document.getElementById("lateRevealOuter");
-    function fadeIn(el){ if(!el) return; el.style.display="block"; requestAnimationFrame(function(){ el.style.opacity="1"; }); }
+    function fadeIn(el){ if(!el) return; el.style.setProperty("display","block","important"); setTimeout(function(){ el.style.opacity="1"; }, 30); }
     fadeIn(lr);
-    setTimeout(function(){ fadeIn(lro); }, 200);
+    setTimeout(function(){ fadeIn(lro); }, 300);
 
     // Hide notice now that preview is here
     var gn = document.getElementById("genNotice"); if(gn) gn.style.display="none";
@@ -722,7 +722,7 @@ const CONFIG = {
             loadPreview(d.previewUrl); track("preview_ready", {}); return;
           }
           if(tries < 40) setTimeout(() => poll(tries + 1), 3000);
-          else $("#playHint").textContent = "Taking longer than usual — we'll email your preview.";
+          else { $("#playHint").textContent = "Still composing — won't be long now."; setTimeout(function(){ (function poll2(t){ fetch(CONFIG.previewApi + "?o=" + encodeURIComponent(token)).then(function(r){return r.json();}).then(function(d){ if(d.ready&&d.previewUrl){ window._songReady=true; var gf=document.getElementById("genFill"); if(gf) gf.style.width="100%"; loadPreview(d.previewUrl); } else if(t<20) setTimeout(function(){poll2(t+1);},5000); }).catch(function(){if(t<20) setTimeout(function(){poll2(t+1);},5000);}); })(0); },1000); }
         })
         .catch(function(){ if(tries < 40) setTimeout(() => poll(tries + 1), 3000); });
     })(0);
