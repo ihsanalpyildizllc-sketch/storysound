@@ -124,6 +124,11 @@ exports.handler = async () => {
         const unlocked = await getJSON(`unlocked_${orderId}`);
         const isPaid = !!unlocked || (m.source === "create" && m.paid === true);
 
+        // ── 10-minute hold: don't email until song has been done for 10 min ──
+        const tenMinAgo = Date.now() - 10 * 60 * 1000;
+        const doneAt = song.completed_at || song.created || 0;
+        if (doneAt > tenMinAgo) continue;   // too fresh — revisit next pass
+
         if (isPaid && !m.persisted) {
           await persistSong(orderId, null);
           await mergeMeta(orderId, { persisted: true });
