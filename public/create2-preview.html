@@ -670,7 +670,9 @@ const CONFIG = {
           if(d.title) $("#songTitle").innerHTML = esc(d.title).replace(/(Song|song)$/,'<em>$1</em>');
           if(d.lyricsTeaser && d.lyricsTeaser.length) showLyrics(d.lyricsTeaser, d.lyricsTotal);
           if(d.ready && d.previewUrl){
-            // snap progress to 100% when song is actually ready
+            // mark song ready so the progress bar timer doesn't fire
+            window._songReady = true;
+            // snap progress to 100% if bar is already visible
             if(window._genInterval) clearInterval(window._genInterval);
             var gf=document.getElementById("genFill"), gp=document.getElementById("genPct"), gl=document.getElementById("genLabel");
             if(gf){gf.style.width="100%";} if(gp){gp.textContent="100%";} if(gl){gl.textContent="Your preview is ready!";}
@@ -1021,14 +1023,16 @@ const CONFIG = {
     if(elapsed < GEN_SECS) window._genInterval = setTimeout(tick, 1000);
   }
 
-  // Show card + notice after 10 seconds, then start animating
+  // Show card + notice after 3 seconds, then start animating
+  // (only if song isn't already ready — _songReady flag set by poll)
   setTimeout(function(){
+    if(window._songReady) return;          // song already done — don't show bar
     var card   = document.getElementById("genCard");
     var notice = document.getElementById("genNotice");
     if(card)   card.style.display   = "";
     if(notice) notice.style.display = "";
     window._genInterval = setTimeout(tick, 1000);
-  }, 10000);
+  }, 3000);
 })();
 </script>
 </body>
