@@ -69,29 +69,32 @@ function deliveryEmail({ title, orderId, siteUrl }) {
 }
 
 function previewEmail({ title, orderId, siteUrl, name }) {
-  const link = `${siteUrl}/create2-preview?o=${encodeURIComponent(orderId)}`;
+  const link = `${siteUrl}/preview?o=${encodeURIComponent(orderId)}`;
+  const t = title ? `"${title}"` : "your song";
   return {
-    subject: `${name ? name + "'s" : "Your"} song preview is ready 🎧`,
+    subject: `${name ? name + "'s" : "Your"} song is ready to hear 🎧`,
     html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2">
-      <h1 style="font-style:italic;color:#0F0A06">${title ? '"' + title + '"' : "Your song"}</h1>
-      <p style="color:#7A6A5A;margin:12px 0 24px">The first 20 seconds are ready to hear — free.</p>
-      <a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">▶ Hear My Preview</a></div>`,
-    text: `Your song preview is ready!\n\nListen free: ${link}`
+      <h1 style="font-style:italic;color:#0F0A06">${title ? '"' + title + '"' : "Your song is ready"}</h1>
+      <p style="color:#7A6A5A;margin:12px 0 8px">We just finished composing ${t}.</p>
+      <p style="color:#7A6A5A;margin:0 0 24px">Hit play below to hear a 20-second preview — free, no card needed.</p>
+      <a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">&#9654;&#xFE0F; Hear My 20-Second Preview</a>
+      <p style="color:#9A8F82;font-size:12px;margin-top:20px">If you love it, unlock the full song — starting at $39.</p></div>`,
+    text: `${name ? name + "'s" : "Your"} song is ready!\n\nHear your 20-second preview free: ${link}\n\nIf you love it, unlock the full song.`
   };
 }
 
 function paywallReadyEmail({ title, orderId, siteUrl, name }) {
-  const link = `${siteUrl}/delivery?o=${encodeURIComponent(orderId)}`;
+  const link = `${siteUrl}/preview?o=${encodeURIComponent(orderId)}`;
   const t = title ? `"${title}"` : "your song";
   return {
     subject: `${name ? name + "'s" : "Your"} song is ready to hear 🎵`,
     html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2">
       <h1 style="font-style:italic;color:#0F0A06">${title ? '"' + title + '"' : "Your song is ready"}</h1>
-      <p style="color:#7A6A5A;margin:12px 0 8px">We just finished writing and composing ${t} — fully ready to hear.</p>
-      <p style="color:#7A6A5A;margin:0 0 24px">Listen to the whole thing free before you decide to download and keep it forever.</p>
-      <a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">▶ Hear My Song</a>
-      <p style="color:#9A8F82;font-size:12px;margin-top:20px">If you love it, download it for $39.99 — yours forever.</p></div>`,
-    text: `${name ? name + "'s" : "Your"} song is ready!\n\nListen to the full song free: ${link}\n\nIf you love it, download it for $39.99.`
+      <p style="color:#7A6A5A;margin:12px 0 8px">We just finished writing and composing ${t}.</p>
+      <p style="color:#7A6A5A;margin:0 0 24px">Hear a 20-second preview — free — then download the full song for $39.99.</p>
+      <a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">&#9654;&#xFE0F; Hear My 20-Second Preview</a>
+      <p style="color:#9A8F82;font-size:12px;margin-top:20px">One-time payment &middot; Yours forever &middot; 30-Day Money-Back Guarantee</p></div>`,
+    text: `${name ? name + "'s" : "Your"} song is ready!\n\nHear your 20-second preview free: ${link}\n\nIf you love it, download the full song for $39.99.`
   };
 }
 
