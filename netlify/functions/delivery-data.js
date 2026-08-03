@@ -38,7 +38,15 @@ exports.handler = async (event) => {
       return json(200, { ready: false, stage: song.stage || "processing", title: song.song_title || null });
     }
 
-    const lyricsBought = !!(meta && meta.lyrics);
+    const m = meta || {};
+    // Download & Share is its own SKU on the /create funnel.
+    // create2 buyers paid $119 for the full song -> download included.
+    // Legacy /create buyers before the split are grandfathered.
+    const SPLIT_LAUNCH = Number(process.env.DOWNLOAD_SPLIT_TS || 1785780000000);
+    const grandfathered = (m.created || 0) < SPLIT_LAUNCH;
+    const downloadBought = !!m.download || m.source === "create2" || grandfathered;
+    const lyricsBought = !!m.lyrics;
+    const verse3Bought = !!m.verse3;
     const lines = String(song.lyrics || "").split("\n").map(l => l.trim()).filter(l => l && !/^\[.*\]$/.test(l));
 
     const grief = isGrief(meta, song);
@@ -50,7 +58,10 @@ exports.handler = async (event) => {
       name: (meta && meta.name) || null,
       relationship: (meta && meta.rel) || null,
       audioUrl: `/.netlify/functions/get-audio?orderId=${encodeURIComponent(orderId)}`,
-      downloadUrl: `/.netlify/functions/get-audio?orderId=${encodeURIComponent(orderId)}&dl=1`,
+      downloadUrl: downloadBought ? `/.netlify/functions/get-audio?orderId=${encodeURIComponent(orderId)}&dl=1` : null,
+      downloadBought,
+      verse3Bought,
+      source: m.source || "create",
       lyricsBought,
       lyrics: lyricsBought ? lines : lines.slice(0, 3),
       lyricsTotal: lines.length,
