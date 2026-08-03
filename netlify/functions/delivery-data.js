@@ -51,13 +51,13 @@ exports.handler = async (event) => {
         });
       }
 
-      // song ready — show paywall with preview
+      // song ready — show paywall with full audio (listen free, pay to download)
       const lines = String(song.lyrics || "")
         .split("\n").map(l => l.trim()).filter(l => l && !/^\[.*\]$/.test(l));
       return json(200, {
         ready: true, paywall: true,
         title: song.song_title || "Your Song",
-        previewUrl: `/.netlify/functions/preview-audio?o=${encodeURIComponent(orderId)}`,
+        audioUrl: `/.netlify/functions/get-audio?orderId=${encodeURIComponent(orderId)}`,
         lyricsTeaser: lines.slice(0, 3),
         lyricsTotal: lines.length,
         shopifyUrl, orderId
