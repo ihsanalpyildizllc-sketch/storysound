@@ -488,9 +488,11 @@ function togglePhone(){
 }
 
 function startFreePreview(){
-  const em=document.getElementById('f-email').value.trim();
-  if(!em||!em.includes('@')){tip('Enter a valid email address');return;}
+  // strip ALL whitespace (not just ends) — 'name@ gmail.com' was breaking checkout
+  const em=document.getElementById('f-email').value.replace(/\s+/g,'').toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){tip('Enter a valid email address');return;}
   D.email=em;
+  document.getElementById('f-email').value=em;   // show them the cleaned version
   const phEl=document.getElementById('f-phone'); D.phone=phEl?phEl.value.trim():'';
   const bnEl=document.getElementById('f-buyer-name'); D.buyerName=bnEl?bnEl.value.trim():'';
 
