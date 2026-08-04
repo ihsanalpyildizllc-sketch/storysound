@@ -525,7 +525,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 
     <div class="trust-row">🔒 Trusted by 400,000+ customers · 100% Money-Back Guarantee</div>
     <div class="inline-pay-wrap" id="inlinePayBtn">
-      <button class="btn-pay" onclick="goToShopify()">Get My Song Now →</button>
+      <button class="btn-pay" id="inlinePayButton" onclick="goToShopify()">Get My Song Now →</button>
       <p class="inline-pay-sub">🔒 Secure checkout &middot; No subscription &middot; Instant access</p>
     </div>
   </div>
@@ -746,8 +746,10 @@ function goToShopify(){
   sessionStorage.removeItem(SS_KEY);
   const btn=document.getElementById('payBtn');
   const sBtn=document.querySelector('.sticky-pay .btn-pay');
-  if(btn){btn.disabled=true;btn.textContent='Redirecting to checkout…';}
-  if(sBtn){sBtn.disabled=true;sBtn.textContent='Redirecting to checkout…';}
+  var iBtn=document.getElementById('inlinePayButton');
+  [btn, sBtn, iBtn].forEach(function(b){
+    if(b){ b.disabled=true; b.textContent='Redirecting to checkout…'; }
+  });
   // Blur overlay while the browser navigates — purely visual, adds zero delay
   var ov=document.getElementById('coOverlay'); if(ov) ov.classList.add('show');
 
