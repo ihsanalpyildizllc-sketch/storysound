@@ -18,7 +18,7 @@ exports.handler = async (event) => {
   let body;
   try { body = JSON.parse(event.body); } catch(e) { return { statusCode: 400, body: "Invalid JSON" }; }
 
-  const { email, name, forWhom, occasion, genre, voice, language, qualities, memories, message, source } = body;
+  const { email, name, forWhom, occasion, genre, voice, language, qualities, memories, message, phone, source } = body;
   if (!email) return { statusCode: 400, body: JSON.stringify({ error: "No email" }) };
 
   // ── 1. Get access token (cached in Redis, refreshed every 23h) ──────────────
@@ -81,16 +81,16 @@ exports.handler = async (event) => {
   };
 
   const note = [
-    forWhom   ? `Song for: ${forWhom}` : "",
-    name      ? `Name: ${name}` : "",
-    occasion  ? `Occasion: ${occasion}` : "",
-    genre     ? `Genre: ${genre}` : "",
-    voice     ? `Voice: ${voice}` : "",
-    qualities ? `Qualities: ${qualities}` : "",
-    memories  ? `Memories: ${memories}` : "",
-    message   ? `Message: ${message}` : ""
-  ].filter(Boolean).join(" | ");
-
+    "Song for: " + (name || forWhom || ""),
+    occasion  ? "Occasion: " + occasion : "",
+    genre     ? "Genre: " + genre : "",
+    voice     ? "Voice: " + voice : "",
+    language  ? "Language: " + language : "",
+    qualities ? "Their qualities:" + "\n" + qualities : "",
+    memories  ? "Memories:" + "\n" + memories : "",
+    message   ? "Message:" + "\n" + message : "",
+    source    ? "Source: " + source : ""
+  ].filter(Boolean).join("\n\n");
   try {
     let customerId = null;
     const searchRes = await fetch(
@@ -118,6 +118,7 @@ exports.handler = async (event) => {
           customer: {
             first_name: name || forWhom || "",
             email,
+            phone: phone || undefined,
             tags: ["prospect", "song-funnel", source ? "source-" + source : "source-unknown"].filter(Boolean).join(", "),
             note,
             accepts_marketing: true,
