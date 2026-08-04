@@ -495,7 +495,7 @@ function startFreePreview(){
 
   fetch('/.netlify/functions/create-customer',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({email:D.email,name:D.name||D.forWhom,forWhom:D.forWhom,occasion:D.occasion,
+    body:JSON.stringify({source:'create2',email:D.email,name:D.name||D.forWhom,forWhom:D.forWhom,occasion:D.occasion,
       genre:D.genre,voice:D.voice,language:D.language,qualities:D.qualities,memories:D.memories,message:D.message})
   }).catch(()=>{});
 
