@@ -173,6 +173,49 @@ exports.handler = async (event) => {
     const draftId    = draftData.draft_order?.id;
     const invoiceUrl = draftData.draft_order?.invoice_url;
 
+    // /create funnel: register a Redis lead so the email agent can run the
+    // checkout-abandonment ladder (create2 leads already exist via start-song)
+    if (source === "create" && REDIS_URL && REDIS_TOKEN) {
+      try {
+        const eKey = email.toLowerCase();
+        const g = await fetch(`${REDIS_URL}/get/${encodeURIComponent("lead_email:" + eKey)}`, {
+          headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+        }).then(r => r.json()).catch(() => null);
+        let leadId = g && g.result ? g.result : null;
+        const isNew = !leadId;
+        if (isNew) leadId = "cr_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+        let prev = {};
+        if (!isNew) {
+          const pm = await fetch(`${REDIS_URL}/get/${encodeURIComponent("meta_" + leadId)}`, {
+            headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+          }).then(r => r.json()).catch(() => null);
+          try { prev = JSON.parse(pm?.result || "{}") || {}; } catch (e) { prev = {}; }
+        }
+
+        const leadMeta = Object.assign({}, prev, {
+          kind: "lead", source: "create", email: eKey,
+          name: name || forWhom || prev.name || "",
+          buyerName: buyerName || prev.buyerName || "",
+          invoiceUrl: invoiceUrl || prev.invoiceUrl || null,
+          draftId: draftId || prev.draftId || null,
+          customerId: customerId || prev.customerId || null,
+          created: prev.created || Date.now()
+        });
+
+        const cmds = [
+          ["SET", "meta_" + leadId, JSON.stringify(leadMeta)],
+          ["SET", "lead_email:" + eKey, leadId]
+        ];
+        if (isNew) cmds.unshift(["LPUSH", "orders_index", leadId]);
+        await fetch(`${REDIS_URL}/pipeline`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+          body: JSON.stringify(cmds)
+        });
+      } catch (e) { /* lead capture is best-effort, never block the response */ }
+    }
+
     return {
       statusCode: 200,
       body: JSON.stringify({
