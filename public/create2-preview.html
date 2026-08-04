@@ -1109,7 +1109,11 @@ const CONFIG = {
   function tick(){
     if(window._songReady) return;
     elapsed++;
-    var pct  = Math.min(Math.round(elapsed / GEN_SECS * 100), 99);
+    // Asymptotic curve: fast to 85%, then slows dramatically, hard cap at 92%.
+    // Only the real "song ready" event pushes it to 100%.
+    var raw = elapsed / GEN_SECS;                 // 0..1 over 8 min
+    var eased = 1 - Math.pow(1 - Math.min(raw, 1), 2.2);   // ease-out
+    var pct = Math.min(Math.round(eased * 92), 92);
     var fill = document.getElementById("genFill");
     var pctEl= document.getElementById("genPct");
     var lblEl= document.getElementById("genLabel");
