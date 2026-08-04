@@ -135,6 +135,9 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 .sticky-pay.show{display:block}
 .sticky-pay .btn-pay{margin-bottom:4px;padding:15px}
 .sticky-pay .sec-row{margin-bottom:0}
+.inline-pay-wrap{margin:16px -4px 0}
+.inline-pay-wrap .btn-pay{width:100%;display:block;box-sizing:border-box;padding:15px;border:none;cursor:pointer;font-family:inherit;font-size:16px;font-weight:700;border-radius:14px;background:linear-gradient(135deg,#B5471C,#9E3E2C);color:#fff;box-shadow:0 4px 20px rgba(181,71,28,.35)}
+.inline-pay-sub{text-align:center;font-size:11px;color:var(--muted);margin-top:6px}
 
 /* STICKY PULSE ANIMATION */
 @keyframes stickyPulse{0%,100%{box-shadow:0 4px 20px rgba(181,71,28,0.3)}50%{box-shadow:0 4px 32px rgba(181,71,28,0.7),0 0 0 4px rgba(181,71,28,0.15)}}
@@ -495,8 +498,10 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
     </div>
 
     <div class="trust-row">🔒 Trusted by 400,000+ customers · 100% Money-Back Guarantee</div>
-    <button id="inlinePayBtn" class="btn-pay" onclick="goToShopify()" style="width:100%;margin-top:12px;padding:16px;border-radius:14px;border:none;cursor:pointer;font-family:inherit;font-size:16px;font-weight:700;background:linear-gradient(135deg,#B5471C,#9E3E2C);color:#fff;box-shadow:0 4px 20px rgba(181,71,28,0.35)">Get My Song Now →</button>
-    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px">🔒 Secure checkout · No subscription · Instant access</p>
+    <div class="inline-pay-wrap" id="inlinePayBtn">
+      <button class="btn-pay" onclick="goToShopify()">Get My Song Now →</button>
+      <p class="inline-pay-sub">🔒 Secure checkout &middot; No subscription &middot; Instant access</p>
+    </div>
   </div>
 </div>
 
@@ -711,11 +716,11 @@ function tip(msg){
 
 // ── STICKY PAY BAR ──
 function updateStickyBar(){
+  if(window._inlineVisible) return;   // inline CTA visible — don't show sticky
   const isOnBumps = document.getElementById('bumpsPage').style.display !== 'none';
   const isOnReview = document.getElementById('s8') && document.getElementById('s8').classList.contains('active');
   const bar = document.getElementById('stickyPay');
   bar.classList.toggle('show', isOnBumps || isOnReview);
-  // No price sync needed - clean button
 }
 
 function handleStickyBtn(){
@@ -868,15 +873,16 @@ window.addEventListener('scroll', () => {
   const obs = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if(!bar) return;
+      window._inlineVisible = e.isIntersecting;
       if(e.isIntersecting){
-        // inline button visible on screen — hide sticky
         bar.classList.remove('show');
+        bar.style.display = 'none';       // force-hide
       } else {
-        // inline button scrolled off — restore sticky if we're on bumps page
+        bar.style.display = '';           // restore
         updateStickyBar();
       }
     });
-  }, { threshold: 0.2 });
+  }, { threshold: 0 });
   obs.observe(inlineBtn);
 })();
 </script>
