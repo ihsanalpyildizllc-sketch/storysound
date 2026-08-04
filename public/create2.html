@@ -497,11 +497,32 @@ function startFreePreview(){
   const btn=document.getElementById('payBtn');
   if(btn){btn.disabled=true;btn.textContent='Writing your song...';}
 
-  fetch('/.netlify/functions/create-customer',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({source:'create2',buyerName:D.buyerName,email:D.email,name:D.name||D.forWhom,forWhom:D.forWhom,occasion:D.occasion,
-      genre:D.genre,voice:D.voice,language:D.language,qualities:D.qualities,memories:D.memories,message:D.message})
-  }).catch(()=>{});
+  // sendBeacon survives page navigation — a plain fetch gets cancelled when we
+  // redirect to /create2-preview, which is why customers weren't being created.
+  (function(){
+    var ccPayload = JSON.stringify({
+      source:'create2', buyerName:D.buyerName, email:D.email,
+      name:D.name||D.forWhom, forWhom:D.forWhom, occasion:D.occasion,
+      genre:D.genre, voice:D.voice, language:D.language,
+      qualities:D.qualities, memories:D.memories, message:D.message, phone:D.phone
+    });
+    var sent = false;
+    try {
+      if(navigator.sendBeacon){
+        sent = navigator.sendBeacon(
+          '/.netlify/functions/create-customer',
+          new Blob([ccPayload], {type:'application/json'})
+        );
+      }
+    } catch(e){}
+    if(!sent){
+      // keepalive lets the request outlive the page unload
+      fetch('/.netlify/functions/create-customer',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: ccPayload, keepalive: true
+      }).catch(function(){});
+    }
+  })();
 
   const fullStory=[
     `Song for: ${D.name} (${D.forWhom})`,`Occasion: ${D.occasion}`,`Genre: ${D.genre}`,
