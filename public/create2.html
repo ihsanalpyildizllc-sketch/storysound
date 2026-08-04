@@ -347,6 +347,9 @@ fetch("/.netlify/functions/reviews-data").then(function(r){return r.json();}).th
     <div class="rev-title">Where should we send it?</div>
     <p class="rev-sub">We're writing <strong id="nameDisp" style="color:var(--rust)">their</strong> song right now. Tell us where to send it.</p>
     <div class="rcard">
+      <label class="elabel">Your Name</label>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:8px">So we know who ordered this</p>
+      <input class="efield" id="f-buyer-name" type="text" placeholder="Your first name" autocomplete="given-name" style="margin-bottom:16px">
       <label class="elabel">Your Email Address</label>
       <p style="font-size:12px;color:var(--muted);margin-bottom:8px">We'll send your song and a link to hear it</p>
       <input class="efield" id="f-email" type="email" placeholder="you@email.com">
@@ -400,7 +403,7 @@ fetch("/.netlify/functions/reviews-data").then(function(r){return r.json();}).th
 
 <script>
 const STEPS=8;let cur=1;
-const D={forWhom:'',name:'',occasion:'',genre:'',language:'English',voice:'',qualities:'',memories:'',message:'',email:'',phone:''};
+const D={forWhom:'',name:'',occasion:'',genre:'',language:'English',voice:'',qualities:'',memories:'',message:'',email:'',phone:'',buyerName:''};
 let bumps={b1:false,b2:false};
 const BASE=39;
 let extraCost=0;
@@ -489,13 +492,14 @@ function startFreePreview(){
   if(!em||!em.includes('@')){tip('Enter a valid email address');return;}
   D.email=em;
   const phEl=document.getElementById('f-phone'); D.phone=phEl?phEl.value.trim():'';
+  const bnEl=document.getElementById('f-buyer-name'); D.buyerName=bnEl?bnEl.value.trim():'';
 
   const btn=document.getElementById('payBtn');
   if(btn){btn.disabled=true;btn.textContent='Writing your song...';}
 
   fetch('/.netlify/functions/create-customer',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({source:'create2',email:D.email,name:D.name||D.forWhom,forWhom:D.forWhom,occasion:D.occasion,
+    body:JSON.stringify({source:'create2',buyerName:D.buyerName,email:D.email,name:D.name||D.forWhom,forWhom:D.forWhom,occasion:D.occasion,
       genre:D.genre,voice:D.voice,language:D.language,qualities:D.qualities,memories:D.memories,message:D.message})
   }).catch(()=>{});
 
