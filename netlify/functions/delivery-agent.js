@@ -21,6 +21,46 @@ function griefOrder(m){
   return GRIEF.test([m.qualities,m.memories,m.message,m.story,m.occasion].filter(Boolean).join(" "));
 }
 
+// ── /create checkout-abandonment ladder (quiz done, never paid) ─────────────
+const LEAD_STEPS = [
+  { key: "l1", afterMs: 45 * 60 * 1000 },            // 45 min
+  { key: "l2", afterMs: 24 * 60 * 60 * 1000 },        // 24 h
+  { key: "l3", afterMs: 48 * 60 * 60 * 1000 },        // 48 h  — SAVE15
+  { key: "l4", afterMs: 5 * 24 * 60 * 60 * 1000 }     // 5 d   — SONG19
+];
+
+function leadEmail(step, { name, buyerName, invoiceUrl, siteUrl }) {
+  const who = name || "them";
+  const cta = invoiceUrl || (siteUrl + "/create");
+  const btn = (label) => `<a href="${cta}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">${label}</a>`;
+  const wrap = (h1, p, label, ps) => ({
+    html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2"><h1 style="font-style:italic;color:#0F0A06">${h1}</h1><p style="color:#7A6A5A;margin:12px 0 24px">${p}</p>${btn(label)}${ps ? `<p style="color:#7A6A5A;font-size:13px;margin-top:18px">${ps}</p>` : ""}</div>`,
+    text: `${h1}\n\n${p.replace(/<[^>]+>/g, "")}\n\n${label}: ${cta}`
+  });
+  if (step === "l1") return Object.assign(
+    { subject: `${name ? name + "'s" : "Your"} song is saved \u2014 one step left` },
+    wrap(`Everything you wrote is safe.`,
+         `The story, the memories, the message \u2014 it\u2019s all with our songwriters, ready to become ${who}\u2019s song. You were one click from the finish line.`,
+         `Finish my order \u2192`));
+  if (step === "l2") return Object.assign(
+    { subject: `The story you wrote for ${who} is still waiting` },
+    wrap(`Some words deserve a melody.`,
+         `What you wrote about ${who} isn\u2019t something people say out loud every day. That\u2019s exactly why it makes such a powerful song \u2014 and why we saved every word.`,
+         `Turn my words into a song \u2192`));
+  if (step === "l3") return Object.assign(
+    { subject: `15% off ${name ? name + "'s" : "your"} song \u2014 code SAVE15` },
+    wrap(`A little nudge.`,
+         `Your song is written from the answers you already gave \u2014 there\u2019s nothing left to do but press the button. Use code <strong>SAVE15</strong> at checkout for 15% off, this week only.`,
+         `Claim 15% off \u2192`,
+         `Code: <strong>SAVE15</strong> \u00b7 applied at checkout`));
+  return Object.assign(
+    { subject: `Last call: ${who}\u2019s custom song for $19` },
+    wrap(`Before we archive it.`,
+         `We hold every story for a limited time before our songwriters move on. Use code <strong>SONG19</strong> and get the full custom song \u2014 written, sung, and delivered \u2014 for just $19.`,
+         `Get my song for $19 \u2192`,
+         `Code: <strong>SONG19</strong> \u00b7 final offer`));
+}
+
 function abEmail(step, { name, title, orderId, siteUrl }) {
   const link  = `${siteUrl}/create2-preview?o=${encodeURIComponent(orderId)}`;
   const unsub = `${siteUrl}/.netlify/functions/ab-unsub?o=${encodeURIComponent(orderId)}`;
@@ -69,7 +109,7 @@ async function mcSync(payload){
 }
 
 exports.handler = async () => {
-  const out = { checked: 0, retried: 0, emailedDelivery: 0, emailedPreview: 0, abandonment: 0, flagged: 0, errors: [] };
+  const out = { checked: 0, retried: 0, emailedDelivery: 0, emailedPreview: 0, abandonment: 0, leadLadder: 0, flagged: 0, errors: [] };
   try {
     const idx = await redis([["LRANGE", "orders_index", "0", "299"]]);
     const ids = [...new Set(idx?.[0]?.result || [])];
@@ -78,6 +118,31 @@ exports.handler = async () => {
       out.checked++;
       try {
         const [song, meta] = await Promise.all([getJSON(`song_${orderId}`), getJSON(`meta_${orderId}`)]);
+
+        // 0 \u2500\u2500 /create quiz lead (no song record) \u2192 checkout-abandonment ladder
+        if (meta && meta.kind === "lead") {
+          const mL = meta;
+          if (mL.email && !mL.ab_optout && !mL.lead_done && !griefOrder(mL)) {
+            const conv = await redis([["GET", "converted:" + String(mL.email).toLowerCase()]]);
+            if (conv?.[0]?.result) {
+              await mergeMeta(orderId, { lead_done: "converted", lead_done_at: Date.now() });
+            } else {
+              const anchor = mL.created || 0;
+              for (const step of LEAD_STEPS) {
+                if (mL[step.key]) continue;                       // already sent
+                if (Date.now() - anchor < step.afterMs) break;    // sequential timing
+                const e = leadEmail(step.key, { name: mL.name, buyerName: mL.buyerName, invoiceUrl: mL.invoiceUrl, siteUrl: SITE });
+                const r = await sendEmail({ to: mL.email, subject: e.subject, html: e.html, text: e.text, stream: BROADCAST });
+                if (!r.ok) break;                                 // token missing / pending approval \u2192 retry next pass, don\u2019t consume the step
+                await mergeMeta(orderId, { [step.key]: "sent", [step.key + "_at"]: Date.now() });
+                out.leadLadder++;
+                break;                                            // max one ladder email per pass
+              }
+            }
+          }
+          continue;                                               // leads never reach song logic
+        }
+
         // orphan: order registered but generation never started (e.g. trigger lost)
         if (!song) {
           const m0 = meta || {};
