@@ -188,7 +188,7 @@ exports.handler = async () => {
         if (!isPaid && m.source === "create2" && m.email && m.preview_email !== "sent") {
           const e = previewEmail({ title: song.song_title, orderId, siteUrl: SITE, name: m.name });
           const r = await sendEmail({ to: m.email, subject: e.subject, html: e.html, text: e.text });
-          await mergeMeta(orderId, { preview_email: r.ok ? "sent" : "failed", preview_emailed_at: r.ok ? Date.now() : null });
+          await mergeMeta(orderId, { preview_email: r.ok ? "sent" : "failed", preview_emailed_at: r.ok ? Date.now() : null, email_err: r.ok ? null : (r.reason || "unknown") });
           if (r.ok) out.emailedPreview++;
         }
 
