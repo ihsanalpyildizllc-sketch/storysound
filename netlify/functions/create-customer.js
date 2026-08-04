@@ -73,7 +73,7 @@ exports.handler = async (event) => {
       });
       const createData = await createRes.json();
       customerId = createData.customer?.id;
-      if(!customerId) console.error('Shopify create failed:', createRes.status, JSON.stringify(createData));
+      if(!customerId) return { statusCode:200, body: JSON.stringify({ ok:false, debug: true, status: createRes.status, shopifyError: createData, store: SHOPIFY_STORE, hasToken: !!SHOPIFY_ADMIN_TOKEN }) };
     }
 
     // 2. Create draft order — this enables Shopify abandoned checkout recovery emails
