@@ -1,10 +1,19 @@
+// netlify/functions/create-customer.js
+// Uses Shopify client credentials grant (2026 Dev Dashboard apps)
+// Token is short-lived (24h) — cached in Redis, auto-refreshed on expiry
+
+const SHOPIFY_STORE  = "gut-1809.myshopify.com";
+const MAIN_VARIANT   = "44258532819033"; // $39 base song
+
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method not allowed" };
 
-  const SHOPIFY_STORE = "gut-1809.myshopify.com"; // hardcoded — SHOPIFY_STORE env var is wrong
-  const SHOPIFY_ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;
+  const CLIENT_ID     = process.env.SHOPIFY_CLIENT_ID;
+  const CLIENT_SECRET = process.env.SHOPIFY_CLIENT_SECRET || process.env.SHOPIFY_ADMIN_TOKEN;
+  const REDIS_URL     = process.env.UPSTASH_REDIS_REST_URL;
+  const REDIS_TOKEN   = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-  if (!SHOPIFY_ADMIN_TOKEN) return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: true }) };
+  if (!CLIENT_SECRET) return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: true, reason: "no credentials" }) };
 
   let body;
   try { body = JSON.parse(event.body); } catch(e) { return { statusCode: 400, body: "Invalid JSON" }; }
@@ -12,24 +21,76 @@ exports.handler = async (event) => {
   const { email, name, forWhom, occasion, genre, voice, language, qualities, memories, message } = body;
   if (!email) return { statusCode: 400, body: JSON.stringify({ error: "No email" }) };
 
+  // ── 1. Get access token (cached in Redis, refreshed every 23h) ──────────────
+  let accessToken = null;
+
+  // Try Redis cache first
+  if (REDIS_URL && REDIS_TOKEN) {
+    try {
+      const cached = await fetch(`${REDIS_URL}/get/shopify_access_token`, {
+        headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+      });
+      const cachedData = await cached.json();
+      if (cachedData?.result) accessToken = cachedData.result;
+    } catch(e) {}
+  }
+
+  // If no cached token, request a new one
+  if (!accessToken) {
+    if (!CLIENT_ID) {
+      return { statusCode: 200, body: JSON.stringify({ ok: false, error: "SHOPIFY_CLIENT_ID env var not set" }) };
+    }
+
+    try {
+      const tokenRes = await fetch(
+        `https://${SHOPIFY_STORE}/admin/oauth/access_token`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `grant_type=client_credentials&client_id=${encodeURIComponent(CLIENT_ID)}&client_secret=${encodeURIComponent(CLIENT_SECRET)}`
+        }
+      );
+      const tokenData = await tokenRes.json();
+      accessToken = tokenData.access_token;
+
+      // Cache in Redis for 23 hours (token expires in 24h)
+      if (accessToken && REDIS_URL && REDIS_TOKEN) {
+        await fetch(`${REDIS_URL}/pipeline`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+          body: JSON.stringify([
+            ["SET", "shopify_access_token", accessToken],
+            ["EXPIRE", "shopify_access_token", "82800"]  // 23 hours
+          ])
+        });
+      }
+
+      if (!accessToken) {
+        return { statusCode: 200, body: JSON.stringify({ ok: false, error: "Token exchange failed", shopifyError: tokenData }) };
+      }
+    } catch(e) {
+      return { statusCode: 200, body: JSON.stringify({ ok: false, error: "Token request failed: " + e.message }) };
+    }
+  }
+
+  // ── 2. Create/update Shopify customer ────────────────────────────────────────
+  const headers = {
+    "X-Shopify-Access-Token": accessToken,
+    "Content-Type": "application/json"
+  };
+
   const note = [
-    forWhom  ? `Song for: ${forWhom}` : "",
-    name     ? `Name: ${name}` : "",
-    occasion ? `Occasion: ${occasion}` : "",
-    genre    ? `Genre: ${genre}` : "",
-    voice    ? `Voice: ${voice}` : "",
+    forWhom   ? `Song for: ${forWhom}` : "",
+    name      ? `Name: ${name}` : "",
+    occasion  ? `Occasion: ${occasion}` : "",
+    genre     ? `Genre: ${genre}` : "",
+    voice     ? `Voice: ${voice}` : "",
     qualities ? `Qualities: ${qualities}` : "",
     memories  ? `Memories: ${memories}` : "",
     message   ? `Message: ${message}` : ""
   ].filter(Boolean).join(" | ");
 
-  const headers = {
-    "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN,
-    "Content-Type": "application/json"
-  };
-
   try {
-    // 1. Create or find customer
     let customerId = null;
     const searchRes = await fetch(
       `https://${SHOPIFY_STORE}/admin/api/2026-07/customers/search.json?query=email:${encodeURIComponent(email)}&limit=1`,
@@ -40,22 +101,18 @@ exports.handler = async (event) => {
 
     if (existing) {
       customerId = existing.id;
-      // Update tags if not already a buyer
-      const tags = existing.tags ? existing.tags.split(', ').filter(Boolean) : [];
-      if (!tags.includes('bought')) {
-        if (!tags.includes('prospect')) tags.push('prospect');
-        if (!tags.includes('song-funnel')) tags.push('song-funnel');
+      const tags = existing.tags ? existing.tags.split(", ").filter(Boolean) : [];
+      if (!tags.includes("bought")) {
+        if (!tags.includes("prospect")) tags.push("prospect");
+        if (!tags.includes("song-funnel")) tags.push("song-funnel");
         await fetch(`https://${SHOPIFY_STORE}/admin/api/2026-07/customers/${existing.id}.json`, {
-          method: "PUT",
-          headers,
-          body: JSON.stringify({ customer: { id: existing.id, tags: tags.join(', '), note } })
+          method: "PUT", headers,
+          body: JSON.stringify({ customer: { id: existing.id, tags: tags.join(", "), note } })
         });
       }
     } else {
-      // Create new customer
       const createRes = await fetch(`https://${SHOPIFY_STORE}/admin/api/2026-07/customers.json`, {
-        method: "POST",
-        headers,
+        method: "POST", headers,
         body: JSON.stringify({
           customer: {
             first_name: name || forWhom || "",
@@ -63,30 +120,35 @@ exports.handler = async (event) => {
             tags: "prospect, song-funnel",
             note,
             accepts_marketing: true,
-            email_marketing_consent: {
-              state: "subscribed",
-              opt_in_level: "single_opt_in"
-            },
+            email_marketing_consent: { state: "subscribed", opt_in_level: "single_opt_in" },
             send_email_welcome: false
           }
         })
       });
       const createData = await createRes.json();
+
+      // If token expired mid-request, clear cache and return (will retry next time)
+      if (createRes.status === 401) {
+        if (REDIS_URL && REDIS_TOKEN) {
+          await fetch(`${REDIS_URL}/del/shopify_access_token`, { method: "POST", headers: { Authorization: `Bearer ${REDIS_TOKEN}` } });
+        }
+        return { statusCode: 200, body: JSON.stringify({ ok: false, error: "Token expired, cleared cache — will retry" }) };
+      }
+
       customerId = createData.customer?.id;
-      if(!customerId) return { statusCode:200, body: JSON.stringify({ ok:false, debug: true, status: createRes.status, shopifyError: createData, store: SHOPIFY_STORE, hasToken: !!SHOPIFY_ADMIN_TOKEN }) };
+      if (!customerId) {
+        return { statusCode: 200, body: JSON.stringify({ ok: false, shopifyError: createData }) };
+      }
     }
 
-    // 2. Create draft order — this enables Shopify abandoned checkout recovery emails
-    const MAIN_VARIANT = "44258532819033"; // $39 base song variant
+    // ── 3. Create draft order for abandoned cart recovery ──────────────────────
     const draftRes = await fetch(`https://${SHOPIFY_STORE}/admin/api/2026-07/draft_orders.json`, {
-      method: "POST",
-      headers,
+      method: "POST", headers,
       body: JSON.stringify({
         draft_order: {
           line_items: [{ variant_id: MAIN_VARIANT, quantity: 1 }],
           customer: customerId ? { id: customerId } : { email },
-          email,
-          note,
+          email, note,
           note_attributes: [
             { name: "Song For", value: name || forWhom || "" },
             { name: "Occasion", value: occasion || "" },
@@ -104,7 +166,7 @@ exports.handler = async (event) => {
       })
     });
     const draftData = await draftRes.json();
-    const draftId = draftData.draft_order?.id;
+    const draftId    = draftData.draft_order?.id;
     const invoiceUrl = draftData.draft_order?.invoice_url;
 
     return {
@@ -114,13 +176,12 @@ exports.handler = async (event) => {
         action: existing ? "updated" : "created",
         customerId: customerId || null,
         draftId: draftId || null,
-        invoiceUrl: invoiceUrl || null,
-        store: SHOPIFY_STORE
+        invoiceUrl: invoiceUrl || null
       })
     };
 
   } catch(e) {
-    console.error("Customer/draft error:", e.message);
+    console.error("Shopify API error:", e.message);
     return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: true, error: e.message }) };
   }
 };
