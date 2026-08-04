@@ -100,7 +100,8 @@ function audio(slice) {
       "Content-Type": "audio/mpeg",
       "Content-Length": String(slice.length),
       "Cache-Control": "public, max-age=600",
-      "Accept-Ranges": "none"
+      "Accept-Ranges": "bytes",
+      "Access-Control-Allow-Origin": "*"
     },
     body: slice.toString("base64"),
     isBase64Encoded: true
