@@ -273,8 +273,8 @@ footer a{color:var(--text-secondary)}
 /* hint now shows above player in accent color */
 .hint{font-size:var(--text-sm);font-weight:700;color:var(--accent);text-align:center;margin:18px 0 2px;letter-spacing:.01em}
 /* late reveal fade-in */
-#lateReveal{opacity:0;transition:opacity .5s}
-#lateRevealOuter{opacity:0;transition:opacity .6s}
+#lateReveal{}
+#lateRevealOuter{}
 </style>
 </head>
 <body>
@@ -652,9 +652,15 @@ const CONFIG = {
     // Reveal the player + everything below — fade in smoothly
     var lr  = document.getElementById("lateReveal");
     var lro = document.getElementById("lateRevealOuter");
-    function fadeIn(el){ if(!el) return; el.style.setProperty("display","block","important"); setTimeout(function(){ el.style.opacity="1"; }, 30); }
-    fadeIn(lr);
-    setTimeout(function(){ fadeIn(lro); }, 300);
+    function revealEl(el){
+      if(!el) return;
+      el.style.setProperty("display","block","important");
+      el.style.opacity = "1";
+      // Force all .rv children visible (they need .in class added)
+      el.querySelectorAll(".rv").forEach(function(c){ c.classList.add("in"); });
+    }
+    revealEl(lr);
+    setTimeout(function(){ revealEl(lro); }, 200);
 
     // Hide notice now that preview is here
     var gn = document.getElementById("genNotice"); if(gn) gn.style.display="none";
