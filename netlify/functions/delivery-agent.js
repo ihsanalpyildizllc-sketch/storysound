@@ -1,4 +1,5 @@
 // netlify/functions/delivery-agent.js — scheduled watchdog. Runs every 10 minutes.
+// redeploy 2026-08-04: bake in POSTMARK_SERVER_TOKEN + FROM_EMAIL env vars
 // Deterministic by design: retries stuck generations, blocks empty files,
 // sends any unsent emails, and keeps per-order state honest.
 const { redis, getJSON, mergeMeta, persistSong, sendEmail, deliveryEmail, previewEmail } = require("./_shared");
