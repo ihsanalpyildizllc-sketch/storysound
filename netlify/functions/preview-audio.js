@@ -7,7 +7,7 @@
 // No ffmpeg: we slice MP3 frames directly, so there is no new build dependency.
 // GET /.netlify/functions/preview-audio?o=<orderId>
 
-const CLIP_SECONDS = 20;
+const CLIP_SECONDS = 60;
 const HOOK_AT = 0.32;          // fraction into the track to start the clip
 const MIN_START_SECONDS = 22;  // never open on the intro
 
