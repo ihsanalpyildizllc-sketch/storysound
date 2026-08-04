@@ -324,6 +324,9 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
     <p class="rev-sub">Make sure everything looks good before we create your personalized song for <strong id="nameDisp" style="color:var(--rust)">them</strong>.</p>
 
     <div class="rcard">
+      <label class="elabel">Your Name</label>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:8px">So we know who to address the order confirmation to</p>
+      <input class="efield" id="f-buyer-name" type="text" placeholder="Your first name" autocomplete="given-name" style="margin-bottom:16px">
       <label class="elabel">Your Email Address</label>
       <p style="font-size:12px;color:var(--muted);margin-bottom:8px">We'll send your song and order updates here</p>
       <input class="efield" id="f-email" type="email" placeholder="you@email.com">
@@ -516,7 +519,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 
 <script>
 const STEPS=8;let cur=1;
-const D={forWhom:'',name:'',occasion:'',genre:'',language:'English',voice:'',qualities:'',memories:'',message:'',email:'',phone:''};
+const D={forWhom:'',name:'',occasion:'',genre:'',language:'English',voice:'',qualities:'',memories:'',message:'',email:'',phone:'',buyerName:''};
 let bumps={b1:false,b2:false,b3:true};
 
 // ── QUIZ STATE PERSISTENCE ────────────────────────────────────────────────────
@@ -561,7 +564,7 @@ function restoreState(){
     // Restore text inputs
     setVal('f-name',D.name);     setVal('f-qual',D.qualities);
     setVal('f-mem',D.memories);  setVal('f-msg',D.message);
-    setVal('f-email',D.email);   setVal('f-phone',D.phone);
+    setVal('f-email',D.email);   setVal('f-phone',D.phone); setVal('f-buyer-name',D.buyerName);
 
     // Restore bump card UI
     ['bc1','bc2','bc3'].forEach(function(id,i){
@@ -639,7 +642,7 @@ function goNext(){
 function goToBumps(){
   const em=document.getElementById('f-email').value.trim();
   if(!em||!em.includes('@')){tip('Enter a valid email address');return;}
-  D.email=em;D.phone=document.getElementById('f-phone').value.trim();
+  D.email=em;D.phone=document.getElementById('f-phone').value.trim();D.buyerName=document.getElementById('f-buyer-name').value.trim();
   
   // Create/update Shopify customer in background (fire and forget)
   fetch('/.netlify/functions/create-customer', {
@@ -657,7 +660,8 @@ function goToBumps(){
       qualities: D.qualities,
       memories: D.memories,
       message: D.message,
-      phone: D.phone
+      phone: D.phone,
+      buyerName: D.buyerName
     })
   }).then(r=>r.json()).then(d=>{
     console.log('Customer:', d.action, d.customerId);
@@ -788,7 +792,7 @@ function tip(msg){
 }
 
 // ── AUTO-SAVE ON TEXT INPUT ──
-['f-name','f-qual','f-mem','f-msg','f-email','f-phone'].forEach(function(id){
+['f-name','f-qual','f-mem','f-msg','f-email','f-phone','f-buyer-name'].forEach(function(id){
   var el=document.getElementById(id);
   if(el) el.addEventListener('input',function(){ saveState(); },{passive:true});
 });
