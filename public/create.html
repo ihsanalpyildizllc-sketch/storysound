@@ -108,6 +108,12 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 .bump-items{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:5px;padding-left:32px}
 .bump-items li{font-size:12px;color:var(--ink2);display:flex;gap:5px}
 .bump-items li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.bump-badge.navy{background:#1A3558}
+.bump-feats{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.bump-feat{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;background:rgba(42,102,68,.07);border-radius:9px}
+.bump-feat-icon{width:22px;height:22px;min-width:22px;background:#2D8A60;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.bump-feat-name{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:2px}
+.bump-feat-sub{font-size:11.5px;color:var(--muted);line-height:1.4}
 .orig{font-size:12px;color:var(--muted);text-decoration:line-through;margin-right:2px}
 .tp{background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
 .tp-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
@@ -412,17 +418,17 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
       <div class="bump-top">
         <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="bump-label">
-          <div style="margin-bottom:4px"><span class="bump-badge">⭐ MOST POPULAR</span></div>
-          <div class="bump-name">Forever Memory™ Package</div>
-          <div class="bump-desc">Everything you need to give the gift of a lifetime.</div>
+          <div style="margin-bottom:6px"><span class="bump-badge navy">&#10022; MOST POPULAR</span></div>
+          <div class="bump-name">Forever Memory&#8482; Package</div>
+          <div class="bump-desc">Celebrate a milestone they&#8217;ll never forget.</div>
         </div>
         <div style="text-align:right"><div class="orig">$37</div><div class="bump-price">$24</div></div>
       </div>
-      <ul class="bump-items">
-        <li>Frameable lyrics with QR code — anyone can scan and listen instantly</li>
-        <li>Make it personal with your own cover photo</li>
-        <li>Bonus version in another style</li>
-      </ul>
+      <div class="bump-feats">
+        <div class="bump-feat"><div class="bump-feat-icon"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="bump-feat-name">Frameable lyrics with QR code</div><div class="bump-feat-sub">Lyrics worthy of their biggest achievement.</div></div></div>
+        <div class="bump-feat"><div class="bump-feat-icon"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="bump-feat-name">Make it personal with your own cover</div><div class="bump-feat-sub">Turn a graduation photo into album artwork.</div></div></div>
+        <div class="bump-feat"><div class="bump-feat-icon"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="bump-feat-name">Bonus version in another style</div><div class="bump-feat-sub">Choose your second genre after checkout</div></div></div>
+      </div>
     </div>
 
     <div class="bump-card" id="bc2" onclick="toggleBump('bc2','b2line',10)">
