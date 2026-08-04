@@ -656,14 +656,24 @@ const CONFIG = {
     $("#playHint").textContent = "";
 
     // Reveal the player + everything below — fade in smoothly
-    // Switch body class: generating → song-ready
-    // CSS handles all the show/hide — no JS display manipulation needed
+    // Reveal everything: swap body classes
+    window._songReady = true;
     document.body.classList.remove("generating");
     document.body.classList.add("song-ready");
-    // Also add .in to all .rv elements for fade-in animations
     document.querySelectorAll("#lateReveal .rv, #lateRevealOuter .rv").forEach(function(c){
       c.classList.add("in");
+      c.style.opacity = "1";
+      c.style.transform = "none";
     });
+    // Belt and braces: also enforce via a short watchdog in case anything re-hides it
+    var reveals = 0;
+    var revealWatch = setInterval(function(){
+      if(++reveals > 10){ clearInterval(revealWatch); return; }
+      if(document.body.classList.contains("generating")){
+        document.body.classList.remove("generating");
+        document.body.classList.add("song-ready");
+      }
+    }, 300);
 
     // Hide notice now that preview is here
     var gn = document.getElementById("genNotice"); if(gn) gn.style.display="none";
@@ -1105,12 +1115,6 @@ const CONFIG = {
     if(pctEl) pctEl.textContent = pct + "%";
     if(lblEl) lblEl.textContent = getStep(pct);
     if(elapsed < GEN_SECS) window._genInterval = setTimeout(tick, 1000);
-  }
-
-  // Mark body as generating — but ONLY if the song isn't already ready
-  // (poll may have already fired and revealed everything)
-  if(!window._songReady && !document.body.classList.contains("song-ready")){
-    document.body.classList.add("generating");
   }
 
   // Start immediately (1s delay for page paint)
