@@ -283,7 +283,7 @@ body.song-ready #lateReveal .rv { opacity:1 !important; transform:none !importan
 body.song-ready #lateRevealOuter .rv { opacity:1 !important; transform:none !important; }
 </style>
 </head>
-<body>
+<body class="generating">
 
 <!-- ═══════════════════════════════════════════════════════════
      PRICE TEST CONFIG — everything you tune lives in this block
@@ -1107,8 +1107,11 @@ const CONFIG = {
     if(elapsed < GEN_SECS) window._genInterval = setTimeout(tick, 1000);
   }
 
-  // Mark body as generating — CSS hides player section until song is ready
-  document.body.classList.add("generating");
+  // Mark body as generating — but ONLY if the song isn't already ready
+  // (poll may have already fired and revealed everything)
+  if(!window._songReady && !document.body.classList.contains("song-ready")){
+    document.body.classList.add("generating");
+  }
 
   // Start immediately (1s delay for page paint)
   setTimeout(function(){
