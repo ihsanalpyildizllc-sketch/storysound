@@ -435,24 +435,7 @@ const CONFIG = {
   </div>
 </section>
 
-<section class="wrap sec-tight" id="lyricsSection" hidden>
-  <div class="lyr rv">
-    <div class="cap">📜 From <span data-owner>your</span> lyrics</div>
-    <div id="lyricsLines"></div>
-    <div class="hidden-lines" id="lyricsHidden">
-      <div class="blur" style="width:88%"></div>
-      <div class="blur" style="width:76%"></div>
-      <div class="blur" style="width:92%"></div>
-      <div class="blur" style="width:70%"></div>
-      <div class="blur" style="width:84%"></div>
-      <div class="veil">
-        <span class="lock">🔒</span>
-        <span class="more" id="lyricsMore"></span>
-        <button class="unlock" id="lyricsUnlock">Unlock the full lyrics →</button>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 <section class="wrap sec-tight">
   <div class="compare rv">
@@ -656,21 +639,8 @@ const CONFIG = {
   $("#yr").textContent = new Date().getFullYear();
 
   function esc(t){ return String(t).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
-  function showLyrics(lines, total){
-    if(!lines || !lines.length) return;
-    const re = name ? new RegExp("(" + name.trim().replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + ")", "ig") : null;
-    $("#lyricsLines").innerHTML = lines.map(function(l){
-      const safe = esc(l);
-      return '<div class="line">' + (re ? safe.replace(re, "<b>$1</b>") : safe) + '</div>';
-    }).join("");
-    const rest = Math.max(0, (total || 0) - lines.length);
-    $("#lyricsMore").textContent = rest ? "+ " + rest + " more lines written for " + (rel || name || "them")
-                                        : "The rest of the song is written";
-    $("#lyricsSection").hidden = false;
-    track("lyrics_teaser_shown", { lines: lines.length, total: total });
-  }
 
-  let audio = null, ready = false;
+
   function loadPreview(url){
     audio = new Audio(url);
     audio.preload = "auto";
@@ -707,7 +677,6 @@ const CONFIG = {
           if(d.stage === "composing") $("#playHint").textContent = "Composing the melody\u2026";
           if(d.failed){ $("#playHint").textContent = "Something went wrong \u2014 we\u2019ll email you shortly."; return; }
           if(d.title) $("#songTitle").innerHTML = esc(d.title).replace(/(Song|song)$/,'<em>$1</em>');
-          if(d.lyricsTeaser && d.lyricsTeaser.length) showLyrics(d.lyricsTeaser, d.lyricsTotal);
           if(d.ready && d.previewUrl){
             window._songReady = true;
             if(window._genInterval) clearTimeout(window._genInterval);
@@ -1028,10 +997,6 @@ const CONFIG = {
   $("#mainCta").addEventListener("click", () => go("song"));
   $("#stickyCta").addEventListener("click", () => go("song"));
   $("#footCta").addEventListener("click", () => go("song"));
-  $("#lyricsUnlock").addEventListener("click", function(){
-    track("lyrics_unlock_click", {});
-    document.getElementById("pricing").scrollIntoView({ behavior: "smooth", block: "start" });
-  });
 
   $("#clipLen").textContent = CONFIG.previewSeconds + " second preview";
   paint();
