@@ -275,6 +275,8 @@ footer a{color:var(--text-secondary)}
 /* late reveal fade-in */
 #lateReveal{}
 #lateRevealOuter{}
+/* force all .rv children visible when lateReveal is shown */
+#lateReveal .rv, #lateRevealOuter .rv { opacity:1 !important; transform:none !important; transition:none !important; }
 </style>
 </head>
 <body>
@@ -654,13 +656,18 @@ const CONFIG = {
     var lro = document.getElementById("lateRevealOuter");
     function revealEl(el){
       if(!el) return;
-      el.style.setProperty("display","block","important");
+      el.removeAttribute("style");           // wipe display:none
+      el.style.display = "block";
       el.style.opacity = "1";
-      // Force all .rv children visible (they need .in class added)
-      el.querySelectorAll(".rv").forEach(function(c){ c.classList.add("in"); });
+      el.style.visibility = "visible";
+      el.querySelectorAll(".rv").forEach(function(c){
+        c.classList.add("in");
+        c.style.opacity = "1";
+        c.style.transform = "none";
+      });
     }
     revealEl(lr);
-    setTimeout(function(){ revealEl(lro); }, 200);
+    setTimeout(function(){ revealEl(lro); }, 100);
 
     // Hide notice now that preview is here
     var gn = document.getElementById("genNotice"); if(gn) gn.style.display="none";
