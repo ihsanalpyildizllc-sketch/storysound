@@ -201,9 +201,32 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
   .screen,.bump-wrap,.rev-wrap{max-width:520px;margin:0 auto}
   .btm{max-width:520px;left:50%;transform:translateX(-50%)}
 }
+
+/* ── checkout redirect overlay ── */
+#coOverlay{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;
+  background:rgba(250,247,242,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#coOverlay.show{display:flex;animation:coFade .25s ease}
+@keyframes coFade{from{opacity:0}to{opacity:1}}
+.co-box{text-align:center;padding:0 28px}
+.co-lock{font-size:34px;margin-bottom:14px;line-height:1}
+.co-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
+.co-sub{font-size:14px;color:var(--muted);margin-bottom:18px}
+.co-dots{display:flex;gap:7px;justify-content:center}
+.co-dots i{width:9px;height:9px;border-radius:50%;background:var(--rust);display:block;animation:coBounce 1.3s ease-in-out infinite}
+.co-dots i:nth-child(2){animation-delay:.18s}
+.co-dots i:nth-child(3){animation-delay:.36s}
+@keyframes coBounce{0%,70%,100%{transform:translateY(0);opacity:.35}35%{transform:translateY(-9px);opacity:1}}
 </style>
 </head>
 <body>
+<div id="coOverlay">
+  <div class="co-box">
+    <div class="co-lock">&#128274;</div>
+    <div class="co-title">Redirecting to secure checkout</div>
+    <div class="co-sub">Hold tight &mdash; this only takes a second</div>
+    <div class="co-dots"><i></i><i></i><i></i></div>
+  </div>
+</div>
 
 <div class="prog-wrap">
   <div style="height:3px;background:rgba(181,71,28,0.1)"><div class="prog-fill" id="pf" style="width:13%"></div></div>
@@ -725,6 +748,8 @@ function goToShopify(){
   const sBtn=document.querySelector('.sticky-pay .btn-pay');
   if(btn){btn.disabled=true;btn.textContent='Redirecting to checkout…';}
   if(sBtn){sBtn.disabled=true;sBtn.textContent='Redirecting to checkout…';}
+  // Blur overlay while the browser navigates — purely visual, adds zero delay
+  var ov=document.getElementById('coOverlay'); if(ov) ov.classList.add('show');
 
   const fullStory=[
     `Song for: ${D.name} (${D.forWhom})`,
