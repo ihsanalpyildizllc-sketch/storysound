@@ -273,10 +273,14 @@ footer a{color:var(--text-secondary)}
 /* hint now shows above player in accent color */
 .hint{font-size:var(--text-sm);font-weight:700;color:var(--accent);text-align:center;margin:18px 0 2px;letter-spacing:.01em}
 /* late reveal fade-in */
-#lateReveal{}
-#lateRevealOuter{}
-/* force all .rv children visible when lateReveal is shown */
-#lateReveal .rv, #lateRevealOuter .rv { opacity:1 !important; transform:none !important; transition:none !important; }
+/* While generating: hide player section and below using body class */
+body.generating #lateReveal { display:none !important; }
+body.generating #lateRevealOuter { display:none !important; }
+/* When ready (.song-ready on body): show everything */
+body.song-ready #lateReveal { display:block !important; }
+body.song-ready #lateRevealOuter { display:block !important; }
+body.song-ready #lateReveal .rv { opacity:1 !important; transform:none !important; }
+body.song-ready #lateRevealOuter .rv { opacity:1 !important; transform:none !important; }
 </style>
 </head>
 <body>
@@ -406,7 +410,7 @@ const CONFIG = {
   </div>
 
   <!-- Late reveal: hint + player — shown when preview is ready -->
-  <div id="lateReveal" style="display:none">
+  <div id="lateReveal">
     <p class="hint">Press play. Headphones in, if you have them.</p>
   <div class="player rv">
     <h2 class="song-title" id="songTitle">Margaret's <em>Song</em></h2>
@@ -423,7 +427,7 @@ const CONFIG = {
   </div><!-- /lateReveal -->
 </section>
 
-<div id="lateRevealOuter" style="display:none">
+<div id="lateRevealOuter">
 <div class="ratebar rv">
   <div class="t">🔓 Preview-Unlocked Rate <span class="hl" id="offPct">—</span></div>
   <div class="d">You listened all the way to the preview. That earns you <strong id="offAmt">—</strong> off the full song — a rate we don't show on the public site.</div>
@@ -652,22 +656,14 @@ const CONFIG = {
     $("#playHint").textContent = "";
 
     // Reveal the player + everything below — fade in smoothly
-    var lr  = document.getElementById("lateReveal");
-    var lro = document.getElementById("lateRevealOuter");
-    function revealEl(el){
-      if(!el) return;
-      el.removeAttribute("style");           // wipe display:none
-      el.style.display = "block";
-      el.style.opacity = "1";
-      el.style.visibility = "visible";
-      el.querySelectorAll(".rv").forEach(function(c){
-        c.classList.add("in");
-        c.style.opacity = "1";
-        c.style.transform = "none";
-      });
-    }
-    revealEl(lr);
-    setTimeout(function(){ revealEl(lro); }, 100);
+    // Switch body class: generating → song-ready
+    // CSS handles all the show/hide — no JS display manipulation needed
+    document.body.classList.remove("generating");
+    document.body.classList.add("song-ready");
+    // Also add .in to all .rv elements for fade-in animations
+    document.querySelectorAll("#lateReveal .rv, #lateRevealOuter .rv").forEach(function(c){
+      c.classList.add("in");
+    });
 
     // Hide notice now that preview is here
     var gn = document.getElementById("genNotice"); if(gn) gn.style.display="none";
@@ -1110,6 +1106,9 @@ const CONFIG = {
     if(lblEl) lblEl.textContent = getStep(pct);
     if(elapsed < GEN_SECS) window._genInterval = setTimeout(tick, 1000);
   }
+
+  // Mark body as generating — CSS hides player section until song is ready
+  document.body.classList.add("generating");
 
   // Start immediately (1s delay for page paint)
   setTimeout(function(){
