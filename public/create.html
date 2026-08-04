@@ -135,7 +135,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 .sticky-pay.show{display:block}
 .sticky-pay .btn-pay{margin-bottom:4px;padding:15px}
 .sticky-pay .sec-row{margin-bottom:0}
-.inline-pay-wrap{margin:16px -4px 0}
+.inline-pay-wrap{margin:16px 0 0}
 .inline-pay-wrap .btn-pay{width:100%;display:block;box-sizing:border-box;padding:15px;border:none;cursor:pointer;font-family:inherit;font-size:16px;font-weight:700;border-radius:14px;background:linear-gradient(135deg,#B5471C,#9E3E2C);color:#fff;box-shadow:0 4px 20px rgba(181,71,28,.35)}
 .inline-pay-sub{text-align:center;font-size:11px;color:var(--muted);margin-top:6px}
 
@@ -873,13 +873,16 @@ function checkInlineVisible(){
   var bar = document.getElementById('stickyPay');
   if(!btn || !bar) return;
   var r = btn.getBoundingClientRect();
-  var visible = r.top < window.innerHeight && r.bottom > 0;
+  var barH = bar.offsetHeight || 90;
+  // Hide sticky once the BOTTOM of the inline button clears the sticky bar area
+  var visible = r.bottom <= (window.innerHeight - barH + 20) && r.bottom > 0;
   window._inlineVisible = visible;
   if(visible){
     bar.classList.remove('show');
     bar.style.setProperty('display','none','important');
   } else {
     bar.style.removeProperty('display');
+    if(typeof updateStickyBar==='function') updateStickyBar();
   }
 }
 window.addEventListener('scroll', checkInlineVisible, { passive:true });
