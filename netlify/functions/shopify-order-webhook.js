@@ -21,6 +21,21 @@ exports.handler = async (event) => {
   let order;
   try { order = JSON.parse(event.body); } catch(e) { return { statusCode: 400, body: "Invalid JSON" }; }
   const orderId = String(order.id || "");
+
+  // conversion marker: stops the /create abandonment ladder for this email
+  try {
+    const convEmail = String(order.email || (order.customer && order.customer.email) || "").toLowerCase().trim();
+    if (convEmail && REDIS_URL && REDIS_TOKEN) {
+      await fetch(`${REDIS_URL}/pipeline`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+        body: JSON.stringify([
+          ["SET", "converted:" + convEmail, orderId],
+          ["EXPIRE", "converted:" + convEmail, "7776000"]
+        ])
+      });
+    }
+  } catch (e) { /* non-fatal */ }
   if (!orderId) return { statusCode: 400, body: "Missing order ID" };
 
   // Parse order attributes
