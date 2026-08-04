@@ -6,6 +6,8 @@
 <title>Your song is almost ready — StorySound</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://gut-1809.myshopify.com">
+<link rel="dns-prefetch" href="https://gut-1809.myshopify.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -1070,8 +1072,7 @@ const CONFIG = {
       "Singer Voice": voice || "",
       "Their Qualities": qual || "",
       "Memories": mem || "",
-      "Special Message": msg || "",
-      "_full_story": story || ""
+      "Special Message": msg || ""
     };
     const qs = Object.keys(attrs).filter(k => attrs[k])
       .map(k => "attributes[" + encodeURIComponent(k) + "]=" + encodeURIComponent(attrs[k]))
