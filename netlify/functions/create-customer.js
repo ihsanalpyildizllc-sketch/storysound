@@ -1,7 +1,7 @@
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method not allowed" };
 
-  const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "makesongai.myshopify.com";
+  const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "gut-1809.myshopify.com";
   const SHOPIFY_ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;
 
   if (!SHOPIFY_ADMIN_TOKEN) return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: true }) };
@@ -76,7 +76,7 @@ exports.handler = async (event) => {
     }
 
     // 2. Create draft order — this enables Shopify abandoned checkout recovery emails
-    const MAIN_VARIANT = "43257726730317"; // $39 main song
+    const MAIN_VARIANT = "44258532819033"; // $39 base song variant
     const draftRes = await fetch(`https://${SHOPIFY_STORE}/admin/api/2026-07/draft_orders.json`, {
       method: "POST",
       headers,
