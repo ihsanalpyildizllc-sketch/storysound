@@ -8,7 +8,7 @@ const MAIN_VARIANT   = "44258532819033"; // $39 base song
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method not allowed" };
 
-  const CLIENT_ID     = process.env.SHOPIFY_CLIENT_ID;
+  const CLIENT_ID     = process.env.SHOPIFY_CLIENT_ID || process.env.SHOPIFY_API_KEY || process.env.SHOPIFY_APP_KEY || process.env.CLIENT_ID;
   const CLIENT_SECRET = process.env.SHOPIFY_CLIENT_SECRET || process.env.SHOPIFY_ADMIN_TOKEN;
   const REDIS_URL     = process.env.UPSTASH_REDIS_REST_URL;
   const REDIS_TOKEN   = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -38,7 +38,8 @@ exports.handler = async (event) => {
   // If no cached token, request a new one
   if (!accessToken) {
     if (!CLIENT_ID) {
-      return { statusCode: 200, body: JSON.stringify({ ok: false, error: "SHOPIFY_CLIENT_ID env var not set" }) };
+      const availableKeys = Object.keys(process.env).filter(k => k.toLowerCase().includes("shopify") || k.toLowerCase().includes("client")).join(", ");
+      return { statusCode: 200, body: JSON.stringify({ ok: false, error: "Client ID not found", checkedVars: "SHOPIFY_CLIENT_ID, SHOPIFY_API_KEY, SHOPIFY_APP_KEY, CLIENT_ID", shopifyVarsFound: availableKeys }) };
     }
 
     try {
