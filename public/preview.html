@@ -90,7 +90,7 @@ function render(d){
 
   app.innerHTML =
     '<h1>\u201c'+esc(d.title)+'\u201d</h1>'+
-    '<p class="sub">Here\u2019s your 20-second preview. Unlock below to get the full song \u2014 all '+d.lyricsTotal+' lines, forever yours.</p>'+
+    '<p class="sub">Here\u2019s your '+(d.previewSeconds||60)+'-second preview. Unlock below to get the full song \u2014 all '+d.lyricsTotal+' lines, forever yours.</p>'+
     '<div class="card">'+
       '<div class="prelabel">\uD83C\uDFB5 20-Second Preview</div>'+
       '<button class="play" id="pl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>'+
