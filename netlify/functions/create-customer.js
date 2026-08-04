@@ -1,7 +1,7 @@
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method not allowed" };
 
-  const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "gut-1809.myshopify.com";
+  const SHOPIFY_STORE = "gut-1809.myshopify.com"; // hardcoded — SHOPIFY_STORE env var is wrong
   const SHOPIFY_ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;
 
   if (!SHOPIFY_ADMIN_TOKEN) return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: true }) };
