@@ -653,7 +653,6 @@ const CONFIG = {
   function loadPreview(url){
     audio = new Audio(url);
     audio.preload = "auto";
-    audio.crossOrigin = "anonymous";
     ready = true;
     $("#play").disabled = false;
     $("#playHint").textContent = "";
