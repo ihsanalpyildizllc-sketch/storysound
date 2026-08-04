@@ -18,6 +18,8 @@ src="https://www.facebook.com/tr?id=1060043183620255&ev=PageView&noscript=1"/></
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Create Your Song — StorySound</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://gut-1809.myshopify.com">
+<link rel="dns-prefetch" href="https://gut-1809.myshopify.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -774,8 +776,7 @@ function goToShopify(){
     ['Their Qualities',D.qualities],
     ['Memories',D.memories],
     ['Special Message',D.message],
-    ['Customer Email',D.email],
-    ['_full_story',fullStory]
+    ['Customer Email',D.email]
   ];
 
   let items=SHOPIFY_VARIANTS.base+':1';
@@ -784,10 +785,9 @@ function goToShopify(){
   if(bumps.b3)items+=','+SHOPIFY_VARIANTS.bump3+':1';
 
   const qs=attrs.filter(([k,v])=>v).map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
-  const note=encodeURIComponent(fullStory);
   const email=encodeURIComponent(D.email||'');
 
-  window.location.href=`https://${SHOPIFY_STORE}/cart/${items}?${qs}&note=${note}&checkout[email]=${email}&return_to=/checkout`;
+  window.location.href=`https://${SHOPIFY_STORE}/cart/${items}?${qs}&checkout[email]=${email}&return_to=/checkout`;
 }
 
 
