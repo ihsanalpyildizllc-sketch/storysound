@@ -680,25 +680,23 @@ const CONFIG = {
     audio = new Audio(url);
     audio.preload = "auto";
 
-    // Keep the button disabled until the browser says it can actually play.
-    // Enabling early is what caused the first click to fail silently.
-    $("#play").disabled = true;
-    $("#playHint").textContent = "Loading your preview\u2026";
+    // Button is usable immediately. play() inside the tap works at ANY
+    // readyState \u2014 it simply resolves when data arrives. A disabled
+    // "dead window" while buffering feels broken on slow connections.
+    ready = true;
+    $("#play").disabled = false;
+    $("#playHint").textContent = "";
 
-    function enablePlay(){
-      if(ready) return;
-      ready = true;
-      $("#play").disabled = false;
-      $("#playHint").textContent = "";
-    }
-    audio.addEventListener("canplay", enablePlay);
-    audio.addEventListener("canplaythrough", enablePlay);
-    audio.addEventListener("loadeddata", enablePlay);
+    // Let real audio events drive the hints
+    audio.addEventListener("waiting", function(){ if(playing) $("#playHint").textContent = "Loading\u2026"; });
+    audio.addEventListener("stalled", function(){ if(playing) $("#playHint").textContent = "Loading\u2026"; });
+    audio.addEventListener("playing", function(){ $("#playHint").textContent = ""; });
     audio.addEventListener("error", function(){
+      playing = false;
+      $("#play").innerHTML = ICON_PLAY;
+      if(timer) clearInterval(timer);
       $("#playHint").textContent = "Couldn\u2019t load audio \u2014 refresh to retry.";
     });
-    // Safety net: enable after 6s even if no event fired
-    setTimeout(enablePlay, 6000);
 
     audio.load();
 
@@ -1000,18 +998,20 @@ const CONFIG = {
 
     if(!everPlayed){ everPlayed = true; track("play_preview", {}); }
     if(audio){
-      if(pos >= DUR) { pos = 0; audio.currentTime = 0; }
+      if(pos >= DUR) { pos = 0; audio.currentTime = 0; $("#playHint").textContent = ""; }
       var btn = this;
-      // Single play() call inside the click handler keeps the user-gesture
-      // context intact. Retrying via setTimeout loses it and always fails.
+      if(audio.readyState < 3) $("#playHint").textContent = "Loading\u2026";
       pauseVSL();                       // stop the VSL so audio doesn't overlap
+      // Gesture-context play() at any readyState: resolves when data arrives.
       audio.play().then(function(){
         $("#playHint").textContent = "";
-      }).catch(function(){
+      }).catch(function(err){
         playing = false;
         btn.innerHTML = ICON_PLAY;
-        clearInterval(timer);
-        $("#playHint").textContent = "Tap play to start";
+        if(timer) clearInterval(timer);
+        $("#playHint").textContent = err && err.name === "NotAllowedError"
+          ? "Tap play to start"
+          : "Not playing? Refresh the page and tap play again.";
       });
     }
     timer = setInterval(function(){
