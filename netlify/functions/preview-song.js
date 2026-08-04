@@ -6,7 +6,7 @@
 //
 // GET /.netlify/functions/preview-song?o=<orderId>
 
-const CLIP_SECONDS = 20;
+const CLIP_SECONDS = 60;
 
 function teaser(lyrics, name) {
   if (!lyrics) return { lines: [], total: 0 };
