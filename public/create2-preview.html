@@ -653,6 +653,10 @@ const CONFIG = {
   function loadPreview(url){
     audio = new Audio(url);
     audio.preload = "auto";
+    audio.load();                       // kick off buffering immediately
+    window._audioReady = false;
+    audio.addEventListener("canplay", function(){ window._audioReady = true; });
+    audio.addEventListener("canplaythrough", function(){ window._audioReady = true; });
     ready = true;
     $("#play").disabled = false;
     $("#playHint").textContent = "";
@@ -940,7 +944,26 @@ const CONFIG = {
     if(!everPlayed){ everPlayed = true; track("play_preview", {}); }
     if(audio){
       if(pos >= DUR) { pos = 0; audio.currentTime = 0; }
-      audio.play().catch(() => {});
+      var btn = this;
+      var attempts = 0;
+      (function tryPlay(){
+        audio.play().then(function(){
+          $("#playHint").textContent = "";
+        }).catch(function(err){
+          attempts++;
+          if(attempts === 1) $("#playHint").textContent = "Loading\u2026";
+          if(attempts <= 12){
+            // audio not buffered yet — wait and retry
+            setTimeout(tryPlay, 400);
+          } else {
+            // give up gracefully: reset the button so it doesn't look stuck
+            playing = false;
+            btn.innerHTML = ICON_PLAY;
+            clearInterval(timer);
+            $("#playHint").textContent = "Tap play again";
+          }
+        });
+      })();
     }
     timer = setInterval(function(){
       pos = audio ? audio.currentTime : Math.min(pos + 0.25, DUR);
