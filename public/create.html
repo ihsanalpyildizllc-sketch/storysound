@@ -547,7 +547,7 @@ function showStep(n){
   document.getElementById('pp').textContent=pct+'% Complete';
   window.scrollTo({top:0,behavior:'smooth'});
   cur=n;
-  if(typeof updateStickyBar==='function') updateStickyBar();
+  if(typeof updateStickyBar==='function') updateStickyBar(); if(typeof checkInlineVisible==='function') setTimeout(checkInlineVisible, 50);
 }
 
 function goTo(n){showStep(n);}
@@ -866,25 +866,23 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 // ── HIDE STICKY WHEN INLINE PAY BUTTON IS VISIBLE ──
-(function(){
-  const inlineBtn = document.getElementById('inlinePayBtn');
-  if(!inlineBtn) return;
-  const bar = document.getElementById('stickyPay');
-  const obs = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(!bar) return;
-      window._inlineVisible = e.isIntersecting;
-      if(e.isIntersecting){
-        bar.classList.remove('show');
-        bar.style.display = 'none';       // force-hide
-      } else {
-        bar.style.display = '';           // restore
-        updateStickyBar();
-      }
-    });
-  }, { threshold: 0 });
-  obs.observe(inlineBtn);
-})();
+// IntersectionObserver doesn't work reliably for elements in display:none containers
+// so we check on every scroll + when bumps page is shown
+function checkInlineVisible(){
+  var btn = document.getElementById('inlinePayBtn');
+  var bar = document.getElementById('stickyPay');
+  if(!btn || !bar) return;
+  var r = btn.getBoundingClientRect();
+  var visible = r.top < window.innerHeight && r.bottom > 0;
+  window._inlineVisible = visible;
+  if(visible){
+    bar.classList.remove('show');
+    bar.style.setProperty('display','none','important');
+  } else {
+    bar.style.removeProperty('display');
+  }
+}
+window.addEventListener('scroll', checkInlineVisible, { passive:true });
 </script>
 
 <!-- STICKY PAY BAR (shows on bump + review pages) -->
