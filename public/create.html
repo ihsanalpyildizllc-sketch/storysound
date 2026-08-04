@@ -518,6 +518,76 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 const STEPS=8;let cur=1;
 const D={forWhom:'',name:'',occasion:'',genre:'',language:'English',voice:'',qualities:'',memories:'',message:'',email:'',phone:''};
 let bumps={b1:false,b2:false,b3:true};
+
+// ── QUIZ STATE PERSISTENCE ────────────────────────────────────────────────────
+const SS_KEY='ss_quiz_v1';
+
+function saveState(){
+  try{
+    var q=document.getElementById('f-qual'),m=document.getElementById('f-mem'),
+        ms=document.getElementById('f-msg'),nm=document.getElementById('f-name'),
+        em=document.getElementById('f-email'),ph=document.getElementById('f-phone');
+    var snap=Object.assign({},D,{
+      qualities:q?q.value:D.qualities, memories:m?m.value:D.memories,
+      message:ms?ms.value:D.message,   name:nm?nm.value||D.name:D.name,
+      email:em?em.value||D.email:D.email, phone:ph?ph.value:D.phone
+    });
+    sessionStorage.setItem(SS_KEY,JSON.stringify({D:snap,bumps:bumps,cur:cur}));
+  }catch(e){}
+}
+
+function restorePill(groupId,val){
+  var g=document.getElementById(groupId); if(!g||!val) return;
+  g.querySelectorAll('.pill').forEach(function(p){
+    p.classList.toggle('sel', p.textContent.trim()===val);
+  });
+}
+
+function setVal(id,val){ var e=document.getElementById(id); if(e&&val) e.value=val; }
+
+function restoreState(){
+  try{
+    var raw=sessionStorage.getItem(SS_KEY); if(!raw) return;
+    var s=JSON.parse(raw); if(!s||!s.D) return;
+
+    Object.assign(D,s.D);
+    if(s.bumps) Object.assign(bumps,s.bumps);
+
+    // Restore pill selections
+    restorePill('p1',D.forWhom); restorePill('p3',D.occasion);
+    restorePill('p4g',D.genre);  restorePill('p4l',D.language);
+    restorePill('p4v',D.voice);
+
+    // Restore text inputs
+    setVal('f-name',D.name);     setVal('f-qual',D.qualities);
+    setVal('f-mem',D.memories);  setVal('f-msg',D.message);
+    setVal('f-email',D.email);   setVal('f-phone',D.phone);
+
+    // Restore bump card UI
+    ['bc1','bc2','bc3'].forEach(function(id,i){
+      var card=document.getElementById(id); if(!card) return;
+      var key='b'+(i+1);
+      var isFreeCard=card.classList.contains('free-card');
+      if(!isFreeCard){
+        card.classList.toggle('checked',!!bumps[key]);
+        var line=document.getElementById(key.replace('b','b')+'line');
+        if(line) line.style.display=bumps[key]?'':'none';
+      }
+    });
+
+    if(typeof updateReview==='function') updateReview();
+    if(typeof updateTotal==='function')  updateTotal();
+
+    // Jump to saved step
+    var savedCur=s.cur;
+    if(savedCur==='bumps'||savedCur===9){
+      if(D.email) setTimeout(function(){ showStep('bumps'); },10);
+    } else if(savedCur>1){
+      setTimeout(function(){ showStep(savedCur); },10);
+    }
+    console.log('Restored quiz to step',savedCur);
+  }catch(e){ console.log('Restore failed:',e.message); }
+}
 const BASE=39;
 let extraCost=0;
 
@@ -562,8 +632,8 @@ function goNext(){
   if(cur===6)D.memories=document.getElementById('f-mem').value.trim();
   if(cur===7)D.message=document.getElementById('f-msg').value.trim();
   if(cur===7){updateReview();showStep(8);}
-  else if(cur<STEPS){showStep(cur+1);}
-  else{showStep('bumps');}
+  else if(cur<STEPS){showStep(cur+1);saveState();}
+  else{showStep('bumps');saveState();}
 }
 
 function goToBumps(){
@@ -591,14 +661,14 @@ function goToBumps(){
     console.log('Customer:', d.action, d.customerId);
   }).catch(e=>console.log('Customer create skipped:', e.message));
 
-  showStep('bumps');
+  showStep('bumps');saveState();
 }
 
-function pick1(el){selP('p1',el);D.forWhom=el.textContent;setTimeout(()=>goNext(),300);}
-function pick3(el){selP('p3',el);D.occasion=el.textContent;setTimeout(()=>goNext(),300);}
-function pick4g(el){selP('p4g',el);D.genre=el.textContent;}
-function pick4l(el){selP('p4l',el);D.language=el.textContent;}
-function pick4v(el){selP('p4v',el);D.voice=el.textContent;}
+function pick1(el){selP('p1',el);D.forWhom=el.textContent;saveState();setTimeout(()=>goNext(),300);}
+function pick3(el){selP('p3',el);D.occasion=el.textContent;saveState();setTimeout(()=>goNext(),300);}
+function pick4g(el){selP('p4g',el);D.genre=el.textContent;saveState();}
+function pick4l(el){selP('p4l',el);D.language=el.textContent;saveState();}
+function pick4v(el){selP('p4v',el);D.voice=el.textContent;saveState();}
 function selP(id,el){document.querySelectorAll('#'+id+' .pill').forEach(p=>p.classList.remove('sel'));el.classList.add('sel');}
 
 function updateReview(){
@@ -644,6 +714,7 @@ function togglePhone(){
 }
 
 function goToShopify(){
+  sessionStorage.removeItem(SS_KEY);
   const btn=document.getElementById('payBtn');
   const sBtn=document.querySelector('.sticky-pay .btn-pay');
   if(btn){btn.disabled=true;btn.textContent='Redirecting to checkout…';}
@@ -713,6 +784,12 @@ function tip(msg){
   t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1A0E08;color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;font-weight:500;z-index:999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.3)';
   t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200);
 }
+
+// ── AUTO-SAVE ON TEXT INPUT ──
+['f-name','f-qual','f-mem','f-msg','f-email','f-phone'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el) el.addEventListener('input',function(){ saveState(); },{passive:true});
+});
 
 // ── STICKY PAY BAR ──
 function updateStickyBar(){
@@ -886,6 +963,9 @@ function checkInlineVisible(){
   }
 }
 window.addEventListener('scroll', checkInlineVisible, { passive:true });
+
+// ── RESTORE QUIZ STATE ON REFRESH ──
+restoreState();
 </script>
 
 <!-- STICKY PAY BAR (shows on bump + review pages) -->
