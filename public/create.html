@@ -663,8 +663,9 @@ function goNext(){
 }
 
 function goToBumps(){
-  const em=document.getElementById('f-email').value.trim();
-  if(!em||!em.includes('@')){tip('Enter a valid email address');return;}
+  const em=document.getElementById('f-email').value.replace(/\s+/g,'').toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){tip('Enter a valid email address');return;}
+  document.getElementById('f-email').value=em;
   D.email=em;D.phone=document.getElementById('f-phone').value.trim();D.buyerName=document.getElementById('f-buyer-name').value.trim();
   
   // Create/update Shopify customer in background (fire and forget)
