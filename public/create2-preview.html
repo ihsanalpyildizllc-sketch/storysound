@@ -331,7 +331,7 @@ const CONFIG = {
     bump: "44263011287129"    // Lyrics
   },
   previewApi: "/.netlify/functions/preview-song",
-  previewSeconds: 20,
+  previewSeconds: 60,
   trackEndpoint: "/.netlify/functions/track",
 
   // Proof stays EMPTY until you have real orders. Sections auto-hide when empty.
@@ -696,6 +696,13 @@ const CONFIG = {
       $("#play").innerHTML = ICON_PLAY;
       if(timer) clearInterval(timer);
       $("#playHint").textContent = "Couldn\u2019t load audio \u2014 refresh to retry.";
+    });
+    audio.addEventListener("ended", function(){
+      playing = false;
+      if(timer) clearInterval(timer);
+      pos = DUR; render();
+      $("#play").innerHTML = ICON_PLAY;
+      $("#playHint").textContent = "That's your " + DUR + "-second preview.";
     });
 
     audio.load();
