@@ -647,6 +647,9 @@ const CONFIG = {
   function esc(t){ return String(t).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
 
 
+  var audio = null;
+  var ready = false;
+
   function loadPreview(url){
     audio = new Audio(url);
     audio.preload = "auto";
