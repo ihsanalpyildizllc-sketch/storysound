@@ -1077,10 +1077,14 @@ const CONFIG = {
       .map(k => "attributes[" + encodeURIComponent(k) + "]=" + encodeURIComponent(attrs[k]))
       .join("&");
 
-    const email = params.get("em") || "";
+    // Only prefill the email if it's actually valid — Shopify rejects the whole
+    // cart with "Email is invalid" otherwise, blocking an otherwise good sale.
+    var rawEmail = (params.get("em") || "").trim();
+    var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(rawEmail) ? rawEmail : "";
+
     // land on checkout, not the theme homepage, so the buyer SEES their cart
     let url = "https://" + CONFIG.shopifyStore + "/cart/" + items + "?" + qs +
-                (email ? "&checkout[email]=" + encodeURIComponent(email) : "");
+                (validEmail ? "&checkout[email]=" + encodeURIComponent(validEmail) : "");
     url += "&return_to=/checkout";
     var ov=document.getElementById("coOverlay"); if(ov) ov.classList.add("show");
     location.href = url;
