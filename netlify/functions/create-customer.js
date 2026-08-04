@@ -18,7 +18,7 @@ exports.handler = async (event) => {
   let body;
   try { body = JSON.parse(event.body); } catch(e) { return { statusCode: 400, body: "Invalid JSON" }; }
 
-  const { email, name, forWhom, occasion, genre, voice, language, qualities, memories, message } = body;
+  const { email, name, forWhom, occasion, genre, voice, language, qualities, memories, message, source } = body;
   if (!email) return { statusCode: 400, body: JSON.stringify({ error: "No email" }) };
 
   // ── 1. Get access token (cached in Redis, refreshed every 23h) ──────────────
@@ -118,7 +118,7 @@ exports.handler = async (event) => {
           customer: {
             first_name: name || forWhom || "",
             email,
-            tags: "prospect, song-funnel",
+            tags: ["prospect", "song-funnel", source ? "source-" + source : "source-unknown"].filter(Boolean).join(", "),
             note,
             accepts_marketing: true,
             email_marketing_consent: { state: "subscribed", opt_in_level: "single_opt_in" },
