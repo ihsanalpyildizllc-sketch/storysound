@@ -18,7 +18,7 @@ exports.handler = async (event) => {
   let body;
   try { body = JSON.parse(event.body); } catch(e) { return { statusCode: 400, body: "Invalid JSON" }; }
 
-  const { email, name, forWhom, occasion, genre, voice, language, qualities, memories, message, phone, source } = body;
+  const { email, name, forWhom, occasion, genre, voice, language, qualities, memories, message, phone, source, buyerName } = body;
   if (!email) return { statusCode: 400, body: JSON.stringify({ error: "No email" }) };
 
   // ── 1. Get access token (cached in Redis, refreshed every 23h) ──────────────
@@ -81,7 +81,8 @@ exports.handler = async (event) => {
   };
 
   const note = [
-    "Song for: " + (name || forWhom || ""),
+    buyerName ? "Buyer: " + buyerName : "",
+    "Song for: " + (name || forWhom || "") + (forWhom && name && name !== forWhom ? " (" + forWhom + ")" : ""),
     occasion  ? "Occasion: " + occasion : "",
     genre     ? "Genre: " + genre : "",
     voice     ? "Voice: " + voice : "",
@@ -116,7 +117,8 @@ exports.handler = async (event) => {
         method: "POST", headers,
         body: JSON.stringify({
           customer: {
-            first_name: name || forWhom || "",
+            first_name: buyerName || "",
+            last_name: "",  // buyer last name not collected yet
             email,
             phone: phone || undefined,
             tags: ["prospect", "song-funnel", source ? "source-" + source : "source-unknown"].filter(Boolean).join(", "),
