@@ -56,6 +56,17 @@ function abEmail(step, { name, title, orderId, siteUrl }) {
 const MIN_SIZE_KB = 500;                      // a real full song is ~3MB; below this = broken file
 const SITE = process.env.SITE_URL || "https://storysound.netlify.app";
 
+// Push a contact to Mailchimp with lifecycle tags (fire-and-forget)
+async function mcSync(payload){
+  try {
+    await fetch(`${SITE}/.netlify/functions/mailchimp-sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch(e) { console.log("mcSync skipped:", e.message); }
+}
+
 exports.handler = async () => {
   const out = { checked: 0, retried: 0, emailedDelivery: 0, emailedPreview: 0, abandonment: 0, flagged: 0, errors: [] };
   try {
@@ -157,6 +168,20 @@ exports.handler = async () => {
           const r = await sendEmail({ to: m.email, subject: e.subject, html: e.html, text: e.text });
           await mergeMeta(orderId, { email_status: r.ok ? "sent" : "failed", emailed_at: Date.now(), email_id: r.id || null, email_err: r.ok ? null : r.reason });
           if (r.ok) out.emailedDelivery++;
+        }
+
+        // Mailchimp: tag as song-ready the first time we see a finished song
+        if (m.email && !m.mc_ready) {
+          await mcSync({
+            email: m.email,
+            buyerName: m.buyerName || "",
+            songTitle: song.song_title || "",
+            songFor: m.name || "",
+            previewUrl: `${SITE}/preview?o=${encodeURIComponent(orderId)}`,
+            tags: [ isPaid ? "purchased" : "song-ready", "source-" + (m.source || "create2") ],
+            removeTags: isPaid ? ["song-ready", "abandoned"] : []
+          });
+          await mergeMeta(orderId, { mc_ready: true, mc_ready_at: Date.now() });
         }
 
         if (!isPaid && m.source === "create2" && m.email && m.preview_email !== "sent") {
