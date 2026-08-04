@@ -656,7 +656,8 @@ function goToBumps(){
       language: D.language,
       qualities: D.qualities,
       memories: D.memories,
-      message: D.message
+      message: D.message,
+      phone: D.phone
     })
   }).then(r=>r.json()).then(d=>{
     console.log('Customer:', d.action, d.customerId);
