@@ -495,6 +495,8 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
     </div>
 
     <div class="trust-row">🔒 Trusted by 400,000+ customers · 100% Money-Back Guarantee</div>
+    <button id="inlinePayBtn" class="btn-pay" onclick="goToShopify()" style="width:100%;margin-top:12px;padding:16px;border-radius:14px;border:none;cursor:pointer;font-family:inherit;font-size:16px;font-weight:700;background:linear-gradient(135deg,#B5471C,#9E3E2C);color:#fff;box-shadow:0 4px 20px rgba(181,71,28,0.35)">Get My Song Now →</button>
+    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px">🔒 Secure checkout · No subscription · Instant access</p>
   </div>
 </div>
 
@@ -847,19 +849,36 @@ let pulseTimer = null;
 window.addEventListener('scroll', () => {
   const btn = document.querySelector('.sticky-pay .btn-pay');
   if (!btn) return;
-  // Clear existing pulse timer
   clearTimeout(pulseTimer);
   btn.classList.remove('pulse');
-  // Add pulse after user stops scrolling for 800ms
   pulseTimer = setTimeout(() => {
     const bar = document.getElementById('stickyPay');
     if (bar && bar.classList.contains('show')) {
       btn.classList.add('pulse');
-      // Remove after 6s
       setTimeout(() => btn.classList.remove('pulse'), 6000);
     }
   }, 800);
 }, { passive: true });
+
+// ── HIDE STICKY WHEN INLINE PAY BUTTON IS VISIBLE ──
+(function(){
+  const inlineBtn = document.getElementById('inlinePayBtn');
+  if(!inlineBtn) return;
+  const bar = document.getElementById('stickyPay');
+  const obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!bar) return;
+      if(e.isIntersecting){
+        // inline button visible on screen — hide sticky
+        bar.classList.remove('show');
+      } else {
+        // inline button scrolled off — restore sticky if we're on bumps page
+        updateStickyBar();
+      }
+    });
+  }, { threshold: 0.2 });
+  obs.observe(inlineBtn);
+})();
 </script>
 
 <!-- STICKY PAY BAR (shows on bump + review pages) -->
