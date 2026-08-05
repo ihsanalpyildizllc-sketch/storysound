@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,"script","https://connect.facebook.net/en_US/fbevents.js");
+fbq("init","1060043183620255");
+fbq("track","PageView");
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1060043183620255&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Your Song — StorySound</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://gut-1809.myshopify.com">
+<link rel="dns-prefetch" href="https://gut-1809.myshopify.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#FAF7F2;--cream2:#F2EBE0;--ink:#0F0A06;--ink2:#2C1F14;
+  --muted:#7A6A5A;--rust:#B5471C;--rust2:#8E3415;--gold:#C49A2E;
+  --gold-l:#F0D898;--border:rgba(15,10,6,0.09);--green:#2A6644;--white:#fff;
+}
+html,body{min-height:100%;background:var(--cream)}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);padding-bottom:90px}
+.prog-wrap{background:var(--cream);position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border)}
+.prog-fill{height:3px;background:linear-gradient(90deg,var(--rust),#E07030);transition:width 0.5s ease}
+.prog-meta{display:flex;justify-content:space-between;padding:10px 24px 8px;font-size:12px;color:var(--muted);font-weight:500}
+.prog-meta span:last-child{color:var(--rust);font-weight:600}
+.screen{display:none;padding:44px 24px 24px;animation:fadeUp 0.35s ease}
+.screen.active{display:block}
+.screen-center{min-height:calc(100vh - 120px);display:flex;flex-direction:column;justify-content:center}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.stitle{font-family:'Cormorant Garamond',serif;font-size:clamp(30px,7vw,42px);font-weight:700;color:var(--ink);line-height:1.1;letter-spacing:-0.02em;margin-bottom:8px;text-align:center}
+.ssub{font-size:14px;color:var(--muted);margin-bottom:6px;text-align:center}
+.sbest{font-size:12px;color:var(--muted);font-style:italic;margin-bottom:28px;text-align:center}
+.pill-wrap{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:28px}
+.pill{border:1.5px solid var(--border);border-radius:100px;padding:10px 18px;font-size:14px;font-weight:500;cursor:pointer;background:var(--white);color:var(--ink2);transition:all 0.18s;user-select:none;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.pill:active{transform:scale(0.97)}
+.pill.sel{background:var(--rust);color:#fff;border-color:var(--rust);box-shadow:0 4px 14px rgba(181,71,28,0.28)}
+.igroup{margin-bottom:20px}
+.ilabel{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;display:block}
+.ifield{width:100%;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--ink);background:var(--white);outline:none;transition:all 0.2s;-webkit-appearance:none}
+.ifield:focus{border-color:var(--rust);box-shadow:0 0 0 3px rgba(181,71,28,0.08)}
+textarea.ifield{min-height:130px;resize:none;line-height:1.65}
+.slabel{font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:12px;text-align:center}
+.btm{position:fixed;bottom:0;left:0;right:0;background:rgba(250,247,242,0.96);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px;z-index:100}
+.btm.hide{display:none}
+.btn-back{background:none;border:1.5px solid var(--border);border-radius:100px;padding:12px 22px;font-size:15px;font-weight:500;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;flex-shrink:0;transition:all 0.2s}
+.btn-next{flex:1;background:var(--ink);color:#fff;border:none;border-radius:100px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;position:relative;overflow:hidden}
+.btn-next::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent 55%)}
+.btn-next:disabled{opacity:0.38;cursor:not-allowed}
+.tos{font-size:10px;color:var(--muted);text-align:center;width:100%;padding-top:4px}
+.tos a{color:var(--muted);text-decoration:underline}
+
+/* EDIT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;padding:0 0 32px;animation:slideUp 0.3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 16px}
+.modal-header{padding:0 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--ink)}
+.modal-close{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;padding:4px;line-height:1}
+.modal-body{padding:20px}
+.modal-section{margin-bottom:20px}
+.modal-section-label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;display:block}
+.modal-pills{display:flex;flex-wrap:wrap;gap:8px}
+.modal-pill{border:1.5px solid var(--border);border-radius:100px;padding:8px 14px;font-size:13px;font-weight:500;cursor:pointer;background:var(--white);color:var(--ink2);transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.modal-pill.sel{background:var(--rust);color:#fff;border-color:var(--rust)}
+.modal-input{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);background:var(--cream);outline:none;transition:all 0.2s}
+.modal-input:focus{border-color:var(--rust);background:var(--white)}
+.modal-textarea{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--cream);outline:none;resize:none;min-height:80px;line-height:1.6;transition:all 0.2s}
+.modal-textarea:focus{border-color:var(--rust);background:var(--white)}
+.btn-save-changes{width:100%;background:var(--rust);color:#fff;border:none;border-radius:100px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;box-shadow:0 4px 16px rgba(181,71,28,0.28)}
+.btn-save-changes:active{transform:scale(0.98)}
+
+/* BUMPS PAGE */
+.bump-wrap{padding:32px 20px 24px;max-width:580px;margin:0 auto}
+.bump-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:4px}
+.bump-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:20px}
+.osc{background:var(--white);border-radius:16px;padding:16px 18px;border:1px solid var(--border);margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.osc-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.osc-pills{display:flex;gap:12px;flex-wrap:wrap}
+.osc-pill{font-size:13px;color:var(--ink2);display:flex;align-items:center;gap:4px}
+.bump-card{border-radius:14px;padding:16px;margin-bottom:10px;border:2px solid var(--border);cursor:pointer;transition:all 0.2s;background:var(--white);position:relative}
+.bump-card.checked{border-color:var(--rust);background:#FEF8F5}
+.bump-card.free-card{border-color:var(--green);background:rgba(42,102,68,0.04);cursor:default}
+.bump-top{display:flex;align-items:flex-start;gap:10px}
+.bump-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;background:var(--white);transition:all 0.2s}
+.bump-card.checked .bump-check{background:var(--rust);border-color:var(--rust)}
+.bump-card.free-card .bump-check{background:var(--green);border-color:var(--green)}
+.bump-check svg{fill:#fff;display:none}
+.bump-card.checked .bump-check svg,.bump-card.free-card .bump-check svg{display:block}
+.bump-label{flex:1}
+.bump-badge{display:inline-flex;align-items:center;gap:4px;background:var(--rust);color:#fff;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700;letter-spacing:0.06em;margin-bottom:5px}
+.bump-badge.grn{background:var(--green)}
+.bump-badge.org{background:#C97020}
+.bump-name{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.bump-desc{font-size:13px;color:var(--muted);line-height:1.5}
+.bump-price{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--rust);flex-shrink:0;margin-top:2px}
+.bump-price.free{color:var(--green)}
+.bump-items{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:5px;padding-left:32px}
+.bump-items li{font-size:12px;color:var(--ink2);display:flex;gap:5px}
+.bump-items li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.bump-badge.navy{background:#1A3558}
+.bump-feats{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.bump-feat{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;background:rgba(42,102,68,.07);border-radius:9px}
+.bump-feat-icon{width:22px;height:22px;min-width:22px;background:#2D8A60;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.bump-feat-name{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:2px}
+.bump-feat-sub{font-size:11.5px;color:var(--muted);line-height:1.4}
+.orig{font-size:12px;color:var(--muted);text-decoration:line-through;margin-right:2px}
+.tp{background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
+.tp-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.tp-stars{color:#00B67A;font-size:15px;letter-spacing:1px}
+.tp-score{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink)}
+.tp-count{font-size:11px;color:var(--muted)}
+.tp-green{color:#00B67A;font-weight:700;font-size:12px;margin-left:auto}
+.tp-review{border-left:3px solid #00B67A;padding:10px 12px;background:rgba(0,182,122,0.05);border-radius:0 8px 8px 0}
+.tp-rtitle{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.tp-rtext{font-size:13px;color:var(--muted);line-height:1.6}
+.tp-rby{font-size:11px;color:var(--muted);margin-top:6px}
+.trust-row{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);justify-content:center;margin-bottom:12px}
+.btn-pay{width:100%;background:var(--rust);color:#fff;border:none;border-radius:16px;padding:17px;font-size:17px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;box-shadow:0 4px 20px rgba(181,71,28,0.3);position:relative;overflow:hidden;margin-bottom:8px}
+.btn-pay::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.12),transparent 55%)}
+.btn-pay:disabled{opacity:0.5;cursor:not-allowed}
+.sec-row{display:flex;align-items:center;justify-content:center;gap:14px;font-size:12px;color:var(--muted);font-weight:500;margin-bottom:16px}
+/* STICKY PAY BAR */
+.sticky-pay{position:fixed;bottom:0;left:0;right:0;background:rgba(250,247,242,0.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:12px 20px;z-index:100;display:none}
+.sticky-pay.show{display:block}
+.sticky-pay .btn-pay{margin-bottom:4px;padding:15px}
+.sticky-pay .sec-row{margin-bottom:0}
+.inline-pay-wrap{margin:16px 0 0}
+.inline-pay-wrap .btn-pay{width:100%;display:block;box-sizing:border-box;padding:15px;border:none;cursor:pointer;font-family:inherit;font-size:16px;font-weight:700;border-radius:14px;background:linear-gradient(135deg,#B5471C,#9E3E2C);color:#fff;box-shadow:0 4px 20px rgba(181,71,28,.35)}
+.inline-pay-sub{text-align:center;font-size:11px;color:var(--muted);margin-top:6px}
+
+/* STICKY PULSE ANIMATION */
+@keyframes stickyPulse{0%,100%{box-shadow:0 4px 20px rgba(181,71,28,0.3)}50%{box-shadow:0 4px 32px rgba(181,71,28,0.7),0 0 0 4px rgba(181,71,28,0.15)}}
+.sticky-pay .btn-pay.pulse{animation:stickyPulse 2s ease-in-out infinite}
+
+/* REVIEW PAGE */
+.rev-wrap{padding:40px 20px 24px;max-width:560px;margin:0 auto}
+.rev-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:4px}
+.rev-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:20px}
+.rcard{background:var(--white);border-radius:16px;padding:20px;border:1px solid var(--border);margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.rct{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.rrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
+.rrow:last-of-type{border-bottom:none}
+.rrow span{color:var(--muted)}
+.rrow strong{color:var(--ink);text-align:right;max-width:58%}
+.elabel{display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px}
+.efield{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--ink);background:var(--cream);outline:none;transition:all 0.2s;-webkit-appearance:none}
+.efield:focus{border-color:var(--rust);background:var(--white);box-shadow:0 0 0 3px rgba(181,71,28,0.08)}
+.ph-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px 0;border-top:1px solid var(--border);margin-top:10px}
+.ph-toggle span:first-child{font-size:14px;color:var(--ink2);flex:1}
+.ph-toggle small{font-size:12px;color:var(--muted)}
+.ph-fields{display:none;padding:10px 0 4px;gap:8px}
+.ph-fields.open{display:flex}
+.ph-pre{width:88px;border:1.5px solid var(--border);border-radius:10px;padding:11px 10px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--white);color:var(--ink);outline:none;flex-shrink:0}
+.ph-num{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:15px;background:var(--white);color:var(--ink);outline:none}
+.create-btn{width:100%;background:var(--rust);color:#fff;border:none;border-radius:100px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;margin-top:8px;margin-bottom:6px;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(181,71,28,0.3)}
+.create-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.12),transparent 55%)}
+.see-price{font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px}
+/* SAMPLES */
+.samp-sec{background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
+.samp-filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;scrollbar-width:none}
+.samp-filters::-webkit-scrollbar{display:none}
+.sf{border:1.5px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;background:var(--white);color:var(--muted);white-space:nowrap;flex-shrink:0;transition:all 0.15s}
+.sf.on{background:var(--rust);color:#fff;border-color:var(--rust)}
+.si{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.si:last-child{border-bottom:none}
+.splay{width:40px;height:40px;background:var(--rust);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;border:none;box-shadow:0 3px 10px rgba(181,71,28,0.25);transition:transform 0.15s}
+.splay:active{transform:scale(0.95)}
+.splay svg{fill:#fff;margin-left:2px}
+.sin{font-size:14px;font-weight:600;color:var(--ink)}
+.sisub{font-size:12px;color:var(--muted)}
+.sbar-w{height:3px;background:var(--cream2);border-radius:2px;margin-top:5px}
+.sbar{height:3px;background:var(--rust);border-radius:2px;width:0%;transition:width 0.3s}
+/* WYG */
+.wyg{background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
+.wyg-t{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:12px}
+.wyi{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.wyi:last-child{border-bottom:none}
+.wyn{width:28px;height:28px;background:var(--rust);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.wyt strong{display:block;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:1px}
+.wyt span{font-size:12px;color:var(--muted)}
+/* WHY */
+.why-row{display:flex;gap:10px;margin-bottom:14px}
+.wc{flex:1;background:var(--white);border-radius:12px;padding:14px 10px;text-align:center;border:1px solid var(--border)}
+.wi{font-size:22px;margin-bottom:4px}
+.wn{font-size:11px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.ws{font-size:10px;color:var(--muted)}
+/* ORDER TOTAL */
+.tot-card{background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
+@media(min-width:520px){
+  .screen,.bump-wrap,.rev-wrap{max-width:520px;margin:0 auto}
+  .btm{max-width:520px;left:50%;transform:translateX(-50%)}
+}
+
+/* ── checkout redirect overlay ── */
+#coOverlay{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;
+  background:rgba(250,247,242,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#coOverlay.show{display:flex;animation:coFade .25s ease}
+@keyframes coFade{from{opacity:0}to{opacity:1}}
+.co-box{text-align:center;padding:0 28px}
+.co-lock{font-size:34px;margin-bottom:14px;line-height:1}
+.co-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
+.co-sub{font-size:14px;color:var(--muted);margin-bottom:18px}
+.co-dots{display:flex;gap:7px;justify-content:center}
+.co-dots i{width:9px;height:9px;border-radius:50%;background:var(--rust);display:block;animation:coBounce 1.3s ease-in-out infinite}
+.co-dots i:nth-child(2){animation-delay:.18s}
+.co-dots i:nth-child(3){animation-delay:.36s}
+@keyframes coBounce{0%,70%,100%{transform:translateY(0);opacity:.35}35%{transform:translateY(-9px);opacity:1}}
+</style>
+</head>
+<body>
+<div id="coOverlay">
+  <div class="co-box">
+    <div class="co-lock">&#128274;</div>
+    <div class="co-title">Redirecting to secure checkout</div>
+    <div class="co-sub">Hold tight &mdash; this only takes a second</div>
+    <div class="co-dots"><i></i><i></i><i></i></div>
+  </div>
+</div>
+
+<div class="prog-wrap">
+  <div style="height:3px;background:rgba(181,71,28,0.1)"><div class="prog-fill" id="pf" style="width:13%"></div></div>
+  <div class="prog-meta"><span id="ps">Step 1 of 8</span><span id="pp">13% Complete</span></div>
+</div>
+
+<!-- S1: Who -->
+<div class="screen active" id="s1">
+  <div class="screen-center">
+    <div class="stitle">Who's this song for?</div>
+    <p class="ssub">Pick who this song is for</p>
+    <div style="height:20px"></div>
+    <div class="pill-wrap" id="p1">
+      <div class="pill" onclick="pick1(this)">Husband</div><div class="pill" onclick="pick1(this)">Wife</div>
+      <div class="pill" onclick="pick1(this)">Partner</div><div class="pill" onclick="pick1(this)">Girlfriend</div>
+      <div class="pill" onclick="pick1(this)">Boyfriend</div><div class="pill" onclick="pick1(this)">Son</div>
+      <div class="pill" onclick="pick1(this)">Daughter</div><div class="pill" onclick="pick1(this)">Fianc&eacute;</div>
+      <div class="pill" onclick="pick1(this)">Father</div><div class="pill" onclick="pick1(this)">Mother</div>
+      <div class="pill" onclick="pick1(this)">Grandparent</div><div class="pill" onclick="pick1(this)">Grandson</div>
+      <div class="pill" onclick="pick1(this)">Granddaughter</div><div class="pill" onclick="pick1(this)">Sibling</div>
+      <div class="pill" onclick="pick1(this)">Friend</div><div class="pill" onclick="pick1(this)">Myself</div>
+      <div class="pill" onclick="pick1(this)">Other</div>
+    </div>
+  </div>
+</div>
+
+<!-- S2: Name -->
+<div class="screen" id="s2">
+  <div class="screen-center">
+    <div class="stitle">What's their name?</div>
+    <p class="ssub">Add their first name</p>
+    <div style="height:28px"></div>
+    <input class="ifield" id="f-name" placeholder="Enter their first name" autocomplete="off" style="text-align:center;font-size:20px;max-width:320px;margin:0 auto;display:block">
+  </div>
+</div>
+
+<!-- S3: Occasion -->
+<div class="screen" id="s3">
+  <div class="screen-center">
+    <div class="stitle">What's the Occasion?</div>
+    <p class="ssub">Pick the occasion for your song</p>
+    <div style="height:20px"></div>
+    <div class="pill-wrap" id="p3">
+      <div class="pill" onclick="pick3(this)">Just Because</div><div class="pill" onclick="pick3(this)">I Love You</div>
+      <div class="pill" onclick="pick3(this)">Birthday</div><div class="pill" onclick="pick3(this)">Anniversary</div>
+      <div class="pill" onclick="pick3(this)">Missing You</div><div class="pill" onclick="pick3(this)">Thank You</div>
+      <div class="pill" onclick="pick3(this)">Apology</div><div class="pill" onclick="pick3(this)">Wedding</div>
+      <div class="pill" onclick="pick3(this)">Friendship</div><div class="pill" onclick="pick3(this)">In Memory</div>
+      <div class="pill" onclick="pick3(this)">Milestone</div><div class="pill" onclick="pick3(this)">Proposal</div>
+      <div class="pill" onclick="pick3(this)">Retirement</div><div class="pill" onclick="pick3(this)">Graduation</div>
+      <div class="pill" onclick="pick3(this)">Something else...</div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: Genre + Language + Voice -->
+<div class="screen" id="s4">
+  <div class="stitle">Choose a Genre</div>
+  <p class="ssub" style="margin-bottom:18px">Pick a genre</p>
+  <div class="pill-wrap" id="p4g">
+    <div class="pill" onclick="pick4g(this)">Pop</div><div class="pill" onclick="pick4g(this)">Country</div>
+    <div class="pill" onclick="pick4g(this)">Rock</div><div class="pill" onclick="pick4g(this)">R&amp;B</div>
+    <div class="pill" onclick="pick4g(this)">Jazz</div><div class="pill" onclick="pick4g(this)">Acoustic</div>
+    <div class="pill" onclick="pick4g(this)">Rap / Hip-Hop</div><div class="pill" onclick="pick4g(this)">Indie</div>
+    <div class="pill" onclick="pick4g(this)">Latin</div><div class="pill" onclick="pick4g(this)">Worship</div>
+    <div class="pill" onclick="pick4g(this)">Reggaeton</div><div class="pill" onclick="pick4g(this)">Reggae</div>
+  </div>
+  <p class="slabel">What language should the lyrics be in?</p>
+  <div class="pill-wrap" id="p4l" style="margin-bottom:18px">
+    <div class="pill sel" onclick="pick4l(this)">English</div>
+    <div class="pill" onclick="pick4l(this)">Spanish</div>
+  </div>
+  <p class="slabel">Choose a voice</p>
+  <div class="pill-wrap" id="p4v">
+    <div class="pill" onclick="pick4v(this)">Male</div>
+    <div class="pill" onclick="pick4v(this)">Female</div>
+    <div class="pill" onclick="pick4v(this)">Surprise Me</div>
+  </div>
+</div>
+
+<!-- S5: Qualities -->
+<div class="screen" id="s5">
+  <div class="stitle">What makes them special?</div>
+  <p class="ssub">Describe their character and the qualities you love most</p>
+  <p class="sbest">For best results, please include 1-2 sentences.</p>
+  <div class="igroup">
+    <label class="ilabel">Their beautiful qualities</label>
+    <textarea class="ifield" id="f-qual" placeholder="Are they patient, wise, funny, protective, encouraging? What makes them the incredible person they are?"></textarea>
+  </div>
+</div>
+
+<!-- S6: Memories -->
+<div class="screen" id="s6">
+  <div class="stitle">Share your favorite memories</div>
+  <p class="ssub">Share a favorite moment</p>
+  <p class="sbest">For best results, please include 1-2 sentences.</p>
+  <div class="igroup">
+    <label class="ilabel">Special moments together</label>
+    <textarea class="ifield" id="f-mem" placeholder="Share how you met, special years, inside jokes, or moments that made your relationship unique..."></textarea>
+  </div>
+</div>
+
+<!-- S7: Message -->
+<div class="screen" id="s7">
+  <div class="stitle">A message from your heart</div>
+  <p class="ssub">Add a short personal note</p>
+  <p class="sbest">For best results, please include 1-2 sentences.</p>
+  <div class="igroup">
+    <label class="ilabel">Special message</label>
+    <textarea class="ifield" id="f-msg" placeholder="What do you want them to know, feel, or remember?"></textarea>
+  </div>
+</div>
+
+<!-- S8: Review + Email -->
+<div class="screen" id="s8">
+  <div class="rev-wrap">
+    <div class="rev-title">Review Your Song Details</div>
+    <p class="rev-sub">Make sure everything looks good before we create your personalized song for <strong id="nameDisp" style="color:var(--rust)">them</strong>.</p>
+
+    <div class="rcard">
+      <label class="elabel">Your Name</label>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:8px">So we know who to address the order confirmation to</p>
+      <input class="efield" id="f-buyer-name" type="text" placeholder="Your first name" autocomplete="given-name" style="margin-bottom:16px">
+      <label class="elabel">Your Email Address</label>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:8px">We'll send your song and order updates here</p>
+      <input class="efield" id="f-email" type="email" placeholder="you@email.com">
+      <div class="ph-toggle" onclick="togglePhone()">
+        <span>📱 Phone Number (Optional)</span>
+        <small>Get your song delivered faster via text</small>
+        <svg id="phArrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="ph-fields" id="phFields">
+        <input class="ph-pre" placeholder="🇺🇸 +1" id="f-prefix">
+        <input class="ph-num" type="tel" placeholder="(555) 123-4567" id="f-phone">
+      </div>
+    </div>
+
+    <button class="create-btn" onclick="goToBumps()">Create My Song →</button>
+    <p class="see-price">See pricing on the next step.</p>
+
+    <div class="rcard">
+      <div class="rct">🎵 Order Summary <button onclick="openEditModal()" style="background:none;border:none;font-size:11px;color:var(--rust);cursor:pointer;font-weight:600;margin-left:auto">✏️ Edit</button></div>
+      <div class="rrow"><span>Song for</span><strong id="rc-for">—</strong></div>
+      <div class="rrow"><span>Occasion</span><strong id="rc-occ">—</strong></div>
+      <div class="rrow"><span>Genre</span><strong id="rc-genre">—</strong></div>
+      <div class="rrow"><span>Singer Gender</span><strong id="rc-voice">—</strong></div>
+    </div>
+
+    <div class="samp-sec">
+      <div class="rct">🎵 Hear Other Songs We Made</div>
+      <div class="samp-filters">
+        <div class="sf on" onclick="filt(this,'all')">All</div>
+        <div class="sf" onclick="filt(this,'anniversary')">💗 Anniversary</div>
+        <div class="sf" onclick="filt(this,'birthday')">🎂 Birthday</div>
+        <div class="sf" onclick="filt(this,'memorial')">🕊️ Memorial</div>
+        <div class="sf" onclick="filt(this,'wedding')">💍 Wedding</div>
+      </div>
+      <div id="songList">
+        <div class="si" data-cat="anniversary">
+          <button class="splay" onclick="playSong(this,'/audio/yubito-desert-rose.mp3','b1')">
+            <svg width="11" height="14" viewBox="0 0 11 14"><path d="M0 0l11 7L0 14V0z"/></svg>
+          </button>
+          <div style="flex:1"><div class="sin">Yubito (Desert Rose)</div><div class="sisub">R&B · Anniversary</div><div class="sbar-w"><div class="sbar" id="b1"></div></div></div>
+          <div style="font-size:12px;color:var(--muted);flex-shrink:0">0:30</div>
+        </div>
+        <div class="si" data-cat="anniversary">
+          <button class="splay" onclick="playSong(this,'/audio/storysound-sample.mp3','b2')">
+            <svg width="11" height="14" viewBox="0 0 11 14"><path d="M0 0l11 7L0 14V0z"/></svg>
+          </button>
+          <div style="flex:1"><div class="sin">The Night We Found Each Other</div><div class="sisub">Pop · Anniversary</div><div class="sbar-w"><div class="sbar" id="b2"></div></div></div>
+          <div style="font-size:12px;color:var(--muted);flex-shrink:0">0:30</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wyg">
+      <div class="wyg-t">What You'll Get</div>
+      <div class="wyi"><div class="wyn">1</div><div class="wyt"><strong>A Studio-Quality Masterpiece</strong><span>Pristine production &amp; mixing</span></div></div>
+      <div class="wyi"><div class="wyn">2</div><div class="wyt"><strong>One-of-a-Kind Lyrics</strong><span>Meaningful words unique to you</span></div></div>
+      <div class="wyi"><div class="wyn">3</div><div class="wyt"><strong>5-Minute Delivery</strong><span>In your inbox, not 7 days</span></div></div>
+    </div>
+
+    <div class="why-row">
+      <div class="wc"><div class="wi">⭐</div><div class="wn">Excellent on Trustpilot</div><div class="ws">10,000+ reviews</div></div>
+      <div class="wc"><div class="wi">💧</div><div class="wn">Happy Tears Guarantee</div><div class="ws">100% money back</div></div>
+      <div class="wc"><div class="wi">❤️</div><div class="wn">Ultimate Keepsake</div><div class="ws">Cherished forever</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BUMPS PAGE -->
+<div id="bumpsPage" style="display:none">
+  <div class="bump-wrap">
+    <div class="bump-title">Almost there!</div>
+    <p class="bump-sub">You're one click away from a beautiful, personalized song for <strong id="bName" style="color:var(--rust)">them</strong></p>
+
+    <div class="osc">
+      <div class="osc-title">🎵 Your Custom Song Order <button onclick="openEditModal()" style="background:none;border:none;font-size:11px;color:var(--rust);cursor:pointer;font-weight:600;margin-left:auto">✏️ Edit</button></div>
+      <div class="osc-pills">
+        <div class="osc-pill">👤 <span id="bFor">—</span></div>
+        <div class="osc-pill">🎉 <span id="bOcc">—</span></div>
+        <div class="osc-pill">🎵 <span id="bGen">—</span></div>
+      </div>
+    </div>
+
+    <!-- 100% Money-Back Guarantee -->
+    <div style="background:linear-gradient(135deg,#EBF5F0,#E3F2EC);border:1px solid #A8D5BE;border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z" fill="#2D8A60" opacity=".15"/><path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z" stroke="#2D8A60" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#2D8A60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1A3A2A;margin-bottom:3px">100% Money-Back Guarantee</div>
+        <div style="font-size:13px;color:#3D6B52;line-height:1.45">Unlimited re-dos until it&#8217;s perfect, or a full refund.</div>
+      </div>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Upgrade Your Gift</div>
+
+    <div class="bump-card" id="bc1" onclick="toggleBump('bc1','b1line',24)">
+      <div class="bump-top">
+        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="bump-label">
+          <div style="margin-bottom:6px"><span class="bump-badge navy">&#10022; MOST POPULAR</span></div>
+          <div class="bump-name">Forever Memory&#8482; Package</div>
+          <div class="bump-desc">Celebrate a milestone they&#8217;ll never forget.</div>
+        </div>
+        <div style="text-align:right"><div class="orig">$37</div><div class="bump-price">$24</div></div>
+      </div>
+      <div class="bump-feats">
+        <div class="bump-feat"><div class="bump-feat-icon"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="bump-feat-name">Frameable lyrics with QR code</div><div class="bump-feat-sub">Lyrics worthy of their biggest achievement.</div></div></div>
+        <div class="bump-feat"><div class="bump-feat-icon"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="bump-feat-name">Make it personal with your own cover</div><div class="bump-feat-sub">Turn a graduation photo into album artwork.</div></div></div>
+        <div class="bump-feat"><div class="bump-feat-icon"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="bump-feat-name">Bonus version in another style</div><div class="bump-feat-sub">Choose your second genre after checkout</div></div></div>
+      </div>
+    </div>
+
+    <div class="bump-card" id="bc2" onclick="toggleBump('bc2','b2line',10)">
+      <div class="bump-top">
+        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="bump-label">
+          <div style="margin-bottom:4px"><span class="bump-badge org">⚡ RUSH DELIVERY</span></div>
+          <div class="bump-name">Priority Processing</div>
+          <div class="bump-desc">Skip the queue — get your song delivered first.</div>
+        </div>
+        <div class="bump-price">$10</div>
+      </div>
+    </div>
+
+    <div class="bump-card free-card checked">
+      <div class="bump-top">
+        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="bump-label">
+          <div style="margin-bottom:4px"><span class="bump-badge grn">∞ UNLIMITED REDOS</span></div>
+          <div class="bump-name">Protect Your Purchase</div>
+          <div class="bump-desc">We'll keep working on your song until you love it.</div>
+          <div style="font-size:12px;font-weight:600;color:var(--green);margin-top:4px">FREE when selected today</div>
+        </div>
+        <div class="bump-price free">FREE</div>
+      </div>
+    </div>
+
+    <div class="tp">
+      <div class="tp-head">
+        <div><div style="font-size:10px;color:var(--muted);margin-bottom:2px">Excellent</div><div class="tp-stars">★★★★★</div></div>
+        <div style="margin-left:8px"><div class="tp-score">4.9 / 5</div><div class="tp-count">Based on 12,640+ reviews</div></div>
+        <div class="tp-green">Trustpilot</div>
+      </div>
+      <div class="tp-review">
+        <div class="tp-rtitle">I'm in tears right now</div>
+        <div class="tp-rtext">"I'm in tears right now. With just a few words you guys made a song that tells exactly how I feel. So amazing — I recommend this to everyone. This is the best gift ever in my eyes."</div>
+        <div class="tp-rby">Anna K. · ✓ Verified · US</div>
+      </div>
+    </div>
+
+    <div class="tot-card">
+      <div class="rct">🎵 Order Summary</div>
+      <div class="rrow"><span>Your Song for <span id="bName2" style="color:var(--rust)">them</span></span><div><span class="orig">$99</span> <strong style="color:var(--rust);font-size:16px">$39</strong></div></div>
+      <div id="b1line" style="display:none"><div class="rrow"><span>Forever Memory&#8482; Package</span><strong>$24</strong></div></div>
+      <div id="b2line" style="display:none"><div class="rrow"><span>Priority Processing</span><strong>$10</strong></div></div>
+      <div id="b4line" style="display:none"><div class="rrow"><span>🔒 Song Vault VIP (Free Trial)</span><strong style="color:#6B46C1">FREE</strong></div></div>
+      <div id="b3line"><div class="rrow"><span>Printable Lyrics</span><strong>$19</strong></div></div>
+      <div class="rrow"><span>+ Unlimited Song Redos</span><strong style="color:var(--green)">Free</strong></div>
+      <div class="rrow" style="border-top:1.5px solid var(--border);margin-top:8px;padding-top:10px">
+        <span style="font-weight:700;color:var(--ink);font-size:15px">Total</span>
+        <strong style="font-size:20px;color:var(--rust)" id="totPrice">$39</strong>
+      </div>
+    </div>
+
+    <div class="bump-card checked" id="bc3" onclick="toggleBump('bc3','b3line',19)">
+      <div class="bump-top">
+        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="bump-label">
+          <div style="margin-bottom:4px"><span class="bump-badge">📜 ONE-CLICK ADD</span></div>
+          <div class="bump-name">Printable Lyrics</div>
+          <div class="bump-desc">Every word of this song, typeset with the name and cover art — ready to print and frame with the gift.</div>
+        </div>
+        <div class="bump-price">$19</div>
+      </div>
+    </div>
+
+    <div class="trust-row">🔒 Trusted by 400,000+ customers · 100% Money-Back Guarantee</div>
+    <div class="inline-pay-wrap" id="inlinePayBtn">
+      <button class="btn-pay" id="inlinePayButton" onclick="goToShopify()">Get My Song Now →</button>
+      <p class="inline-pay-sub">🔒 Secure checkout &middot; No subscription &middot; Instant access</p>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="btm" id="btmNav">
+  <button class="btn-back" onclick="goBack()">← Back</button>
+  <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+    <button class="btn-next" onclick="goNext()">Next →</button>
+    <p class="tos">By continuing you agree to our <a href="/terms">Terms</a> &amp; <a href="/privacy">Privacy Policy</a></p>
+  </div>
+</div>
+
+<script>
+const STEPS=8;let cur=1;
+const D={forWhom:'',name:'',occasion:'',genre:'',language:'English',voice:'',qualities:'',memories:'',message:'',email:'',phone:'',buyerName:''};
+let bumps={b1:false,b2:false,b3:true,b4:false};
+
+// ── QUIZ STATE PERSISTENCE ────────────────────────────────────────────────────
+const SS_KEY='ss_quiz_v1';
+
+function saveState(){
+  try{
+    var q=document.getElementById('f-qual'),m=document.getElementById('f-mem'),
+        ms=document.getElementById('f-msg'),nm=document.getElementById('f-name'),
+        em=document.getElementById('f-email'),ph=document.getElementById('f-phone');
+    var snap=Object.assign({},D,{
+      qualities:q?q.value:D.qualities, memories:m?m.value:D.memories,
+      message:ms?ms.value:D.message,   name:nm?nm.value||D.name:D.name,
+      email:em?em.value||D.email:D.email, phone:ph?ph.value:D.phone
+    });
+    sessionStorage.setItem(SS_KEY,JSON.stringify({D:snap,bumps:bumps,cur:cur}));
+  }catch(e){}
+}
+
+function restorePill(groupId,val){
+  var g=document.getElementById(groupId); if(!g||!val) return;
+  g.querySelectorAll('.pill').forEach(function(p){
+    p.classList.toggle('sel', p.textContent.trim()===val);
+  });
+}
+
+function setVal(id,val){ var e=document.getElementById(id); if(e&&val) e.value=val; }
+
+function restoreState(){
+  try{
+    var raw=sessionStorage.getItem(SS_KEY); if(!raw) return;
+    var s=JSON.parse(raw); if(!s||!s.D) return;
+
+    Object.assign(D,s.D);
+    if(s.bumps) Object.assign(bumps,s.bumps);
+
+    // Restore pill selections
+    restorePill('p1',D.forWhom); restorePill('p3',D.occasion);
+    restorePill('p4g',D.genre);  restorePill('p4l',D.language);
+    restorePill('p4v',D.voice);
+
+    // Restore text inputs
+    setVal('f-name',D.name);     setVal('f-qual',D.qualities);
+    setVal('f-mem',D.memories);  setVal('f-msg',D.message);
+    setVal('f-email',D.email);   setVal('f-phone',D.phone); setVal('f-buyer-name',D.buyerName);
+
+    // Restore bump card UI
+    ['bc1','bc2','bc3'].forEach(function(id,i){
+      var card=document.getElementById(id); if(!card) return;
+      var key='b'+(i+1);
+      var isFreeCard=card.classList.contains('free-card');
+      if(!isFreeCard){
+        card.classList.toggle('checked',!!bumps[key]);
+        var line=document.getElementById(key.replace('b','b')+'line');
+        if(line) line.style.display=bumps[key]?'':'none';
+      }
+    });
+
+    if(typeof updateReview==='function') updateReview();
+    if(typeof updateTotal==='function')  updateTotal();
+
+    // Jump to saved step
+    var savedCur=s.cur;
+    if(savedCur==='bumps'||savedCur===9){
+      if(D.email) setTimeout(function(){ showStep('bumps'); },10);
+    } else if(savedCur>1){
+      setTimeout(function(){ showStep(savedCur); },10);
+    }
+    console.log('Restored quiz to step',savedCur);
+  }catch(e){ console.log('Restore failed:',e.message); }
+}
+const BASE=39;
+let extraCost=0;
+
+const PROG={1:[13,'Step 1 of 8'],2:[25,'Step 2 of 8'],3:[38,'Step 3 of 8'],4:[50,'Step 4 of 8'],5:[63,'Step 5 of 8'],6:[75,'Step 6 of 8'],7:[88,'Step 7 of 8'],8:[100,'Final step']};
+
+// ── SHOPIFY CONFIG — update these after creating your Shopify store ──
+const SHOPIFY_STORE='gut-1809.myshopify.com';
+const SHOPIFY_VARIANTS={base:'44258532819033',bump1:'44258586886233',bump2:'44258587476057',bump3:'44263011287129'};
+
+function showStep(n){
+  for(let i=1;i<=STEPS;i++){const el=document.getElementById('s'+i);if(el)el.classList.remove('active');}
+  document.getElementById('bumpsPage').style.display='none';
+  document.getElementById('btmNav').classList.remove('hide');
+  if(n==='bumps'){
+    document.getElementById('bumpsPage').style.display='block';
+    document.getElementById('btmNav').classList.add('hide');
+    document.getElementById('pf').style.width='100%';
+    document.getElementById('ps').textContent='Almost done!';
+    document.getElementById('pp').textContent='100%';
+    updateBumps();window.scrollTo({top:0});return;
+  }
+  const el=document.getElementById('s'+n);if(el)el.classList.add('active');
+  if(n===8)updateReview();
+  const[pct,label]=PROG[n]||[100,''];
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('ps').textContent=label;
+  document.getElementById('pp').textContent=pct+'% Complete';
+  window.scrollTo({top:0,behavior:'smooth'});
+  cur=n;
+  if(typeof updateStickyBar==='function') updateStickyBar(); if(typeof checkInlineVisible==='function') setTimeout(checkInlineVisible, 50);
+}
+
+function goTo(n){showStep(n);}
+function goBack(){if(cur==='bumps'||cur===9)showStep(8);else if(cur>1)showStep(cur-1);}
+
+function goNext(){
+  if(cur===1&&!D.forWhom){tip('Pick who this song is for');return;}
+  if(cur===2){D.name=document.getElementById('f-name').value.trim()||D.forWhom;}
+  if(cur===4&&!D.genre){tip('Pick a genre');return;}
+  if(cur===4&&!D.voice){tip('Choose a voice');return;}
+  if(cur===5)D.qualities=document.getElementById('f-qual').value.trim();
+  if(cur===6)D.memories=document.getElementById('f-mem').value.trim();
+  if(cur===7)D.message=document.getElementById('f-msg').value.trim();
+  if(cur===7){updateReview();showStep(8);}
+  else if(cur<STEPS){showStep(cur+1);saveState();}
+  else{showStep('bumps');saveState();}
+}
+
+function goToBumps(){
+  const em=document.getElementById('f-email').value.replace(/\s+/g,'').toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){tip('Enter a valid email address');return;}
+  document.getElementById('f-email').value=em;
+  D.email=em;D.phone=document.getElementById('f-phone').value.trim();D.buyerName=document.getElementById('f-buyer-name').value.trim();
+  
+  // Create/update Shopify customer in background (fire and forget)
+  fetch('/.netlify/functions/create-customer', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      source: 'create',
+      email: D.email,
+      name: D.name || D.forWhom,
+      forWhom: D.forWhom,
+      occasion: D.occasion,
+      genre: D.genre,
+      voice: D.voice,
+      language: D.language,
+      qualities: D.qualities,
+      memories: D.memories,
+      message: D.message,
+      phone: D.phone,
+      buyerName: D.buyerName
+    })
+  }).then(r=>r.json()).then(d=>{
+    console.log('Customer:', d.action, d.customerId);
+  }).catch(e=>console.log('Customer create skipped:', e.message));
+
+  showStep('bumps');saveState();
+}
+
+function pick1(el){selP('p1',el);D.forWhom=el.textContent;saveState();setTimeout(()=>goNext(),300);}
+function pick3(el){selP('p3',el);D.occasion=el.textContent;saveState();setTimeout(()=>goNext(),300);}
+function pick4g(el){selP('p4g',el);D.genre=el.textContent;saveState();}
+function pick4l(el){selP('p4l',el);D.language=el.textContent;saveState();}
+function pick4v(el){selP('p4v',el);D.voice=el.textContent;saveState();}
+function selP(id,el){document.querySelectorAll('#'+id+' .pill').forEach(p=>p.classList.remove('sel'));el.classList.add('sel');}
+
+function updateReview(){
+  const n=D.name||D.forWhom||'them';
+  document.getElementById('nameDisp').textContent=n;
+  document.getElementById('rc-for').textContent=n+' ('+D.forWhom+')';
+  document.getElementById('rc-occ').textContent=D.occasion||'—';
+  document.getElementById('rc-genre').textContent=D.genre||'—';
+  document.getElementById('rc-voice').textContent=D.voice||'—';
+}
+
+function updateBumps(){
+  const n=D.name||D.forWhom||'them';
+  ['bName','bName2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=n;});
+  const bFor=document.getElementById('bFor');if(bFor)bFor.textContent=n+' ('+D.forWhom+')';
+  const bOcc=document.getElementById('bOcc');if(bOcc)bOcc.textContent=D.occasion||'—';
+  const bGen=document.getElementById('bGen');if(bGen)bGen.textContent=D.genre||'—';
+  calcTotal();
+}
+
+function toggleBump(cardId,lineId,amt){
+  if(typeof updateStickyBar==='function') setTimeout(updateStickyBar,10);
+  const card=document.getElementById(cardId);
+  const key={bc1:'b1',bc2:'b2',bc3:'b3',bc4:'b4'}[cardId];
+  if(!key) return;
+  bumps[key]=!bumps[key];
+  card.classList.toggle('checked',bumps[key]);
+  document.getElementById(lineId).style.display=bumps[key]?'block':'none';
+  calcTotal();
+}
+
+function calcTotal(){
+  let t=BASE;
+  if(bumps.b1)t+=24;if(bumps.b2)t+=10;if(bumps.b3)t+=19;  // b4 is free trial — no cost
+  const _tp=document.getElementById('totPrice'); if(_tp)_tp.textContent='$'+t;
+  const _bt=document.getElementById('btnTot');   if(_bt)_bt.textContent='$'+t;
+}
+
+function togglePhone(){
+  const f=document.getElementById('phFields'),a=document.getElementById('phArrow');
+  f.classList.toggle('open');
+  a.style.transform=f.classList.contains('open')?'rotate(180deg)':'';
+}
+
+function goToShopify(){
+  sessionStorage.removeItem(SS_KEY);
+  const btn=document.getElementById('payBtn');
+  const sBtn=document.querySelector('.sticky-pay .btn-pay');
+  var iBtn=document.getElementById('inlinePayButton');
+  [btn, sBtn, iBtn].forEach(function(b){
+    if(b){ b.disabled=true; b.textContent='Redirecting to checkout…'; }
+  });
+  // Blur overlay while the browser navigates — purely visual, adds zero delay
+  var ov=document.getElementById('coOverlay'); if(ov) ov.classList.add('show');
+
+  const fullStory=[
+    `Song for: ${D.name} (${D.forWhom})`,
+    `Occasion: ${D.occasion}`,
+    `Genre: ${D.genre}`,
+    `Language: ${D.language}`,
+    `Voice: ${D.voice}`,
+    D.qualities?`Their qualities: ${D.qualities}`:'',
+    D.memories?`Memories: ${D.memories}`:'',
+    D.message?`Message: ${D.message}`:''
+  ].filter(Boolean).join(' | ');
+
+  const attrs=[
+    ['Song For',D.name+' ('+D.forWhom+')'],
+    ['Occasion',D.occasion],
+    ['Genre',D.genre],
+    ['Language',D.language],
+    ['Singer Voice',D.voice],
+    ['Their Qualities',D.qualities],
+    ['Memories',D.memories],
+    ['Special Message',D.message],
+    ['Customer Email',D.email]
+  ];
+
+  let items=SHOPIFY_VARIANTS.base+':1';
+  if(bumps.b1)items+=','+SHOPIFY_VARIANTS.bump1+':1';
+  if(bumps.b2)items+=','+SHOPIFY_VARIANTS.bump2+':1';
+  if(bumps.b3)items+=','+SHOPIFY_VARIANTS.bump3+':1';
+  // subscription bump: needs selling_plan param, handled separately
+  var hasSub=bumps.b4;
+
+  const qs=attrs.filter(([k,v])=>v).map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
+  const email=encodeURIComponent(D.email||'');
+
+  var cartUrl=hasSub
+    ? `https://\${SHOPIFY_STORE}/cart/\${items},44479649349721:1?\${qs}&checkout[email]=\${email}&selling_plan[44479649349721]=2561802329&return_to=/checkout`
+    : `https://\${SHOPIFY_STORE}/cart/\${items}?\${qs}&checkout[email]=\${email}&return_to=/checkout`;
+  window.location.href=cartUrl;
+}
+
+
+// Audio
+const audios={};
+function playSong(btn,src,barId){
+  Object.entries(audios).forEach(([k,a])=>{
+    if(k!==barId){a.pause();const b=document.getElementById(k);if(b)b.style.width='0%';}
+  });
+  if(!audios[barId]){
+    const a=new Audio(src);audios[barId]=a;
+    a.addEventListener('timeupdate',()=>{const p=(a.currentTime/a.duration)*100;const b=document.getElementById(barId);if(b)b.style.width=p+'%';});
+    a.addEventListener('ended',()=>{const b=document.getElementById(barId);if(b)b.style.width='0%';
+      btn.innerHTML='<svg width="11" height="14" viewBox="0 0 11 14"><path d="M0 0l11 7L0 14V0z" fill="white"/></svg>';});
+  }
+  const a=audios[barId];
+  if(a.paused){a.play();btn.innerHTML='<svg width="10" height="12" viewBox="0 0 10 12" fill="white"><rect x="0" y="0" width="3" height="12"/><rect x="7" y="0" width="3" height="12"/></svg>';}
+  else{a.pause();btn.innerHTML='<svg width="11" height="14" viewBox="0 0 11 14"><path d="M0 0l11 7L0 14V0z" fill="white"/></svg>';}
+}
+
+function filt(el,cat){
+  document.querySelectorAll('.sf').forEach(s=>s.classList.remove('on'));el.classList.add('on');
+  document.querySelectorAll('.si').forEach(s=>{s.style.display=(cat==='all'||s.dataset.cat===cat)?'flex':'none';});
+}
+
+function tip(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1A0E08;color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;font-weight:500;z-index:999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.3)';
+  t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200);
+}
+
+// ── AUTO-SAVE ON TEXT INPUT ──
+['f-name','f-qual','f-mem','f-msg','f-email','f-phone','f-buyer-name'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el) el.addEventListener('input',function(){ saveState(); },{passive:true});
+});
+
+// ── STICKY PAY BAR ──
+function updateStickyBar(){
+  if(window._inlineVisible) return;   // inline CTA visible — don't show sticky
+  const isOnBumps = document.getElementById('bumpsPage').style.display !== 'none';
+  const isOnReview = document.getElementById('s8') && document.getElementById('s8').classList.contains('active');
+  const bar = document.getElementById('stickyPay');
+  bar.classList.toggle('show', isOnBumps || isOnReview);
+}
+
+function handleStickyBtn(){
+  const isOnReview = document.getElementById('s8') && document.getElementById('s8').classList.contains('active');
+  if(isOnReview){ goToBumps(); }
+  else { goToShopify(); }
+}
+
+
+
+// ── EDIT MODAL ──
+function openEditModal() {
+  const modal = document.getElementById('editModal');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Pre-fill with current D values
+  document.getElementById('mName').value = D.name || '';
+  document.getElementById('mQualities').value = D.qualities || '';
+  document.getElementById('mMemories').value = D.memories || '';
+  document.getElementById('mMessage').value = D.message || '';
+
+  // Pre-select pills
+  if(D.forWhom) preSelectPill('mForPills', D.forWhom);
+  if(D.occasion) preSelectPill('mOccPills', D.occasion);
+  if(D.genre) preSelectPill('mGenrePills', D.genre);
+
+  setTimeout(()=>{ modal.scrollTop = 0; }, 10);
+}
+
+function closeEditModal(e) {
+  if(e && e.target !== document.getElementById('editModal')) return;
+  document.getElementById('editModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function mPick(groupId, el, field) {
+  document.querySelectorAll('#'+groupId+' .modal-pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  D[field] = el.textContent.trim();
+}
+
+function preSelectPill(groupId, value) {
+  document.querySelectorAll('#'+groupId+' .modal-pill').forEach(p=>{
+    p.classList.toggle('sel', p.textContent.trim() === value);
+  });
+}
+
+function saveModalChanges() {
+  D.name = document.getElementById('mName').value.trim() || D.name;
+  D.qualities = document.getElementById('mQualities').value.trim();
+  D.memories = document.getElementById('mMemories').value.trim();
+  D.message = document.getElementById('mMessage').value.trim();
+  document.getElementById('editModal').classList.remove('open');
+  document.body.style.overflow = '';
+  // Update all UI displays
+  updateBumps();
+  updateReview();
+  // Show confirmation tip
+  tip('✓ Changes saved!');
+}
+
+// ── EDIT MODAL ──
+let mData = {}; // tracks modal pill selections
+
+function openEditModal() {
+  const modal = document.getElementById('editModal');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Pre-fill with current data
+  if(D.name) document.getElementById('m-name').value = D.name;
+  if(D.qualities) document.getElementById('m-qualities').value = D.qualities;
+  if(D.memories) document.getElementById('m-memories').value = D.memories;
+  if(D.message) document.getElementById('m-message').value = D.message;
+
+  // Pre-select current pills
+  if(D.forWhom) preSel('mp1', D.forWhom);
+  if(D.occasion) preSel('mp2', D.occasion);
+  if(D.genre) preSel('mp3', D.genre);
+  if(D.voice) preSel('mp4', D.voice);
+
+  mData = { forWhom: D.forWhom, occasion: D.occasion, genre: D.genre, voice: D.voice };
+}
+
+function preSel(groupId, val) {
+  document.querySelectorAll('#'+groupId+' .mpill').forEach(p => {
+    p.classList.toggle('sel', p.textContent.trim() === val);
+  });
+}
+
+function closeEditModal(e) {
+  if(e.target.id === 'editModal') closeEditModalBtn();
+}
+function closeEditModalBtn() {
+  document.getElementById('editModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function mPick(groupId, el, field) {
+  document.querySelectorAll('#'+groupId+' .mpill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  mData[field] = el.textContent.trim();
+}
+
+function saveModalChanges() {
+  // Apply changes to D
+  if(mData.forWhom) D.forWhom = mData.forWhom;
+  if(mData.occasion) D.occasion = mData.occasion;
+  if(mData.genre) D.genre = mData.genre;
+  if(mData.voice) D.voice = mData.voice;
+  const name = document.getElementById('m-name').value.trim();
+  if(name) D.name = name;
+  const qual = document.getElementById('m-qualities').value.trim();
+  if(qual) D.qualities = qual;
+  const mem = document.getElementById('m-memories').value.trim();
+  if(mem) D.memories = mem;
+  const msg = document.getElementById('m-message').value.trim();
+  if(msg) D.message = msg;
+
+  // Update all displayed order summaries
+  updateBumps();
+  updateReview();
+
+  closeEditModalBtn();
+  tip('Changes saved ✓');
+}
+
+// ── STICKY BUTTON PULSE ON SCROLL ──
+let pulseTimer = null;
+window.addEventListener('scroll', () => {
+  const btn = document.querySelector('.sticky-pay .btn-pay');
+  if (!btn) return;
+  clearTimeout(pulseTimer);
+  btn.classList.remove('pulse');
+  pulseTimer = setTimeout(() => {
+    const bar = document.getElementById('stickyPay');
+    if (bar && bar.classList.contains('show')) {
+      btn.classList.add('pulse');
+      setTimeout(() => btn.classList.remove('pulse'), 6000);
+    }
+  }, 800);
+}, { passive: true });
+
+// ── HIDE STICKY WHEN INLINE PAY BUTTON IS VISIBLE ──
+// IntersectionObserver doesn't work reliably for elements in display:none containers
+// so we check on every scroll + when bumps page is shown
+function checkInlineVisible(){
+  var btn = document.getElementById('inlinePayBtn');
+  var bar = document.getElementById('stickyPay');
+  if(!btn || !bar) return;
+  var r = btn.getBoundingClientRect();
+  var barH = bar.offsetHeight || 90;
+  // Hide sticky once the BOTTOM of the inline button clears the sticky bar area
+  var visible = r.bottom <= (window.innerHeight - barH + 20) && r.bottom > 0;
+  window._inlineVisible = visible;
+  if(visible){
+    bar.classList.remove('show');
+    bar.style.setProperty('display','none','important');
+  } else {
+    bar.style.removeProperty('display');
+    if(typeof updateStickyBar==='function') updateStickyBar();
+  }
+}
+window.addEventListener('scroll', checkInlineVisible, { passive:true });
+
+// ── RESTORE QUIZ STATE ON REFRESH ──
+restoreState();
+</script>
+
+<!-- STICKY PAY BAR (shows on bump + review pages) -->
+<div class="sticky-pay" id="stickyPay">
+  <button class="btn-pay" onclick="handleStickyBtn()">Get My Song Now →</button>
+  <div class="sec-row"><span>🔒 Secure checkout</span><span>✓ 100% Money-Back</span></div>
+</div>
+
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Edit Order Details</div>
+      <button class="modal-close" onclick="closeEditModal()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section">
+        <label class="modal-section-label">Who's this for?</label>
+        <div class="modal-pills" id="mForPills">
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Husband</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Wife</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Partner</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Girlfriend</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Boyfriend</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Son</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Daughter</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Fiancé</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Father</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Mother</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Grandparent</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Sibling</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Friend</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Myself</div>
+          <div class="modal-pill" onclick="mPick('mForPills',this,'forWhom')">Other</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">Their name</label>
+        <input class="modal-input" id="mName" placeholder="Enter their first name">
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">Occasion</label>
+        <div class="modal-pills" id="mOccPills">
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Just Because</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">I Love You</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Birthday</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Anniversary</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Missing You</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Thank You</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Apology</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Wedding</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Friendship</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">In Memory</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Milestone</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Proposal</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Retirement</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Graduation</div>
+          <div class="modal-pill" onclick="mPick('mOccPills',this,'occasion')">Something else...</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">Genre</label>
+        <div class="modal-pills" id="mGenrePills">
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Pop</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Country</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Rock</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">R&amp;B</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Jazz</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Acoustic</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Rap / Hip-Hop</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Latin</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Reggaeton</div>
+          <div class="modal-pill" onclick="mPick('mGenrePills',this,'genre')">Reggae</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">What makes them special?</label>
+        <textarea class="modal-textarea" id="mQualities" placeholder="Their beautiful qualities..."></textarea>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">Favorite memories</label>
+        <textarea class="modal-textarea" id="mMemories" placeholder="Special moments together..."></textarea>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-section-label">Message from your heart</label>
+        <textarea class="modal-textarea" id="mMessage" placeholder="What do you want them to feel?"></textarea>
+      </div>
+
+      <button class="btn-save-changes" onclick="saveModalChanges()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- EDIT ORDER MODAL -->
+<div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h2>Edit Order Details</h2>
+      <button class="modal-close" onclick="closeEditModalBtn()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section">
+        <label class="modal-label">Who's this for?</label>
+        <div class="modal-pills" id="mp1">
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Husband</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Wife</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Partner</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Girlfriend</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Boyfriend</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Son</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Daughter</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Fianc&eacute;</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Father</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Mother</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Grandparent</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Grandson</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Granddaughter</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Sibling</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Friend</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Myself</div>
+          <div class="mpill" onclick="mPick('mp1',this,'forWhom')">Other</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Their name</label>
+        <input class="modal-input" id="m-name" placeholder="Enter their first name">
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Occasion</label>
+        <div class="modal-pills" id="mp2">
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Just Because</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Graduation</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">I Love You</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Missing You</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Anniversary</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Father's Day</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">In Memory</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Milestone</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Birthday</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Retirement</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Wedding</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Proposal</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Friendship</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Thank You</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Apology</div>
+          <div class="mpill" onclick="mPick('mp2',this,'occasion')">Something else...</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Genre</label>
+        <div class="modal-pills" id="mp3">
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Pop</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Country</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Rock</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">R&amp;B</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Jazz</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Acoustic</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Rap / Hip-Hop</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Indie</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Latin</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Worship</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Reggaeton</div>
+          <div class="mpill" onclick="mPick('mp3',this,'genre')">Reggae</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Singer voice</label>
+        <div class="modal-pills" id="mp4">
+          <div class="mpill" onclick="mPick('mp4',this,'voice')">Male</div>
+          <div class="mpill" onclick="mPick('mp4',this,'voice')">Female</div>
+          <div class="mpill" onclick="mPick('mp4',this,'voice')">Surprise Me</div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">What makes them special?</label>
+        <textarea class="modal-input" id="m-qualities" placeholder="Their qualities, what you love about them..."></textarea>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Your favorite memories</label>
+        <textarea class="modal-input" id="m-memories" placeholder="How you met, special moments, inside jokes..."></textarea>
+      </div>
+
+      <div class="modal-section">
+        <label class="modal-label">Message from your heart</label>
+        <textarea class="modal-input" id="m-message" placeholder="What you want them to know..."></textarea>
+      </div>
+
+      <button class="btn-save" onclick="saveModalChanges()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+
+    <div class="bump-card" id="bc4" onclick="toggleBump('bc4','b4line',0)">
+      <div class="bump-top">
+        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="bump-label">
+          <div style="margin-bottom:4px"><span class="bump-badge" style="background:linear-gradient(135deg,#6B46C1,#9333EA)">🔒 FREE TRIAL</span></div>
+          <div class="bump-name">Protect My Song</div>
+          <div class="bump-desc">Song Vault VIP — get $480 in value free. Store your song forever, unlock bonus features, cancel any time.</div>
+        </div>
+        <div class="bump-price" style="color:#6B46C1">FREE</div>
+      </div>
+    </div>
+
+
