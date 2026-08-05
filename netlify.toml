@@ -48,6 +48,11 @@
   status = 200
 
 [[redirects]]
+  from = "/create3"
+  to = "/create3.html"
+  status = 200
+
+[[redirects]]
   from = "/create2"
   to = "/create2.html"
   status = 200
