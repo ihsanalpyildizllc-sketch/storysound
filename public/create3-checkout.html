@@ -164,20 +164,48 @@ h1{text-align:center;font-size:clamp(22px,5vw,28px);letter-spacing:-.02em;margin
     btn.disabled=true;
     btn.textContent='Taking you to checkout…';
 
-    var cartItems=withSub ? items+','+SUB_VARIANT+':1' : items;
+    // HTML form POST to Shopify /cart/add — the only cross-domain way to
+    // mix subscription items (which need selling_plan) with regular items.
+    // Plain cart permalink URLs cannot combine both types.
+    var form=document.createElement('form');
+    form.method='POST';
+    form.action='https://'+STORE+'/cart/add';
+    form.style.display='none';
 
-    // build the cart URL piece by piece — no template literals
-    var base='https://'+STORE+'/cart/'+cartItems;
-    var parts=[];
-    if(qs) parts.push(qs);
-    if(email) parts.push('checkout[email]='+encodeURIComponent(email));
-    // selling_plan is a top-level param for Shopify subscriptions (not per-variant)
-    if(withSub) parts.push('selling_plan='+SUB_PLAN);
-    parts.push('return_to=/checkout');
+    function field(name,val){
+      var f=document.createElement('input');
+      f.type='hidden'; f.name=name; f.value=val;
+      form.appendChild(f);
+    }
 
-    var url=base+'?'+parts.join('&');
-    console.log('cart url:', url);
-    window.location.href=url;
+    // regular song items
+    var itemList=items.split(',');
+    itemList.forEach(function(it,i){
+      var p=it.split(':');
+      field('items['+i+'][id]', p[0]);
+      field('items['+i+'][quantity]', p[1]||'1');
+    });
+
+    // subscription with selling plan
+    if(withSub){
+      var si=itemList.length;
+      field('items['+si+'][id]', SUB_VARIANT);
+      field('items['+si+'][quantity]', '1');
+      field('items['+si+'][selling_plan]', SUB_PLAN);
+    }
+
+    // cart note attributes
+    if(qs){
+      qs.split('&').forEach(function(pair){
+        var m=pair.match(/^attributes%5B([^%]+)%5D=(.*)$/)||pair.match(/^attributes\[([^\]]+)\]=(.*)$/);
+        if(m) field('attributes['+decodeURIComponent(m[1])+']', decodeURIComponent(m[2]||''));
+      });
+    }
+    if(email) field('checkout[email]', email);
+    field('return_to', '/checkout');
+
+    document.body.appendChild(form);
+    form.submit();
   };
 })();
 </script>
