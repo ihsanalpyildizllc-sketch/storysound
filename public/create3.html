@@ -230,7 +230,6 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
   </div>
 </div>
 
-
 <div class="prog-wrap">
   <div style="height:3px;background:rgba(181,71,28,0.1)"><div class="prog-fill" id="pf" style="width:13%"></div></div>
   <div class="prog-meta"><span id="ps">Step 1 of 8</span><span id="pp">13% Complete</span></div>
@@ -506,7 +505,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
       <div class="rrow"><span>Your Song for <span id="bName2" style="color:var(--rust)">them</span></span><div><span class="orig">$99</span> <strong style="color:var(--rust);font-size:16px">$39</strong></div></div>
       <div id="b1line" style="display:none"><div class="rrow"><span>Forever Memory&#8482; Package</span><strong>$24</strong></div></div>
       <div id="b2line" style="display:none"><div class="rrow"><span>Priority Processing</span><strong>$10</strong></div></div>
-      <div id="REMOVED" style="display:none"><div class="rrow"><span>🔒 Song Vault VIP (Free Trial)</span><strong style="color:#6B46C1">FREE</strong></div></div>
+      <div id="b4line"><div class="rrow"><span>&#128274; Song Vault VIP (Free Trial)</span><strong style="color:#6B46C1">FREE</strong></div></div>
       <div id="b3line"><div class="rrow"><span>Printable Lyrics</span><strong>$19</strong></div></div>
       <div class="rrow"><span>+ Unlimited Song Redos</span><strong style="color:var(--green)">Free</strong></div>
       <div class="rrow" style="border-top:1.5px solid var(--border);margin-top:8px;padding-top:10px">
@@ -527,7 +526,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
       </div>
     </div>
 
-    <div class="bump-card" id="bc4" onclick="toggleBump('bc4','b4line',0)">
+    <div class="bump-card checked" id="bc4" onclick="toggleBump('bc4','b4line',0)">
       <div class="bump-top">
         <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="bump-label">
@@ -559,7 +558,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 <script>
 const STEPS=8;let cur=1;
 const D={forWhom:'',name:'',occasion:'',genre:'',language:'English',voice:'',qualities:'',memories:'',message:'',email:'',phone:'',buyerName:''};
-let bumps={b1:false,b2:false,b3:true,b4:false};
+let bumps={b1:false,b2:false,b3:true,b4:true};
 
 // ── QUIZ STATE PERSISTENCE ────────────────────────────────────────────────────
 const SS_KEY='ss_quiz_v1';
@@ -797,21 +796,38 @@ function goToShopify(){
   if(bumps.b1)items+=','+SHOPIFY_VARIANTS.bump1+':1';
   if(bumps.b2)items+=','+SHOPIFY_VARIANTS.bump2+':1';
   if(bumps.b3)items+=','+SHOPIFY_VARIANTS.bump3+':1';
-  // subscription bump: needs selling_plan param, handled separately
 
   const qs=attrs.filter(([k,v])=>v).map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
   const email=encodeURIComponent(D.email||'');
 
-  // go to the interstitial "almost there" page first
-  var params=new URLSearchParams();
-  params.set('items',items);
-  params.set('qs',btoa(qs));
-  params.set('email',email);
-  params.set('total',totPrice||'');
-  params.set('name',D.name||D.forWhom||'');
-  params.set('sub', bumps.b4 ? '1' : '0');
-  window.location.href='/create3-checkout?'+params.toString();
+  // Subscription items need a form POST — cart permalinks can't mix
+  // subscription + one-time items (Shopify throws "Variant can only be
+  // purchased with a selling plan").
+  const SUB_VARIANT='44479649349721', SUB_PLAN='2561802329';
+  const form=document.createElement('form');
+  form.method='POST';
+  form.action=`https://${SHOPIFY_STORE}/cart/add`;
+  form.style.display='none';
+  const field=(n,v)=>{const f=document.createElement('input');f.type='hidden';f.name=n;f.value=v;form.appendChild(f);};
+
+  items.split(',').forEach((it,i)=>{
+    const [id,q]=it.split(':');
+    field(`items[${i}][id]`,id);
+    field(`items[${i}][quantity]`,q||'1');
+  });
+  if(bumps.b4){
+    const si=items.split(',').length;
+    field(`items[${si}][id]`,SUB_VARIANT);
+    field(`items[${si}][quantity]`,'1');
+    field(`items[${si}][selling_plan]`,SUB_PLAN);
+  }
+  attrs.filter(([k,v])=>v).forEach(([k,v])=>field(`attributes[${k}]`,v));
+  if(D.email) field('checkout[email]',D.email);
+  field('return_to','/checkout');
+  document.body.appendChild(form);
+  form.submit();
 }
+
 
 // Audio
 const audios={};
@@ -861,6 +877,7 @@ function handleStickyBtn(){
   if(isOnReview){ goToBumps(); }
   else { goToShopify(); }
 }
+
 
 
 // ── EDIT MODAL ──
@@ -1029,6 +1046,7 @@ restoreState();
   <div class="sec-row"><span>🔒 Secure checkout</span><span>✓ 100% Money-Back</span></div>
 </div>
 
+
 <!-- EDIT MODAL -->
 <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
   <div class="modal-sheet" onclick="event.stopPropagation()">
@@ -1121,6 +1139,7 @@ restoreState();
     </div>
   </div>
 </div>
+
 
 <!-- EDIT ORDER MODAL -->
 <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
