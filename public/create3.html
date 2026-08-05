@@ -505,7 +505,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
       <div class="rrow"><span>Your Song for <span id="bName2" style="color:var(--rust)">them</span></span><div><span class="orig">$99</span> <strong style="color:var(--rust);font-size:16px">$39</strong></div></div>
       <div id="b1line" style="display:none"><div class="rrow"><span>Forever Memory&#8482; Package</span><strong>$24</strong></div></div>
       <div id="b2line" style="display:none"><div class="rrow"><span>Priority Processing</span><strong>$10</strong></div></div>
-      <div id="b4line" style="display:none"><div class="rrow"><span>🔒 Song Vault VIP (Free Trial)</span><strong style="color:#6B46C1">FREE</strong></div></div>
+      <div id="REMOVED" style="display:none"><div class="rrow"><span>🔒 Song Vault VIP (Free Trial)</span><strong style="color:#6B46C1">FREE</strong></div></div>
       <div id="b3line"><div class="rrow"><span>Printable Lyrics</span><strong>$19</strong></div></div>
       <div class="rrow"><span>+ Unlimited Song Redos</span><strong style="color:var(--green)">Free</strong></div>
       <div class="rrow" style="border-top:1.5px solid var(--border);margin-top:8px;padding-top:10px">
@@ -546,7 +546,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 <script>
 const STEPS=8;let cur=1;
 const D={forWhom:'',name:'',occasion:'',genre:'',language:'English',voice:'',qualities:'',memories:'',message:'',email:'',phone:'',buyerName:''};
-let bumps={b1:false,b2:false,b3:true,b4:false};
+let bumps={b1:false,b2:false,b3:true};
 
 // ── QUIZ STATE PERSISTENCE ────────────────────────────────────────────────────
 const SS_KEY='ss_quiz_v1';
@@ -725,7 +725,7 @@ function updateBumps(){
 function toggleBump(cardId,lineId,amt){
   if(typeof updateStickyBar==='function') setTimeout(updateStickyBar,10);
   const card=document.getElementById(cardId);
-  const key={bc1:'b1',bc2:'b2',bc3:'b3',bc4:'b4'}[cardId];
+  const key={bc1:'b1',bc2:'b2',bc3:'b3'}[cardId];
   if(!key) return;
   bumps[key]=!bumps[key];
   card.classList.toggle('checked',bumps[key]);
@@ -735,7 +735,7 @@ function toggleBump(cardId,lineId,amt){
 
 function calcTotal(){
   let t=BASE;
-  if(bumps.b1)t+=24;if(bumps.b2)t+=10;if(bumps.b3)t+=19;  // b4 is free trial — no cost
+  if(bumps.b1)t+=24;if(bumps.b2)t+=10;if(bumps.b3)t+=19;
   const _tp=document.getElementById('totPrice'); if(_tp)_tp.textContent='$'+t;
   const _bt=document.getElementById('btnTot');   if(_bt)_bt.textContent='$'+t;
 }
@@ -785,15 +785,18 @@ function goToShopify(){
   if(bumps.b2)items+=','+SHOPIFY_VARIANTS.bump2+':1';
   if(bumps.b3)items+=','+SHOPIFY_VARIANTS.bump3+':1';
   // subscription bump: needs selling_plan param, handled separately
-  var hasSub=bumps.b4;
 
   const qs=attrs.filter(([k,v])=>v).map(([k,v])=>`attributes[${encodeURIComponent(k)}]=${encodeURIComponent(v)}`).join('&');
   const email=encodeURIComponent(D.email||'');
 
-  var cartUrl=hasSub
-    ? `https://\${SHOPIFY_STORE}/cart/\${items},44479649349721:1?\${qs}&checkout[email]=\${email}&selling_plan[44479649349721]=2561802329&return_to=/checkout`
-    : `https://\${SHOPIFY_STORE}/cart/\${items}?\${qs}&checkout[email]=\${email}&return_to=/checkout`;
-  window.location.href=cartUrl;
+  // go to the interstitial "almost there" page first
+  var params=new URLSearchParams();
+  params.set('items',items);
+  params.set('qs',btoa(qs));
+  params.set('email',email);
+  params.set('total',totPrice||'');
+  params.set('name',D.name||D.forWhom||'');
+  window.location.href='/create3-checkout?'+params.toString();
 }
 
 
@@ -1218,17 +1221,4 @@ restoreState();
 
 </body>
 </html>
-
-    <div class="bump-card" id="bc4" onclick="toggleBump('bc4','b4line',0)">
-      <div class="bump-top">
-        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <div class="bump-label">
-          <div style="margin-bottom:4px"><span class="bump-badge" style="background:linear-gradient(135deg,#6B46C1,#9333EA)">🔒 FREE TRIAL</span></div>
-          <div class="bump-name">Protect My Song</div>
-          <div class="bump-desc">Song Vault VIP — get $480 in value free. Store your song forever, unlock bonus features, cancel any time.</div>
-        </div>
-        <div class="bump-price" style="color:#6B46C1">FREE</div>
-      </div>
-    </div>
-
 
