@@ -230,6 +230,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
   </div>
 </div>
 
+
 <div class="prog-wrap">
   <div style="height:3px;background:rgba(181,71,28,0.1)"><div class="prog-fill" id="pf" style="width:13%"></div></div>
   <div class="prog-meta"><span id="ps">Step 1 of 8</span><span id="pp">13% Complete</span></div>
@@ -526,6 +527,18 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
       </div>
     </div>
 
+    <div class="bump-card" id="bc4" onclick="toggleBump('bc4','b4line',0)">
+      <div class="bump-top">
+        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="bump-label">
+          <div style="margin-bottom:4px"><span class="bump-badge" style="background:linear-gradient(135deg,#6B46C1,#9333EA)">&#128274; FREE TRIAL</span></div>
+          <div class="bump-name">Song Vault VIP</div>
+          <div class="bump-desc">Protect your song forever. Store it, re-download anytime, priority revisions &amp; member discounts. $480 in value &#8212; free to start, cancel anytime.</div>
+        </div>
+        <div class="bump-price" style="color:#6B46C1">FREE</div>
+      </div>
+    </div>
+
     <div class="trust-row">🔒 Trusted by 400,000+ customers · 100% Money-Back Guarantee</div>
     <div class="inline-pay-wrap" id="inlinePayBtn">
       <button class="btn-pay" id="inlinePayButton" onclick="goToShopify()">Get My Song Now →</button>
@@ -800,7 +813,6 @@ function goToShopify(){
   window.location.href='/create3-checkout?'+params.toString();
 }
 
-
 // Audio
 const audios={};
 function playSong(btn,src,barId){
@@ -849,7 +861,6 @@ function handleStickyBtn(){
   if(isOnReview){ goToBumps(); }
   else { goToShopify(); }
 }
-
 
 
 // ── EDIT MODAL ──
@@ -1018,7 +1029,6 @@ restoreState();
   <div class="sec-row"><span>🔒 Secure checkout</span><span>✓ 100% Money-Back</span></div>
 </div>
 
-
 <!-- EDIT MODAL -->
 <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
   <div class="modal-sheet" onclick="event.stopPropagation()">
@@ -1111,7 +1121,6 @@ restoreState();
     </div>
   </div>
 </div>
-
 
 <!-- EDIT ORDER MODAL -->
 <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
@@ -1222,15 +1231,4 @@ restoreState();
 
 </body>
 </html>
-    <div class="bump-card" id="bc4" onclick="toggleBump('bc4','b4line',0)">
-      <div class="bump-top">
-        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <div class="bump-label">
-          <div style="margin-bottom:4px"><span class="bump-badge" style="background:linear-gradient(135deg,#6B46C1,#9333EA)">🔒 FREE TRIAL</span></div>
-          <div class="bump-name">Song Vault VIP</div>
-          <div class="bump-desc">Protect your song forever. Store it, re-download anytime, priority revisions &amp; member discounts. $480 in value — free to start, cancel anytime.</div>
-        </div>
-        <div class="bump-price" style="color:#6B46C1">FREE</div>
-      </div>
-    </div>
 
