@@ -111,7 +111,8 @@ h1{text-align:center;font-size:clamp(22px,5vw,28px);letter-spacing:-.02em;margin
   var email=p.get('email')||'';
   var total=parseFloat(p.get('total')||39.99);
   var name=p.get('name')||'';
-  var selected=true;
+  var subParam=p.get('sub');
+  var selected=subParam !== '0';  // default true unless explicitly deselected on bumps page
 
   // decode the query string that was base64'd to survive the URL
   var qs='';
@@ -134,9 +135,9 @@ h1{text-align:center;font-size:clamp(22px,5vw,28px);letter-spacing:-.02em;margin
   // show order breakdown from items param
   document.getElementById('totalDisplay').textContent='$'+total.toFixed(2);
 
-  // offer starts selected
-  document.getElementById('offerCard').classList.add('selected');
-  updateBtn(true);
+  // reflect the choice made on the bumps page
+  if(selected) document.getElementById('offerCard').classList.add('selected');
+  updateBtn(selected);
 
   window.toggleOffer=function(){
     selected=!selected;
