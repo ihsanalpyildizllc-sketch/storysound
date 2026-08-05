@@ -546,7 +546,7 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 <script>
 const STEPS=8;let cur=1;
 const D={forWhom:'',name:'',occasion:'',genre:'',language:'English',voice:'',qualities:'',memories:'',message:'',email:'',phone:'',buyerName:''};
-let bumps={b1:false,b2:false,b3:true};
+let bumps={b1:false,b2:false,b3:true,b4:false};
 
 // ── QUIZ STATE PERSISTENCE ────────────────────────────────────────────────────
 const SS_KEY='ss_quiz_v1';
@@ -725,7 +725,7 @@ function updateBumps(){
 function toggleBump(cardId,lineId,amt){
   if(typeof updateStickyBar==='function') setTimeout(updateStickyBar,10);
   const card=document.getElementById(cardId);
-  const key={bc1:'b1',bc2:'b2',bc3:'b3'}[cardId];
+  const key={bc1:'b1',bc2:'b2',bc3:'b3',bc4:'b4'}[cardId];
   if(!key) return;
   bumps[key]=!bumps[key];
   card.classList.toggle('checked',bumps[key]);
@@ -796,6 +796,7 @@ function goToShopify(){
   params.set('email',email);
   params.set('total',totPrice||'');
   params.set('name',D.name||D.forWhom||'');
+  params.set('sub', bumps.b4 ? '1' : '0');
   window.location.href='/create3-checkout?'+params.toString();
 }
 
@@ -1221,4 +1222,15 @@ restoreState();
 
 </body>
 </html>
+    <div class="bump-card" id="bc4" onclick="toggleBump('bc4','b4line',0)">
+      <div class="bump-top">
+        <div class="bump-check"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.5l2.5 2.5L9.5 1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="bump-label">
+          <div style="margin-bottom:4px"><span class="bump-badge" style="background:linear-gradient(135deg,#6B46C1,#9333EA)">🔒 FREE TRIAL</span></div>
+          <div class="bump-name">Song Vault VIP</div>
+          <div class="bump-desc">Protect your song forever. Store it, re-download anytime, priority revisions &amp; member discounts. $480 in value — free to start, cancel anytime.</div>
+        </div>
+        <div class="bump-price" style="color:#6B46C1">FREE</div>
+      </div>
+    </div>
 
