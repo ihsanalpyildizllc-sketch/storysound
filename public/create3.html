@@ -806,7 +806,7 @@ function goToShopify(){
   const SUB_VARIANT='44479649349721', SUB_PLAN='2561802329';
   const form=document.createElement('form');
   form.method='POST';
-  form.action=`https://${SHOPIFY_STORE}/cart/add`;
+  form.action='https://myexxtra.com/cart/add';  // primary domain — posting to gut-1809 302s and browsers drop the POST body
   form.style.display='none';
   const field=(n,v)=>{const f=document.createElement('input');f.type='hidden';f.name=n;f.value=v;form.appendChild(f);};
 
