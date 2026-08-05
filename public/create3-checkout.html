@@ -115,7 +115,15 @@ h1{text-align:center;font-size:clamp(22px,5vw,28px);letter-spacing:-.02em;margin
 
   // decode the query string that was base64'd to survive the URL
   var qs='';
-  try{ qs=atob(qsB64); }catch(e){ qs=''; }
+  try{
+    // decode the base64-encoded attributes string from the quiz
+    var decoded=atob(qsB64);
+    // it's already a valid query string fragment: attributes[...]=...&...
+    qs=decoded;
+  }catch(e){ qs=''; }
+
+  // email arrives already encodeURIComponent'd from the quiz — decode once
+  try{ if(email) email=decodeURIComponent(email); }catch(e){}
 
   // show name if we have it
   if(name){
@@ -151,11 +159,22 @@ h1{text-align:center;font-size:clamp(22px,5vw,28px);letter-spacing:-.02em;margin
   }
 
   window.proceed=function(withSub){
+    var btn=document.getElementById('mainBtn');
+    btn.disabled=true;
+    btn.textContent='Taking you to checkout…';
+
     var cartItems=withSub ? items+','+SUB_VARIANT+':1' : items;
-    var url='https://'+STORE+'/cart/'+cartItems+'?'+(qs?qs+'&':'')
-      +(email?'checkout[email]='+encodeURIComponent(email)+'&':'')
-      +(withSub?'selling_plan['+SUB_VARIANT+']='+SUB_PLAN+'&':'')
-      +'return_to=/checkout';
+
+    // build the cart URL piece by piece — no template literals
+    var base='https://'+STORE+'/cart/'+cartItems;
+    var parts=[];
+    if(qs) parts.push(qs);
+    if(email) parts.push('checkout[email]='+encodeURIComponent(email));
+    if(withSub) parts.push('selling_plan['+SUB_VARIANT+']='+SUB_PLAN);
+    parts.push('return_to=/checkout');
+
+    var url=base+'?'+parts.join('&');
+    console.log('cart url:', url);
     window.location.href=url;
   };
 })();
