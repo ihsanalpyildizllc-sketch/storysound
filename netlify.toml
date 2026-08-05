@@ -48,6 +48,11 @@
   status = 200
 
 [[redirects]]
+  from = "/create3-checkout"
+  to = "/create3-checkout.html"
+  status = 200
+
+[[redirects]]
   from = "/create3"
   to = "/create3.html"
   status = 200
