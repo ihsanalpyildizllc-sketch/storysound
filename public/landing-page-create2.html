@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StorySound — Turn Your Story Into a Custom Song</title>
+<meta name="description" content="Tell us your story. We write and record a custom song — then let you hear a free 60-second preview before you pay a cent.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --rust:#B5471C;--rust-dark:#8E3615;--rust-light:#F4E8E1;
+  --ink:#0F0A06;--ink2:#3D2E24;--muted:#8C7B70;
+  --bg:#FAF7F2;--white:#FFFFFF;--border:rgba(0,0,0,.08);
+  --gold:#C9973A;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;overflow-x:hidden}
+
+/* ── ANNOUNCE BAR ── */
+.announce{background:var(--ink);color:#fff;text-align:center;padding:10px 16px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.announce span{color:var(--gold)}
+
+/* ── NAV ── */
+nav{background:rgba(250,247,242,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 24px}
+.nav-inner{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);text-decoration:none;letter-spacing:-.01em}
+.logo em{color:var(--rust);font-style:normal}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--rust);color:#fff;border:none;border-radius:100px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .2s;white-space:nowrap}
+.btn:hover{background:var(--rust-dark);transform:translateY(-1px);box-shadow:0 8px 24px rgba(181,71,28,.35)}
+.btn-lg{padding:16px 36px;font-size:16px;border-radius:100px}
+.btn-outline{background:transparent;color:var(--ink);border:1.5px solid rgba(0,0,0,.15)}
+.btn-outline:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* ── HERO ── */
+.hero{padding:100px 24px 80px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(181,71,28,.08),transparent);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(181,71,28,.1);color:var(--rust);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(48px,6vw,80px);font-weight:600;line-height:1.1;letter-spacing:-.02em;color:var(--ink);max-width:820px;margin:0 auto 24px}
+.hero h1 em{color:var(--rust);font-style:italic}
+.hero-sub{font-size:18px;color:var(--muted);max-width:520px;margin:0 auto 40px;line-height:1.6}
+.hero-ctas{display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:48px}
+.hero-cta-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center}
+.listen-link{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s}
+.listen-link:hover{color:var(--ink)}
+.listen-link::before{content:'▶';font-size:10px;background:var(--ink);color:#fff;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;padding-left:2px}
+.trust-micro{font-size:13px;color:var(--muted)}
+.trust-micro strong{color:var(--ink)}
+.avatars{display:flex;align-items:center;justify-content:center;gap:-8px;margin-bottom:12px}
+.avatars img{width:44px;height:44px;border-radius:50%;border:2.5px solid var(--bg);object-fit:cover;margin-left:-10px}
+.avatars img:first-child{margin-left:0}
+.stars{color:var(--gold);font-size:16px;letter-spacing:2px;margin-bottom:4px}
+.social-proof{display:flex;flex-direction:column;align-items:center;gap:4px}
+
+/* ── HERO VISUAL ── */
+.hero-visual{max-width:960px;margin:0 auto 0;position:relative}
+.hero-img{width:100%;border-radius:24px;overflow:hidden;position:relative;background:linear-gradient(135deg,#1A0F0A 0%,#3D1C0E 40%,#1A0F0A 100%);aspect-ratio:16/7;display:flex;align-items:center;justify-content:center}
+.hero-img-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(15,10,6,.6));border-radius:24px}
+.vinyl-scene{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.vinyl{width:200px;height:200px;border-radius:50%;background:radial-gradient(circle at 50%,#333 0%,#111 20%,#222 40%,#111 60%,#222 80%,#111 100%);position:relative;animation:spin 12s linear infinite;box-shadow:0 20px 60px rgba(0,0,0,.8)}
+.vinyl::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:var(--rust);box-shadow:0 0 20px rgba(181,71,28,.6)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.wave-visual{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:3px}
+.wave-bar{width:4px;border-radius:2px;background:rgba(255,255,255,.6);animation:wave 1.2s ease-in-out infinite}
+@keyframes wave{0%,100%{height:8px}50%{height:32px}}
+
+/* ── HOW IT WORKS ── */
+.how{background:var(--ink);color:#fff;padding:96px 24px;position:relative;overflow:hidden}
+.how::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.how-inner{max-width:900px;margin:0 auto;text-align:center;position:relative}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.how h2{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,4vw,56px);font-weight:600;line-height:1.15;margin-bottom:64px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-bottom:56px}
+.step{position:relative}
+.step-num{width:48px;height:48px;border-radius:50%;background:rgba(201,151,58,.15);border:1.5px solid rgba(201,151,58,.3);color:var(--gold);font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.step h3{font-size:16px;font-weight:600;margin-bottom:8px;color:#fff}
+.step p{font-size:14px;color:rgba(255,255,255,.55);line-height:1.6}
+.step-connector{position:absolute;top:24px;left:calc(50% + 32px);right:calc(-50% + 32px);height:1px;background:linear-gradient(90deg,rgba(201,151,58,.3),transparent);display:none}
+@media(min-width:640px){.step-connector{display:block}}
+
+/* ── PROOF STRIP ── */
+.proof{padding:96px 24px;text-align:center}
+.proof-inner{max-width:1080px;margin:0 auto}
+.proof h2{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,3.5vw,48px);font-weight:600;margin-bottom:16px}
+.proof h2 em{color:var(--rust);font-style:italic}
+.proof-sub{color:var(--muted);font-size:16px;margin-bottom:56px}
+.testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.tcard{background:var(--white);border-radius:20px;padding:28px;text-align:left;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.06);transition:transform .3s,box-shadow .3s}
+.tcard:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,.1)}
+.tcard-quote{font-size:32px;color:var(--rust);line-height:1;margin-bottom:12px;font-family:'Cormorant Garamond',serif}
+.tcard p{font-size:15px;color:var(--ink2);line-height:1.6;margin-bottom:20px;font-style:italic}
+.tcard-author{display:flex;align-items:center;gap:12px}
+.tcard-avatar{width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--rust-light);display:flex;align-items:center;justify-content:center;font-size:16px}
+.tcard-name{font-size:14px;font-weight:600;color:var(--ink)}
+.tcard-meta{font-size:12px;color:var(--muted)}
+
+/* ── WHAT'S INCLUDED ── */
+.includes{background:linear-gradient(180deg,var(--bg) 0%,var(--rust-light) 100%);padding:96px 24px}
+.includes-inner{max-width:1080px;margin:0 auto}
+.includes-head{text-align:center;margin-bottom:56px}
+.includes-head h2{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,3.5vw,48px);font-weight:600;margin-bottom:16px}
+.includes-head p{color:var(--muted);font-size:16px;max-width:520px;margin:0 auto}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.feat{background:var(--white);border-radius:20px;padding:32px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.05)}
+.feat-icon{width:52px;height:52px;border-radius:14px;background:var(--rust-light);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px}
+.feat h3{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:10px}
+.feat p{font-size:14px;color:var(--muted);line-height:1.65}
+
+/* ── PLAYER DEMO ── */
+.demo{padding:96px 24px;text-align:center}
+.demo-inner{max-width:560px;margin:0 auto}
+.demo h2{font-family:'Cormorant Garamond',serif;font-size:clamp(30px,3vw,44px);font-weight:600;margin-bottom:16px}
+.demo-sub{color:var(--muted);font-size:16px;margin-bottom:48px}
+.player-card{background:var(--white);border-radius:24px;padding:32px;box-shadow:0 4px 16px rgba(0,0,0,.06),0 24px 64px rgba(0,0,0,.1);border:1px solid var(--border);margin-bottom:40px}
+.player-song{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:8px}
+.player-meta{font-size:13px;color:var(--muted);margin-bottom:24px}
+.player-wave{display:flex;align-items:center;justify-content:center;gap:3px;height:48px;margin-bottom:16px}
+.pw-bar{width:4px;border-radius:2px;background:rgba(181,71,28,.15);transition:background .2s}
+.pw-bar.active{background:var(--rust)}
+.player-controls{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:20px}
+.player-track{height:3px;background:rgba(0,0,0,.1);border-radius:2px;position:relative;overflow:hidden;margin-bottom:20px}
+.player-fill{height:100%;background:var(--rust);width:12%;border-radius:2px}
+.play-btn{width:56px;height:56px;border-radius:50%;background:var(--rust);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 8px 24px rgba(181,71,28,.4);transition:all .2s}
+.play-btn:hover{background:var(--rust-dark);transform:scale(1.08)}
+.play-btn svg{width:20px;height:20px;fill:#fff;margin-left:3px}
+.demo-disclaimer{font-size:13px;color:var(--muted)}
+.demo-disclaimer strong{color:var(--ink)}
+
+/* ── DIFFERENTIATE ── */
+.diff{background:var(--ink);color:#fff;padding:96px 24px}
+.diff-inner{max-width:960px;margin:0 auto}
+.diff-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.diff-copy h2{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,3.5vw,48px);font-weight:600;margin-bottom:24px;line-height:1.15}
+.diff-copy h2 em{color:var(--gold);font-style:italic}
+.diff-copy p{color:rgba(255,255,255,.65);font-size:16px;line-height:1.7;margin-bottom:32px}
+.diff-list{display:flex;flex-direction:column;gap:16px;margin-bottom:40px}
+.diff-item{display:flex;align-items:flex-start;gap:14px}
+.diff-check{width:24px;height:24px;border-radius:50%;background:rgba(201,151,58,.2);color:var(--gold);font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.diff-item p{font-size:15px;color:rgba(255,255,255,.75);margin:0}
+.diff-item strong{color:#fff}
+.diff-visual{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:32px}
+.compare-row{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px}
+.compare-row:last-child{border:none}
+.compare-row span{color:rgba(255,255,255,.5)}
+.compare-them{color:rgba(255,255,255,.35);text-decoration:line-through}
+.compare-us{color:var(--gold);font-weight:600}
+
+/* ── CTA SECTION ── */
+.cta-sec{padding:96px 24px;text-align:center;position:relative;overflow:hidden}
+.cta-sec::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 100%,rgba(181,71,28,.12),transparent)}
+.cta-inner{max-width:680px;margin:0 auto;position:relative}
+.cta-sec h2{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,5vw,64px);font-weight:600;line-height:1.1;letter-spacing:-.02em;margin-bottom:24px}
+.cta-sec h2 em{color:var(--rust);font-style:italic}
+.cta-sec p{color:var(--muted);font-size:17px;margin-bottom:40px}
+.cta-trust{display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap;margin-top:32px;font-size:13px;color:var(--muted)}
+.cta-trust-item{display:flex;align-items:center;gap:6px}
+.cta-trust-item svg{width:16px;height:16px;color:var(--rust)}
+
+/* ── FAQ ── */
+.faq{padding:80px 24px;background:var(--white)}
+.faq-inner{max-width:720px;margin:0 auto}
+.faq h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3vw,40px);font-weight:600;text-align:center;margin-bottom:48px}
+details{border-bottom:1px solid var(--border);padding:20px 0}
+details summary{font-size:16px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:'+';font-size:20px;color:var(--rust);transition:transform .3s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{font-size:15px;color:var(--muted);line-height:1.7;padding-top:12px}
+
+/* ── FOOTER ── */
+footer{background:var(--ink);color:rgba(255,255,255,.5);padding:48px 24px;text-align:center}
+.footer-inner{max-width:960px;margin:0 auto}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:#fff;margin-bottom:16px}
+.footer-logo em{color:var(--rust);font-style:normal}
+.footer-links{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:24px;font-size:13px}
+.footer-links a{color:rgba(255,255,255,.45);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:#fff}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.3)}
+
+/* ── ANIMATIONS ── */
+.fade-up{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.fade-up.visible{opacity:1;transform:none}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .nav-links a:not(:last-child){display:none}
+  .hero h1{font-size:40px}
+  .steps{grid-template-columns:1fr;gap:32px}
+  .testimonials{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr}
+  .diff-grid{grid-template-columns:1fr}
+  .diff-visual{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ANNOUNCE BAR -->
+<div class="announce">🎵 <span>FREE 60-Second Preview</span> — Hear your song before you pay a cent</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Story<em>Sound</em></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="https://storysound.netlify.app/create2" class="btn">Get My Free Preview</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🎵 The #1 Preview-First Song Platform</div>
+  <h1>Turn your story into a custom song<br><em>they'll never forget</em></h1>
+  <p class="hero-sub">Tell us the name, a few memories, and how you want it to feel. We write and record it — then let you <strong>hear a free 60-second preview</strong> before you pay.</p>
+
+  <div class="hero-ctas">
+    <div class="hero-cta-row">
+      <a href="https://storysound.netlify.app/create2" class="btn btn-lg">🎁 Get My Free Preview</a>
+      <a href="#demo" class="listen-link">Listen to an example</a>
+    </div>
+    <p class="trust-micro">Takes 2 minutes &nbsp;·&nbsp; <strong>Free to preview</strong> &nbsp;·&nbsp; Only $39 if you love it</p>
+  </div>
+
+  <div class="social-proof fade-up">
+    <div class="avatars">
+      <img src="https://i.pravatar.cc/76?img=47" alt="">
+      <img src="https://i.pravatar.cc/76?img=32" alt="">
+      <img src="https://i.pravatar.cc/76?img=11" alt="">
+      <img src="https://i.pravatar.cc/76?img=44" alt="">
+      <img src="https://i.pravatar.cc/76?img=25" alt="">
+    </div>
+    <div class="stars">★★★★★</div>
+    <p class="trust-micro"><strong>10,000+ families</strong> have given this gift</p>
+  </div>
+
+  <div class="hero-visual fade-up" style="margin-top:48px">
+    <div class="hero-img">
+      <div class="vinyl-scene">
+        <div class="vinyl"></div>
+      </div>
+      <div class="hero-img-overlay"></div>
+      <div class="wave-visual" style="bottom:28px">
+        <div class="wave-bar" style="animation-delay:0s"></div>
+        <div class="wave-bar" style="animation-delay:.1s"></div>
+        <div class="wave-bar" style="animation-delay:.2s"></div>
+        <div class="wave-bar" style="animation-delay:.3s"></div>
+        <div class="wave-bar" style="animation-delay:.4s"></div>
+        <div class="wave-bar" style="animation-delay:.15s"></div>
+        <div class="wave-bar" style="animation-delay:.25s"></div>
+        <div class="wave-bar" style="animation-delay:.35s"></div>
+        <div class="wave-bar" style="animation-delay:.05s"></div>
+        <div class="wave-bar" style="animation-delay:.45s"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how fade-up">
+  <div class="how-inner">
+    <p class="sec-label">How it works</p>
+    <h2>Simple as 1–2–3</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-connector"></div>
+        <h3>Tell us your story</h3>
+        <p>2-minute quiz — the name, the occasion, a few memories, and how you want the song to feel</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-connector"></div>
+        <h3>We write & record it</h3>
+        <p>Our AI songwriter crafts the lyrics from your words and records the full song in your chosen genre</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Hear it free — then decide</h3>
+        <p>Listen to a free 60-second preview right in your browser. Love it → unlock for $39. That's it.</p>
+      </div>
+    </div>
+    <a href="https://storysound.netlify.app/create2" class="btn btn-lg">Start My Song — It's Free to Preview</a>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF / TESTIMONIALS -->
+<section class="proof fade-up">
+  <div class="proof-inner">
+    <p class="sec-label" style="color:var(--rust)">Why families choose StorySound</p>
+    <h2>Why 10,000+ families chose <em>StorySound</em></h2>
+    <p class="proof-sub">"How did you remember all of that?" — the most common reaction</p>
+    <div class="testimonials">
+      <div class="tcard fade-up">
+        <div class="tcard-quote">"</div>
+        <p>I've been planning this for months and you completely saved me. He was completely blown away. Shared it with the whole family — they were crying.</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar"><img src="https://i.pravatar.cc/76?img=47" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>
+          <div><div class="tcard-name">Wendy B.</div><div class="tcard-meta">Song for her husband ✓ Verified</div></div>
+        </div>
+      </div>
+      <div class="tcard fade-up" style="transition-delay:.1s">
+        <div class="tcard-quote">"</div>
+        <p>Oh my god. This is absolutely perfect. I can't believe you pulled this off. I was freaking out this morning thinking I had nothing. You guys are magic.</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar"><img src="https://i.pravatar.cc/76?img=32" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>
+          <div><div class="tcard-name">Mike D.</div><div class="tcard-meta">Song for his wife ✓ Verified</div></div>
+        </div>
+      </div>
+      <div class="tcard fade-up" style="transition-delay:.2s">
+        <div class="tcard-quote">"</div>
+        <p>I ordered it the night before the anniversary dinner. It played during dessert. She didn't say a word — just looked at me. Best moment of our 12 years.</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar"><img src="https://i.pravatar.cc/76?img=44" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>
+          <div><div class="tcard-name">James T.</div><div class="tcard-meta">Anniversary gift ✓ Verified</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT'S INCLUDED -->
+<section class="includes fade-up">
+  <div class="includes-inner">
+    <div class="includes-head">
+      <p class="sec-label" style="color:var(--rust)">What you get</p>
+      <h2>What's included in your song</h2>
+      <p>When you unlock, you get the full song instantly — and every word came from <em>your</em> story</p>
+    </div>
+    <div class="features">
+      <div class="feat fade-up">
+        <div class="feat-icon">🎵</div>
+        <h3>Studio-Quality Recording</h3>
+        <p>A professionally produced, full-length song you'll be proud to play for family and friends — not a demo.</p>
+      </div>
+      <div class="feat fade-up" style="transition-delay:.1s">
+        <div class="feat-icon">📝</div>
+        <h3>Lyrics Written From YOUR Story</h3>
+        <p>Every word crafted from the details you shared — their name, your memories, the moments that matter to you.</p>
+      </div>
+      <div class="feat fade-up" style="transition-delay:.2s">
+        <div class="feat-icon">🎁</div>
+        <h3>Delivered in Minutes</h3>
+        <p>Your preview appears in the browser the moment the song is ready — no email wait. Unlock and share instantly.</p>
+      </div>
+      <div class="feat fade-up" style="transition-delay:.05s">
+        <div class="feat-icon">🔒</div>
+        <h3>Hear It Before You Pay</h3>
+        <p>Our competitors charge first and deliver later. We let you listen to 60 seconds free — then decide. Zero risk.</p>
+      </div>
+      <div class="feat fade-up" style="transition-delay:.15s">
+        <div class="feat-icon">🔄</div>
+        <h3>Unlimited Re-Dos</h3>
+        <p>Not exactly what you imagined? We keep working until it's perfect — or give you a full refund. No questions.</p>
+      </div>
+      <div class="feat fade-up" style="transition-delay:.25s">
+        <div class="feat-icon">📱</div>
+        <h3>Share Anywhere</h3>
+        <p>Download the MP3, play it on a speaker, or share a private link by text. Works on every device, instantly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYER DEMO -->
+<section class="demo fade-up" id="demo">
+  <div class="demo-inner">
+    <p class="sec-label" style="color:var(--rust)">Hear an example</p>
+    <h2>This is what your song sounds like</h2>
+    <p class="demo-sub">A real song, made from a real story. Yours will be written the same way — just from <em>your</em> memories.</p>
+    <div class="player-card">
+      <div class="player-song">Written In JN</div>
+      <div class="player-meta">Song for JN · R&B / Soul · StorySound Original</div>
+      <div class="player-wave" id="demoWave"></div>
+      <div class="player-track"><div class="player-fill" id="demoFill"></div></div>
+      <div class="player-controls">
+        <span id="demoCur">0:00</span>
+        <button class="play-btn" id="demoPlay" onclick="toggleDemo()">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <span>1:00</span>
+      </div>
+    </div>
+    <p class="demo-disclaimer">👆 This is a real StorySound song. <strong>Your story becomes one exactly like this</strong> — in your genre, about your person.</p>
+    <br><br>
+    <a href="https://storysound.netlify.app/create2" class="btn btn-lg">Create Mine — Free Preview</a>
+  </div>
+</section>
+
+<!-- DIFFERENTIATOR -->
+<section class="diff fade-up">
+  <div class="diff-inner">
+    <div class="diff-grid">
+      <div class="diff-copy">
+        <p class="sec-label" style="color:var(--gold)">Why StorySound</p>
+        <h2>The only platform that lets you <em>hear first, pay second</em></h2>
+        <p>Every other service charges you $79–$300 upfront and makes you wait days. You're buying blind. We think that's backwards.</p>
+        <div class="diff-list">
+          <div class="diff-item">
+            <div class="diff-check">✓</div>
+            <p><strong>Free 60-second preview</strong> — in your browser, in minutes</p>
+          </div>
+          <div class="diff-item">
+            <div class="diff-check">✓</div>
+            <p><strong>$39 to unlock</strong> — vs $79–$199 elsewhere, paid blind</p>
+          </div>
+          <div class="diff-item">
+            <div class="diff-check">✓</div>
+            <p><strong>10,000+ families</strong> — vs competitors claiming 1,000</p>
+          </div>
+          <div class="diff-item">
+            <div class="diff-check">✓</div>
+            <p><strong>100% money-back + unlimited re-dos</strong> — until you love it</p>
+          </div>
+        </div>
+        <a href="https://storysound.netlify.app/create2" class="btn btn-lg">Get My Free Preview →</a>
+      </div>
+      <div class="diff-visual">
+        <p style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:16px">StorySound vs. the rest</p>
+        <div class="compare-row"><span>Free preview before paying</span><span class="compare-them">❌ No</span><span class="compare-us">✓ Yes — 60s</span></div>
+        <div class="compare-row"><span>Price to unlock</span><span class="compare-them">$79–$199</span><span class="compare-us">$39</span></div>
+        <div class="compare-row"><span>Delivery time</span><span class="compare-them">24h–7 days</span><span class="compare-us">Minutes</span></div>
+        <div class="compare-row"><span>Unlimited re-dos</span><span class="compare-them">1 revision</span><span class="compare-us">Unlimited</span></div>
+        <div class="compare-row"><span>Families served</span><span class="compare-them">~1,000</span><span class="compare-us">10,000+</span></div>
+        <div class="compare-row"><span>Money-back guarantee</span><span class="compare-them">Limited</span><span class="compare-us">100%</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec fade-up">
+  <div class="cta-inner">
+    <h2>The most personal gift<br>you'll ever <em>give</em></h2>
+    <p>Takes 2 minutes. Free to hear. $39 to keep forever.</p>
+    <a href="https://storysound.netlify.app/create2" class="btn btn-lg" style="font-size:18px;padding:18px 48px">🎁 Get My Free Preview Now</a>
+    <div class="cta-trust">
+      <div class="cta-trust-item">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10.1 4.3 12.2l.7-4.1-3-2.9 4.2-.6z"/></svg>
+        Free to preview
+      </div>
+      <div class="cta-trust-item">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10.1 4.3 12.2l.7-4.1-3-2.9 4.2-.6z"/></svg>
+        100% money-back guarantee
+      </div>
+      <div class="cta-trust-item">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10.1 4.3 12.2l.7-4.1-3-2.9 4.2-.6z"/></svg>
+        10,000+ families
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq fade-up">
+  <div class="faq-inner">
+    <h2>Frequently asked questions</h2>
+    <details open>
+      <summary>How does the free preview work?</summary>
+      <p>Fill out a 2-minute quiz about who the song is for — the name, occasion, a few memories, how you want it to feel. We write and record the full song, then show you a free 60-second preview right in your browser. Love it? Unlock the full song for $39. Don't love it? Walk away, no charge.</p>
+    </details>
+    <details>
+      <summary>What genres can I choose from?</summary>
+      <p>Pop, R&B/Soul, Country, Hip-Hop/Rap, Reggaeton, Jazz, Folk/Acoustic, Dance/EDM, Gospel/Inspirational, and more. Choose any style — the song is written and produced in that genre specifically.</p>
+    </details>
+    <details>
+      <summary>How long does it take?</summary>
+      <p>Most songs are ready in 2–4 minutes. You watch a live progress bar while we write and record. The preview appears automatically the moment it's done — no email, no waiting, no refresh needed.</p>
+    </details>
+    <details>
+      <summary>What if I don't love the song?</summary>
+      <p>You have unlimited re-dos until it's perfect. If after multiple attempts we still can't nail it, you get a full refund — no questions asked. We've never had to issue more than one revision request per order.</p>
+    </details>
+    <details>
+      <summary>Is this AI or real musicians?</summary>
+      <p>Our lyrics are written by AI trained on real emotional storytelling, and the music is produced at studio quality. The result sounds like a real artist recorded it — because the production quality meets that standard. You're getting the personalization of a human songwriter at a fraction of the price and in minutes instead of days.</p>
+    </details>
+    <details>
+      <summary>What do I get after I pay?</summary>
+      <p>The full song — MP3 download, a shareable private link, and access to your personal delivery page where you can request changes, add printable lyrics, or create a music video version of your gift.</p>
+    </details>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Story<em>Sound</em></div>
+    <div class="footer-links">
+      <a href="https://storysound.netlify.app/create2">Create a Song</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Refund Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Contact</a>
+    </div>
+    <p class="footer-copy">© 2026 StorySound. The most personal gift you'll ever give.</p>
+  </div>
+</footer>
+
+<script>
+// ── SCROLL ANIMATIONS ──
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }});
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+// ── DEMO PLAYER ──
+let demoAudio = null, demoPlaying = false, demoTimer = null, demoPos = 0;
+const DEMO_DUR = 60;
+const DEMO_URL = 'https://storysound.netlify.app/.netlify/functions/preview-audio?o=p2_msdgdywnyoro5';
+
+// Build wave bars
+const wave = document.getElementById('demoWave');
+const BARS = 40;
+for(let i = 0; i < BARS; i++){
+  const b = document.createElement('div');
+  b.className = 'pw-bar';
+  const h = 8 + Math.abs(Math.sin(i/3)*32) + Math.random()*10;
+  b.style.height = h + 'px';
+  wave.appendChild(b);
+}
+
+function updateDemoUI(){
+  const fill = document.getElementById('demoFill');
+  const cur = document.getElementById('demoCur');
+  const pct = Math.min(demoPos/DEMO_DUR*100, 100);
+  if(fill) fill.style.width = pct + '%';
+  const s = Math.floor(demoPos);
+  if(cur) cur.textContent = '0:' + String(s).padStart(2,'0');
+  const bars = wave.querySelectorAll('.pw-bar');
+  const active = Math.floor(pct/100*BARS);
+  bars.forEach((b,i) => b.classList.toggle('active', i < active));
+}
+
+function toggleDemo(){
+  const btn = document.getElementById('demoPlay');
+  if(demoPlaying){
+    demoPlaying = false;
+    clearInterval(demoTimer);
+    if(demoAudio) demoAudio.pause();
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>';
+    return;
+  }
+  demoPlaying = true;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+  if(!demoAudio){
+    demoAudio = new Audio(DEMO_URL);
+    demoAudio.preload = 'auto';
+    demoAudio.addEventListener('ended', function(){
+      demoPlaying = false; clearInterval(demoTimer);
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>';
+    });
+    demoAudio.load();
+  }
+  demoAudio.play().catch(function(){});
+  demoTimer = setInterval(function(){
+    demoPos = demoAudio ? demoAudio.currentTime : Math.min(demoPos+0.25, DEMO_DUR);
+    updateDemoUI();
+    if(demoPos >= DEMO_DUR){ clearInterval(demoTimer); demoPlaying = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>'; }
+  }, 250);
+}
+updateDemoUI();
+</script>
+</body>
+</html>
