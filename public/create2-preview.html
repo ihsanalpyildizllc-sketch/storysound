@@ -746,6 +746,38 @@ const CONFIG = {
           }
           if(d.stage === "writing")   $("#playHint").textContent = "Writing your lyrics\u2026";
           if(d.stage === "composing") $("#playHint").textContent = "Composing the melody\u2026";
+
+          // SELF-HEAL: "queued" means no song record exists \u2014 the original
+          // start-song trigger was lost (quota, network, crash). The page has
+          // every quiz param in the URL, so it can restart generation itself.
+          if(d.stage === "queued"){
+            window._qCount = (window._qCount || 0) + 1;
+            var kicks = window._kicks || 0;
+            var lastKick = window._lastKick || 0;
+            if(window._qCount >= 12 && kicks < 3 && Date.now() - lastKick > 120000){
+              window._kicks = kicks + 1; window._lastKick = Date.now();
+              $("#playHint").textContent = "Restarting the studio session\u2026";
+              fetch("/.netlify/functions/start-song", {
+                method: "POST", headers: {"Content-Type":"application/json"},
+                body: JSON.stringify({
+                  id: token, source: "create2", email: params.get("em") || "",
+                  note_attributes: [
+                    {name:"Recipient Name",  value: params.get("name")  || ""},
+                    {name:"Relationship",    value: params.get("rel")   || ""},
+                    {name:"Occasion",        value: params.get("occ")   || ""},
+                    {name:"Genre",           value: params.get("genre") || ""},
+                    {name:"Language",        value: params.get("lang")  || "English"},
+                    {name:"Singer Voice",    value: params.get("voice") || ""},
+                    {name:"Their Qualities", value: params.get("qual")  || ""},
+                    {name:"Memories",        value: params.get("mem")   || ""},
+                    {name:"Special Message", value: params.get("msg")   || ""},
+                    {name:"Customer Email",  value: params.get("em")    || ""},
+                    {name:"_full_story",     value: params.get("story") || ""}
+                  ]
+                })
+              }).catch(function(){});
+            }
+          } else { window._qCount = 0; }
           if(d.failed){ $("#playHint").textContent = "Something went wrong \u2014 we\u2019ll email you shortly."; return; }
           if(d.title) $("#songTitle").innerHTML = esc(d.title).replace(/(Song|song)$/,'<em>$1</em>');
           if(d.ready && d.previewUrl){
@@ -762,11 +794,11 @@ const CONFIG = {
             loadPreview(d.previewUrl); track("preview_ready", {}); return;
           }
           // First 2min: poll every 3s. Then every 6s for up to 10min. No refresh needed.
-          var next = tries < 40 ? 3000 : 6000;
-          if(tries < 150) setTimeout(() => poll(tries + 1), next);
-          else $("#playHint").textContent = "Still working on it \u2014 we'll email your preview shortly.";
+          var next = tries < 40 ? 3000 : (tries < 150 ? 6000 : 15000);
+          if(tries >= 150) $("#playHint").textContent = "Still working on it \u2014 hang tight or check your email.";
+          setTimeout(() => poll(tries + 1), next);
         })
-        .catch(function(){ var next = tries < 40 ? 3000 : 6000; if(tries < 150) setTimeout(() => poll(tries + 1), next); });
+        .catch(function(){ var next = tries < 40 ? 3000 : (tries < 150 ? 6000 : 15000); setTimeout(() => poll(tries + 1), next); });
     })(0);
   } else if(params.get("preview")){
     loadPreview(params.get("preview"));   // direct URL, for testing only
