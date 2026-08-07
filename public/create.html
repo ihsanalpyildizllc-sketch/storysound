@@ -859,10 +859,10 @@ function tip(msg){
 function updateStickyBar(){
   if(window._inlineVisible) return;   // inline CTA visible — don't show sticky
   const isOnBumps = document.getElementById('bumpsPage').style.display !== 'none';
-  const isOnReview = document.getElementById('s8') && document.getElementById('s8').classList.contains('active');
   const bar = document.getElementById('stickyPay');
-  bar.classList.toggle('show', isOnBumps || isOnReview);
-  if((isOnBumps || isOnReview) && typeof window.startStickyCountdown === 'function'){
+  // Only show on bumps ("Almost there!") page — not on S8 email step
+  bar.classList.toggle('show', isOnBumps);
+  if(isOnBumps && typeof window.startStickyCountdown === 'function'){
     window.startStickyCountdown();
   }
 }
