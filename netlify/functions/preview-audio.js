@@ -70,7 +70,7 @@ exports.handler = async (event) => {
     // malformed / unparsable: fall back to a byte estimate rather than leaking the file
     if (fr.length < 40) {
       const approx = Math.min(buf.length, 16000 * CLIP_SECONDS);   // ~128kbps
-      return audio(buf.subarray(0, approx));
+      return audio(buf.subarray(0, approx), event);
     }
 
     const total = fr.reduce((a, f) => a + f.seconds, 0);
@@ -86,21 +86,47 @@ exports.handler = async (event) => {
 
     const startByte = fr[from].offset;
     const endByte = fr[to].offset + fr[to].length;
-    return audio(buf.subarray(startByte, endByte));
+    return audio(buf.subarray(startByte, endByte), event);
   } catch (err) {
     console.error("preview-audio:", err);
     return { statusCode: 500, body: "preview failed" };
   }
 };
 
-function audio(slice) {
+function audio(slice, event) {
+  const total = slice.length;
+  const rangeHeader = (event && (event.headers["range"] || event.headers["Range"])) || "";
+
+  // Safari (and all mobile browsers) REQUIRE a proper 206 Partial Content response
+  // when they send a Range request. Returning 200 causes MEDIA_ERR_SRC_NOT_SUPPORTED.
+  if (rangeHeader && rangeHeader.startsWith("bytes=")) {
+    const [rawStart, rawEnd] = rangeHeader.slice(6).split("-");
+    const start = parseInt(rawStart) || 0;
+    const end   = rawEnd ? Math.min(parseInt(rawEnd), total - 1) : total - 1;
+    const chunk = slice.subarray(start, end + 1);
+    return {
+      statusCode: 206,
+      headers: {
+        "Content-Type":   "audio/mpeg",
+        "Content-Range":  `bytes ${start}-${end}/${total}`,
+        "Content-Length": String(chunk.length),
+        "Accept-Ranges":  "bytes",
+        "Cache-Control":  "public, max-age=600",
+        "Access-Control-Allow-Origin": "*"
+      },
+      body: chunk.toString("base64"),
+      isBase64Encoded: true
+    };
+  }
+
+  // No Range header — return full clip (Chromium / initial load)
   return {
     statusCode: 200,
     headers: {
-      "Content-Type": "audio/mpeg",
-      "Content-Length": String(slice.length),
-      "Cache-Control": "public, max-age=600",
-      "Accept-Ranges": "bytes",
+      "Content-Type":   "audio/mpeg",
+      "Content-Length": String(total),
+      "Accept-Ranges":  "bytes",
+      "Cache-Control":  "public, max-age=600",
       "Access-Control-Allow-Origin": "*"
     },
     body: slice.toString("base64"),
