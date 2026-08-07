@@ -710,6 +710,7 @@ const CONFIG = {
     // Reveal the player + everything below — fade in smoothly
     // Reveal everything: swap body classes
     window._songReady = true;
+    if(typeof _refreshTimer !== "undefined") clearTimeout(_refreshTimer);
     document.body.classList.remove("generating");
     document.body.classList.add("song-ready");
     document.querySelectorAll("#lateReveal .rv, #lateRevealOuter .rv").forEach(function(c){
@@ -963,6 +964,46 @@ const CONFIG = {
   }
 
   // Pause the VSL — called when the song preview starts playing
+  // ── HARD-REFRESH FAILSAFES ──────────────────────────────────────────────────
+
+  // 1. 6-minute timer: if song still not ready, hard reload (poll resumes immediately)
+  var _refreshTimer = setTimeout(function(){
+    if(!window._songReady) location.reload();
+  }, 6 * 60 * 1000);
+
+  // 2. VSL video ended: if player not showing yet, reload after 1.5s
+  //    Vturb injects the <video> async via their script, so use MutationObserver
+  var _vslObs = new MutationObserver(function(){
+    var vid = document.querySelector("vturb-smartplayer video");
+    if(vid && !_vslObs._bound){
+      _vslObs._bound = true;
+      vid.addEventListener("ended", function(){
+        if(!window._songReady){
+          setTimeout(function(){ location.reload(); }, 1500);
+        }
+      });
+    }
+  });
+  _vslObs.observe(document.getElementById("vsl") || document.body, { childList:true, subtree:true });
+
+  // 3. Watchdog: "✓ Your preview is ready" is written but player still hidden
+  //    → scroll failed or CSS glitch → hard reload after 2s
+  var _labelObs = new MutationObserver(function(mutations){
+    mutations.forEach(function(m){
+      if(m.type === "characterData" || m.type === "childList"){
+        var gl = document.getElementById("genLabel");
+        if(gl && gl.textContent.includes("Your preview is ready") && !window._songReady){
+          setTimeout(function(){
+            if(!window._songReady) location.reload();
+          }, 2000);
+          _labelObs.disconnect();
+        }
+      }
+    });
+  });
+  var _glEl = document.getElementById("genLabel");
+  if(_glEl) _labelObs.observe(_glEl, { characterData:true, childList:true, subtree:true });
+
   function pauseVSL(){
     try {
       var sp = document.querySelector("vturb-smartplayer");
