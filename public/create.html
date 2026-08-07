@@ -133,6 +133,11 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 .btn-pay:disabled{opacity:0.5;cursor:not-allowed}
 .sec-row{display:flex;align-items:center;justify-content:center;gap:14px;font-size:12px;color:var(--muted);font-weight:500;margin-bottom:16px}
 /* STICKY PAY BAR */
+.sticky-urgency{background:linear-gradient(90deg,#1A3A2A,#2D5A3D);color:#fff;text-align:center;padding:7px 12px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:10px 10px 0 0;margin:-12px -20px 10px;letter-spacing:-.01em}
+.sticky-urgency .urg-price{font-size:16px;font-weight:800;color:#7FE3A8}
+.sticky-urgency .urg-off{background:rgba(127,227,168,.18);border:1px solid rgba(127,227,168,.3);border-radius:100px;padding:2px 10px;font-size:11px;color:#7FE3A8;letter-spacing:.04em}
+.sticky-urgency .urg-timer{font-size:12px;color:rgba(255,255,255,.75);font-variant-numeric:tabular-nums}
+.sticky-urgency .urg-timer strong{color:#FFD166;font-weight:700}
 .sticky-pay{position:fixed;bottom:0;left:0;right:0;background:rgba(250,247,242,0.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:12px 20px;z-index:100;display:none}
 .sticky-pay.show{display:block}
 .sticky-pay .btn-pay{margin-bottom:4px;padding:15px}
@@ -825,6 +830,31 @@ function tip(msg){
   if(el) el.addEventListener('input',function(){ saveState(); },{passive:true});
 });
 
+// ── STICKY COUNTDOWN ──
+(function(){
+  var MINS = 10, endAt = null;
+  var el = document.getElementById('stickyCountdown');
+
+  function startCountdown(){
+    if(endAt) return;                           // already running
+    endAt = Date.now() + MINS * 60 * 1000;
+  }
+
+  function tickCountdown(){
+    if(!endAt || !el) return;
+    var rem = Math.max(0, endAt - Date.now());
+    var m = Math.floor(rem / 60000);
+    var s = Math.floor((rem % 60000) / 1000);
+    el.textContent = m + ':' + String(s).padStart(2,'0');
+    if(rem <= 60000) el.style.color = '#FF6B6B';  // turn red in last minute
+    if(rem === 0) el.textContent = 'Expired';
+  }
+  setInterval(tickCountdown, 1000);
+
+  // Expose so updateStickyBar can start it when bumps page shows
+  window.startStickyCountdown = startCountdown;
+})();
+
 // ── STICKY PAY BAR ──
 function updateStickyBar(){
   if(window._inlineVisible) return;   // inline CTA visible — don't show sticky
@@ -832,6 +862,9 @@ function updateStickyBar(){
   const isOnReview = document.getElementById('s8') && document.getElementById('s8').classList.contains('active');
   const bar = document.getElementById('stickyPay');
   bar.classList.toggle('show', isOnBumps || isOnReview);
+  if((isOnBumps || isOnReview) && typeof window.startStickyCountdown === 'function'){
+    window.startStickyCountdown();
+  }
 }
 
 function handleStickyBtn(){
@@ -1004,6 +1037,11 @@ restoreState();
 
 <!-- STICKY PAY BAR (shows on bump + review pages) -->
 <div class="sticky-pay" id="stickyPay">
+  <div class="sticky-urgency">
+    <span class="urg-price">$39.99</span>
+    <span class="urg-off">60% OFF APPLIED</span>
+    <span class="urg-timer">Expires in <strong id="stickyCountdown">10:00</strong></span>
+  </div>
   <button class="btn-pay" onclick="handleStickyBtn()">Get My Song Now →</button>
   <div class="sec-row"><span>🔒 Secure checkout</span><span>✓ 100% Money-Back</span></div>
 </div>
