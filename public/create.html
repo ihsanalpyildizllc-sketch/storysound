@@ -631,6 +631,10 @@ const SHOPIFY_STORE='gut-1809.myshopify.com';
 const SHOPIFY_VARIANTS={base:'44258532819033',bump1:'44258586886233',bump2:'44258587476057',bump3:'44263011287129'};
 
 function showStep(n){
+  // Guard: cannot reach bumps without a valid email
+  if((n === 'bumps' || n === 9) && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(D.email)){
+    n = STEPS; // redirect to S8 (email step)
+  }
   for(let i=1;i<=STEPS;i++){const el=document.getElementById('s'+i);if(el)el.classList.remove('active');}
   document.getElementById('bumpsPage').style.display='none';
   document.getElementById('btmNav').classList.remove('hide');
