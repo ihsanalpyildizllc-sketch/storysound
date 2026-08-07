@@ -29,6 +29,12 @@ exports.handler = async (event) => {
       const total = rows.reduce((a, r) => a + r.bytes, 0);
       return { statusCode: 200, body: JSON.stringify({ total, count: rows.length, rows: rows.slice(0, 80) }) };
     }
+    if (q.action === "read" && q.k) {
+      const res = await call([["GET", q.k]]);
+      const raw = res[0]?.result || null;
+      try { return { statusCode: 200, body: JSON.stringify(JSON.parse(raw)) }; }
+      catch(e) { return { statusCode: 200, body: JSON.stringify({ raw: (raw||'').slice(0,5000) }) }; }
+    }
     if (q.action === "del" && q.k) {
       const keys = q.k.split(",").filter(Boolean);
       const res = await call([["DEL", ...keys]]);
