@@ -966,10 +966,22 @@ const CONFIG = {
   // Pause the VSL — called when the song preview starts playing
   // ── HARD-REFRESH FAILSAFES ──────────────────────────────────────────────────
 
-  // 1. 6-minute timer: if song still not ready, hard reload (poll resumes immediately)
+  // 1. 5-minute timer: force-reveal the full checkout section so people can unlock
+  //    even if the song is still composing. Poll keeps running in the background.
   var _refreshTimer = setTimeout(function(){
-    if(!window._songReady) location.reload();
-  }, 6 * 60 * 1000);
+    if(window._songReady) return;  // already revealed, do nothing
+    // Show everything — offer section, unlock buttons, pricing
+    document.body.classList.remove("generating");
+    document.body.classList.add("song-ready");
+    document.querySelectorAll("#lateReveal .rv, #lateRevealOuter .rv").forEach(function(c){
+      c.classList.add("in"); c.style.opacity="1"; c.style.transform="none";
+    });
+    // Player hint: song still composing, they can checkout while they wait
+    var ph = document.getElementById("playHint");
+    if(ph) ph.textContent = "Still composing \u2014 unlock now and it\u2019ll be ready in your library";
+    var lr = document.getElementById("lateReveal");
+    if(lr) lr.scrollIntoView({ behavior:"smooth", block:"start" });
+  }, 5 * 60 * 1000);
 
   // 2. VSL video ended: if player not showing yet, reload after 1.5s
   //    Vturb injects the <video> async via their script, so use MutationObserver
