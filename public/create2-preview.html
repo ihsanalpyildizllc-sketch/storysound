@@ -983,7 +983,7 @@ const CONFIG = {
     });
     // Player hint: song still composing, they can checkout while they wait
     var ph = document.getElementById("playHint");
-    if(ph) ph.textContent = "Still composing \u2014 wait a few more minutes to hear it, or unlock early to secure your song.";
+    if(ph) ph.textContent = "Still composing \u2014 wait a few more minutes to finish. Refresh the page to play.";
     var lr = document.getElementById("lateReveal");
     if(lr) lr.scrollIntoView({ behavior:"smooth", block:"start" });
   }, 9 * 60 * 1000);  // fallback reveal at 9min if refresh didn't happen
