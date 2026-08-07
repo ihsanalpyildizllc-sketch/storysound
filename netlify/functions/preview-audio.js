@@ -8,8 +8,8 @@
 // GET /.netlify/functions/preview-audio?o=<orderId>
 
 const CLIP_SECONDS = 60;
-const HOOK_AT = 0.32;          // fraction into the track to start the clip
-const MIN_START_SECONDS = 22;  // never open on the intro
+const HOOK_AT = 0;             // start from the beginning
+const MIN_START_SECONDS = 0;   // no skip
 
 /* ── minimal MP3 frame walker: gives us real frame boundaries + duration ──── */
 const BITRATES_V1L3 = [0,32,40,48,56,64,80,96,112,128,160,192,224,256,320,0];
