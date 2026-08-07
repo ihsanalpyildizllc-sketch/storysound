@@ -717,6 +717,11 @@ const CONFIG = {
       c.style.opacity = "1";
       c.style.transform = "none";
     });
+    // On mobile the player appears below the fold — scroll it into view
+    setTimeout(function(){
+      var lr = document.getElementById("lateReveal");
+      if(lr) lr.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 350);
     // Belt and braces: also enforce via a short watchdog in case anything re-hides it
     var reveals = 0;
     var revealWatch = setInterval(function(){
