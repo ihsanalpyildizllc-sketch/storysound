@@ -833,25 +833,25 @@ function tip(msg){
 // ── STICKY COUNTDOWN ──
 (function(){
   var MINS = 10, endAt = null;
-  var el = document.getElementById('stickyCountdown');
 
   function startCountdown(){
-    if(endAt) return;                           // already running
+    if(endAt) return;  // already running
     endAt = Date.now() + MINS * 60 * 1000;
   }
 
   function tickCountdown(){
+    // Look up element on every tick — it's null at IIFE init time
+    var el = document.getElementById('stickyCountdown');
     if(!endAt || !el) return;
     var rem = Math.max(0, endAt - Date.now());
     var m = Math.floor(rem / 60000);
     var s = Math.floor((rem % 60000) / 1000);
-    el.textContent = m + ':' + String(s).padStart(2,'0');
-    if(rem <= 60000) el.style.color = '#FF6B6B';  // turn red in last minute
+    el.textContent = m + ':' + String(s).padStart(2, '0');
+    if(rem <= 60000) el.style.color = '#FF6B6B';
     if(rem === 0) el.textContent = 'Expired';
   }
   setInterval(tickCountdown, 1000);
 
-  // Expose so updateStickyBar can start it when bumps page shows
   window.startStickyCountdown = startCountdown;
 })();
 
