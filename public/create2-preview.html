@@ -707,31 +707,40 @@ const CONFIG = {
 
     audio.load();
 
-    // Reveal the player + everything below — fade in smoothly
-    // Reveal everything: swap body classes
+    // Song is ready — prepare audio but HOLD the reveal
+    // Gate: show player only after VSL reaches 70% OR 4 minutes have passed
     window._songReady = true;
+    window._songPrepared = true;
     if(typeof _refreshTimer !== "undefined") clearTimeout(_refreshTimer);
-    document.body.classList.remove("generating");
-    document.body.classList.add("song-ready");
-    document.querySelectorAll("#lateReveal .rv, #lateRevealOuter .rv").forEach(function(c){
-      c.classList.add("in");
-      c.style.opacity = "1";
-      c.style.transform = "none";
-    });
-    // On mobile the player appears below the fold — scroll it into view
-    setTimeout(function(){
-      var lr = document.getElementById("lateReveal");
-      if(lr) lr.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 350);
-    // Belt and braces: also enforce via a short watchdog in case anything re-hides it
-    var reveals = 0;
-    var revealWatch = setInterval(function(){
-      if(++reveals > 10){ clearInterval(revealWatch); return; }
-      if(document.body.classList.contains("generating")){
-        document.body.classList.remove("generating");
-        document.body.classList.add("song-ready");
+
+    function doReveal(){
+      if(window._revealed) return;
+      window._revealed = true;
+      document.body.classList.remove("generating");
+      document.body.classList.add("song-ready");
+      document.querySelectorAll("#lateReveal .rv, #lateRevealOuter .rv").forEach(function(c){
+        c.classList.add("in"); c.style.opacity="1"; c.style.transform="none";
+      });
+      setTimeout(function(){
+        var lr = document.getElementById("lateReveal");
+        if(lr) lr.scrollIntoView({ behavior:"smooth", block:"start" });
+      }, 350);
+    }
+
+    // Gate 1: 4-minute hold from song-ready moment
+    setTimeout(function(){ if(window._songPrepared) doReveal(); }, 4 * 60 * 1000);
+
+    // Gate 2: VSL reaches 70% — poll the video element
+    (function watchVSL(){
+      var vid = document.querySelector("vturb-smartplayer video");
+      if(vid && vid.duration){
+        var pct = vid.currentTime / vid.duration;
+        if(pct >= 0.70){ doReveal(); return; }
       }
-    }, 300);
+      if(!window._revealed) setTimeout(watchVSL, 1500);
+    })();
+    // Belt and braces: also enforce via a short watchdog in case anything re-hides it
+    // watchdog removed — doReveal() is idempotent via window._revealed flag
 
     // Hide notice now that preview is here
     var gn = document.getElementById("genNotice"); if(gn) gn.style.display="none";
