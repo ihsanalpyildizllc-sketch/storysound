@@ -511,9 +511,12 @@ const obs = new IntersectionObserver((entries) => {
 document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
 
 // ── DEMO PLAYER ──
-let demoAudio = null, demoPlaying = false, demoTimer = null, demoPos = 0;
 const DEMO_DUR = 60;
 const DEMO_URL = 'https://storysound.netlify.app/.netlify/functions/preview-audio?o=p2_msdgdywnyoro5';
+const ICON_PLAY = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+
+let demoAudio = null, demoPlaying = false, demoTimer = null, demoPos = 0, audioReady = false;
 
 // Build wave bars
 const wave = document.getElementById('demoWave');
@@ -526,45 +529,80 @@ for(let i = 0; i < BARS; i++){
   wave.appendChild(b);
 }
 
+// Pre-load audio as soon as the demo section scrolls into view
+function initAudio(){
+  if(demoAudio) return;
+  demoAudio = new Audio(DEMO_URL);
+  demoAudio.preload = 'auto';
+  demoAudio.addEventListener('canplay', function(){ audioReady = true; });
+  demoAudio.addEventListener('canplaythrough', function(){ audioReady = true; });
+  demoAudio.addEventListener('waiting', function(){ if(demoPlaying) document.getElementById('demoPlay').style.opacity = '.6'; });
+  demoAudio.addEventListener('playing', function(){ document.getElementById('demoPlay').style.opacity = '1'; });
+  demoAudio.addEventListener('ended', function(){
+    demoPlaying = false; clearInterval(demoTimer);
+    document.getElementById('demoPlay').innerHTML = ICON_PLAY;
+    document.getElementById('demoPlay').style.opacity = '1';
+  });
+  demoAudio.load();
+}
+
+// Start pre-loading when the demo section enters the viewport
+new IntersectionObserver(function(entries){
+  if(entries[0].isIntersecting) initAudio();
+}, { threshold: 0.1 }).observe(document.getElementById('demo'));
+
 function updateDemoUI(){
   const fill = document.getElementById('demoFill');
   const cur = document.getElementById('demoCur');
-  const pct = Math.min(demoPos/DEMO_DUR*100, 100);
+  const pct = Math.min(demoPos / DEMO_DUR * 100, 100);
   if(fill) fill.style.width = pct + '%';
   const s = Math.floor(demoPos);
   if(cur) cur.textContent = '0:' + String(s).padStart(2,'0');
   const bars = wave.querySelectorAll('.pw-bar');
-  const active = Math.floor(pct/100*BARS);
-  bars.forEach((b,i) => b.classList.toggle('active', i < active));
+  const active = Math.floor(pct / 100 * BARS);
+  bars.forEach((b, i) => b.classList.toggle('active', i < active));
 }
 
 function toggleDemo(){
   const btn = document.getElementById('demoPlay');
+
+  // Pause path
   if(demoPlaying){
     demoPlaying = false;
     clearInterval(demoTimer);
     if(demoAudio) demoAudio.pause();
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>';
+    btn.innerHTML = ICON_PLAY;
     return;
   }
+
+  // Ensure audio is initialised (safety — should already be loaded)
+  initAudio();
+
+  // Play path — single play() call inside gesture keeps browser permission
   demoPlaying = true;
-  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
-  if(!demoAudio){
-    demoAudio = new Audio(DEMO_URL);
-    demoAudio.preload = 'auto';
-    demoAudio.addEventListener('ended', function(){
-      demoPlaying = false; clearInterval(demoTimer);
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>';
-    });
-    demoAudio.load();
-  }
-  demoAudio.play().catch(function(){});
+  btn.innerHTML = ICON_PAUSE;
+
+  demoAudio.play().then(function(){
+    btn.style.opacity = '1';
+  }).catch(function(){
+    // Audio not yet buffered — start the tick anyway so UI moves,
+    // then play will succeed on the next user interaction if needed
+    demoPlaying = false;
+    btn.innerHTML = ICON_PLAY;
+  });
+
+  // Tick from actual currentTime so counter is accurate
+  clearInterval(demoTimer);
   demoTimer = setInterval(function(){
-    demoPos = demoAudio ? demoAudio.currentTime : Math.min(demoPos+0.25, DEMO_DUR);
+    if(!demoAudio) return;
+    demoPos = demoAudio.currentTime;
     updateDemoUI();
-    if(demoPos >= DEMO_DUR){ clearInterval(demoTimer); demoPlaying = false;
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>'; }
-  }, 250);
+    if(demoPos >= DEMO_DUR){
+      clearInterval(demoTimer);
+      demoPlaying = false;
+      btn.innerHTML = ICON_PLAY;
+    }
+  }, 200);
 }
 updateDemoUI();
 </script>
