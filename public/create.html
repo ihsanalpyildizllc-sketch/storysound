@@ -670,7 +670,7 @@ function goNext(){
   if(cur===7)D.message=document.getElementById('f-msg').value.trim();
   if(cur===7){updateReview();showStep(8);}
   else if(cur<STEPS){showStep(cur+1);saveState();}
-  else{showStep('bumps');saveState();}
+  else{goToBumps();}
 }
 
 function goToBumps(){
