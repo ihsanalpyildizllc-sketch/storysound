@@ -951,40 +951,35 @@ const CONFIG = {
   }
 
   // Pause the VSL — called when the song preview starts playing
-  // ── HARD-REFRESH FAILSAFES ──────────────────────────────────────────────────
-
-  // 1a. 4-minute hard refresh — reloads with same URL, poll detects ready song instantly
-  setTimeout(function(){
-    if(!window._songReady) location.reload();
-  }, 4 * 60 * 1000);
-
-  // 1b. 5-minute timer: force-reveal the full checkout section so people can unlock
-  //    even if the song is still composing. Poll keeps running in the background.
-  var _refreshTimer = setTimeout(function(){
-    if(window._songReady) return;  // already revealed, do nothing
-    // Show everything — offer section, unlock buttons, pricing
+  // ── URGENT EXIT: guaranteed full-page reveal ───────────────────────────────
+  // At 4 minutes, NO MATTER WHAT, the full page (player + checkout) shows so
+  // people can buy. No reloads — a reload resets the clock and loops forever.
+  function forceReveal(){
+    if(window._songReady || window._forceRevealed) return;
+    window._forceRevealed = true;
     document.body.classList.remove("generating");
     document.body.classList.add("song-ready");
     document.querySelectorAll("#lateReveal .rv, #lateRevealOuter .rv").forEach(function(c){
       c.classList.add("in"); c.style.opacity="1"; c.style.transform="none";
     });
-    // Player hint: song still composing, they can checkout while they wait
+    var gl = document.getElementById("genLabel");
+    if(gl) gl.textContent = "Still finishing your song\u2026";
     var ph = document.getElementById("playHint");
     if(ph) ph.textContent = "Still composing \u2014 wait a few more minutes to finish. Refresh the page to play.";
     var lr = document.getElementById("lateReveal");
     if(lr) lr.scrollIntoView({ behavior:"smooth", block:"start" });
-  }, 9 * 60 * 1000);  // fallback reveal at 9min if refresh didn't happen
+  }
+  window._forceReveal = forceReveal;   // exposed for emergencies/testing
 
-  // 2. VSL video ended: if player not showing yet, reload after 1.5s
-  //    Vturb injects the <video> async via their script, so use MutationObserver
+  var _refreshTimer = setTimeout(forceReveal, 4 * 60 * 1000);
+
+  // VSL video ended before song ready → same urgent exit, never a reload
   var _vslObs = new MutationObserver(function(){
     var vid = document.querySelector("vturb-smartplayer video");
     if(vid && !_vslObs._bound){
       _vslObs._bound = true;
       vid.addEventListener("ended", function(){
-        if(!window._songReady){
-          setTimeout(function(){ location.reload(); }, 1500);
-        }
+        if(!window._songReady) forceReveal();
       });
     }
   });
