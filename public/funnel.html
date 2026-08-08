@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StorySound — Funnel Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,sans-serif;background:#0F0A06;color:#fff;padding:24px;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-size:22px;font-weight:800;margin-bottom:4px}
+.sub{color:rgba(255,255,255,.45);font-size:13px;margin-bottom:24px}
+.ctl{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.ctl button{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;
+  padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+.ctl button.on{background:#B5471C;border-color:#B5471C;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:840px){.grid{grid-template-columns:1fr}}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:20px}
+.card h2{font-size:15px;font-weight:700;margin-bottom:2px}
+.card .tag{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:16px;display:block}
+.step{margin-bottom:11px}
+.step-top{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:5px}
+.step-name{color:rgba(255,255,255,.8)}
+.step-val{font-weight:700;font-variant-numeric:tabular-nums}
+.step-val small{color:rgba(255,255,255,.4);font-weight:500;margin-left:6px}
+.bar{height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#B5471C,#E0691F);border-radius:4px;transition:width .5s}
+.foot{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)}
+.stat{background:rgba(0,0,0,.25);border-radius:9px;padding:10px 12px}
+.stat b{display:block;font-size:18px;font-weight:800}
+.stat span{font-size:10.5px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.05em}
+.good{color:#6EE7A8}.warn{color:#FFD166}.bad{color:#FF8A8A}
+.timing{margin-top:20px}
+.trow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
+.trow:last-child{border:0}
+.trow span{color:rgba(255,255,255,.55)}
+.trow b{font-variant-numeric:tabular-nums}
+.err{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3);padding:14px;border-radius:10px;font-size:13px}
+</style></head>
+<body><div class="wrap">
+  <h1>Funnel Tracker</h1>
+  <p class="sub" id="sub">Loading…</p>
+  <div class="ctl">
+    <button data-d="1">Today</button>
+    <button data-d="7" class="on">7 days</button>
+    <button data-d="30">30 days</button>
+    <button id="refresh">↻ Refresh</button>
+  </div>
+  <div id="out"></div>
+</div>
+<script>
+var KEY = new URLSearchParams(location.search).get("key") || "";
+var DAYS = 7;
+
+function fmtTime(s){
+  if(s == null) return "—";
+  if(s < 60) return s + "s";
+  var m = Math.floor(s/60), r = s%60;
+  return m + "m " + (r<10?"0":"") + r + "s";
+}
+function step(name, val, base, note){
+  var p = base > 0 ? Math.min(100, val/base*100) : 0;
+  return '<div class="step"><div class="step-top"><span class="step-name">'+name+'</span>'+
+    '<span class="step-val">'+val.toLocaleString()+
+    (note ? '<small>'+note+'</small>' : '')+'</span></div>'+
+    '<div class="bar"><i style="width:'+p+'%"></i></div></div>';
+}
+function cls(v, good, ok){ return v>=good ? 'good' : (v>=ok ? 'warn' : 'bad'); }
+
+function render(d){
+  var c1 = d.funnels.create, c2 = d.funnels.create2, avg = d.avgSecondsFromLanding || {};
+  document.getElementById("sub").textContent =
+    "Last " + d.windowDays + " day" + (d.windowDays>1?"s":"") + " · updated " + new Date().toLocaleTimeString();
+
+  var h = '<div class="grid">';
+
+  // create2
+  h += '<div class="card"><h2>/create2 &mdash; preview-first</h2><span class="tag">free preview, pay after hearing</span>';
+  h += step("Landed on /create2", c2.landing, c2.landing);
+  h += step("Submitted email", c2.email, c2.landing, c2.emailRate+"%");
+  h += step("Reached preview page", c2.previewLanding, c2.landing);
+  h += step("Song shown (waited)", c2.songShown, c2.landing, c2.waitedForSong+"% of preview");
+  h += step("Pressed play", c2.played, c2.landing, c2.playRate+"% of shown");
+  h += step("Clicked checkout", c2.checkoutClick, c2.landing, c2.checkoutRate+"% of preview");
+  h += step("Purchased", c2.purchases, c2.landing, c2.overall+"% overall");
+  h += '<div class="foot">'+
+    '<div class="stat"><b class="'+cls(100-c2.bounceRate,70,45)+'">'+c2.bounceRate+'%</b><span>Bounced pre-email</span></div>'+
+    '<div class="stat"><b>'+c2.abandonedAtPreview.toLocaleString()+'</b><span>Left at preview</span></div>'+
+    '<div class="stat"><b>'+c2.skipWait.toLocaleString()+'</b><span>Skipped the wait</span></div>'+
+    '<div class="stat"><b class="'+cls(c2.overall,3,1)+'">'+c2.overall+'%</b><span>Landing→paid</span></div>'+
+  '</div></div>';
+
+  // create
+  h += '<div class="card"><h2>/create &mdash; pay-first</h2><span class="tag">quiz &rarr; checkout before the song</span>';
+  h += step("Landed on /create", c1.landing, c1.landing);
+  h += step("Submitted email", c1.email, c1.landing, c1.emailRate+"%");
+  h += step("Reached \u201cAlmost there\u201d", c1.bumps, c1.landing);
+  h += step("Clicked Get My Song Now", c1.checkoutClick, c1.landing, c1.checkoutRate+"% of email");
+  h += step("Purchased", c1.purchases, c1.landing, c1.overall+"% overall");
+  h += '<div class="foot">'+
+    '<div class="stat"><b class="'+cls(100-c1.bounceRate,70,45)+'">'+c1.bounceRate+'%</b><span>Bounced pre-email</span></div>'+
+    '<div class="stat"><b>'+c1.bounced.toLocaleString()+'</b><span>Lost before email</span></div>'+
+    '<div class="stat"><b>'+c1.purchaseRate+'%</b><span>Checkout→paid</span></div>'+
+    '<div class="stat"><b class="'+cls(c1.overall,3,1)+'">'+c1.overall+'%</b><span>Landing→paid</span></div>'+
+  '</div></div>';
+
+  h += '</div>';
+
+  h += '<div class="card timing"><h2>Time from landing</h2><span class="tag">average across all sessions</span>';
+  [["Email submitted (create2)","c2_email"],["Reached preview","c2_preview_landing"],
+   ["Song shown","preview_ready"],["Pressed play","play_preview"],
+   ["Skipped the wait","c2_skip_wait_click"],["Checkout click (create2)","begin_checkout"],
+   ["Email submitted (create)","c1_email"],["Checkout click (create)","c1_checkout_click"]
+  ].forEach(function(r){
+    h += '<div class="trow"><span>'+r[0]+'</span><b>'+fmtTime(avg[r[1]])+'</b></div>';
+  });
+  h += '</div>';
+
+  document.getElementById("out").innerHTML = h;
+}
+
+function load(){
+  document.getElementById("sub").textContent = "Loading…";
+  fetch("/.netlify/functions/funnel-stats?key="+encodeURIComponent(KEY)+"&days="+DAYS)
+    .then(function(r){ if(!r.ok) throw new Error(r.status===403?"Bad admin key":"HTTP "+r.status); return r.json(); })
+    .then(render)
+    .catch(function(e){
+      document.getElementById("sub").textContent = "";
+      document.getElementById("out").innerHTML = '<div class="err">'+e.message+
+        ' — open this page as <code>/funnel?key=YOUR_ADMIN_KEY</code></div>';
+    });
+}
+document.querySelectorAll(".ctl button[data-d]").forEach(function(b){
+  b.onclick = function(){
+    document.querySelectorAll(".ctl button[data-d]").forEach(function(x){ x.classList.remove("on"); });
+    b.classList.add("on"); DAYS = +b.dataset.d; load();
+  };
+});
+document.getElementById("refresh").onclick = load;
+load();
+setInterval(load, 60000);
+</script>
+</body></html>
