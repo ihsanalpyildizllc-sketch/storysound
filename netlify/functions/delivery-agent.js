@@ -109,7 +109,7 @@ async function mcSync(payload){
 }
 
 exports.handler = async () => {
-  const out = { checked: 0, retried: 0, emailedDelivery: 0, emailedPreview: 0, abandonment: 0, leadLadder: 0, flagged: 0, errors: [] };
+  const out = { checked: 0, retried: 0, emailedDelivery: 0, emailedPreview: 0, abandonment: 0, leadLadder: 0, pruned: 0, flagged: 0, errors: [] };
   try {
     const idx = await redis([["LRANGE", "orders_index", "0", "299"]]);
     const ids = [...new Set(idx?.[0]?.result || [])];
@@ -211,6 +211,29 @@ exports.handler = async () => {
         if (isPaid && !m.persisted) {
           await persistSong(orderId, null);
           await mergeMeta(orderId, { persisted: true });
+        }
+
+        // ── AUTO-PRUNE: strip the 5-8MB audio blob from old finished orders ──
+        // Only after the song is safely persisted to permanent storage and the
+        // customer has had their delivery window. Metadata + lyrics stay forever,
+        // so the delivery page still works; only the cached blob is dropped.
+        if (song && song.audio_b64 && !m.pruned) {
+          const doneAt = m.emailed_at || m.preview_emailed_at || m.created || 0;
+          const age = doneAt ? Date.now() - doneAt : 0;
+          const PAID_TTL   = 14 * 24 * 60 * 60 * 1000;   // paid: 14 days after delivery
+          const UNPAID_TTL = 10 * 24 * 60 * 60 * 1000;   // unpaid: 10 days (ladder ends at 6d)
+          const ttl = isPaid ? PAID_TTL : UNPAID_TTL;
+          const safeToPrune = isPaid ? !!m.persisted : true;
+
+          if (safeToPrune && age > ttl) {
+            const slim = Object.assign({}, song);
+            delete slim.audio_b64;
+            slim.pruned = true;
+            await redis([["SET", `song_${orderId}`, JSON.stringify(slim)]]);
+            await mergeMeta(orderId, { pruned: true, pruned_at: Date.now() });
+            out.pruned = (out.pruned || 0) + 1;
+            continue;   // nothing else to do for this order this pass
+          }
         }
 
         // review request: 48h after delivery email, once, only if not yet reviewed
