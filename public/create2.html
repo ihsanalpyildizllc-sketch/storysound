@@ -206,6 +206,41 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 .s8rc-ver{color:#2D6A4F;font-weight:600}
 .s8rc-occ{background:rgba(181,71,28,.07);color:var(--rust);border-radius:100px;padding:2px 9px;font-size:11px;font-weight:600}
 </style>
+<script>
+/* ── FUNNEL TRACKER (fire-and-forget, never blocks) ───────────────────────── */
+(function(){
+  try{
+    var K = "ss_t0";
+    if(!sessionStorage.getItem(K)) sessionStorage.setItem(K, String(Date.now()));
+    window.__ssT0 = Number(sessionStorage.getItem(K)) || Date.now();
+  }catch(e){ window.__ssT0 = Date.now(); }
+
+  window.ssTrack = function(ev, extra){
+    try{
+      var body = JSON.stringify(Object.assign({
+        event: ev,
+        elapsed: Date.now() - (window.__ssT0 || Date.now())
+      }, extra || {}));
+      var url = "/.netlify/functions/track";
+      if(navigator.sendBeacon){
+        navigator.sendBeacon(url, new Blob([body], {type:"application/json"}));
+      } else {
+        fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body: body, keepalive:true}).catch(function(){});
+      }
+    }catch(e){}
+  };
+
+  // fire once per session per event name
+  window.ssTrackOnce = function(ev, extra){
+    try{
+      var k = "ss_ev_" + ev;
+      if(sessionStorage.getItem(k)) return;
+      sessionStorage.setItem(k, "1");
+    }catch(e){}
+    window.ssTrack(ev, extra);
+  };
+})();
+</script>
 </head>
 <body>
 
@@ -250,7 +285,7 @@ fetch("/.netlify/functions/reviews-data").then(function(r){return r.json();}).th
    (t.photo?'<img src="'+t.photo+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;margin-bottom:10px" alt="">':'')+
    '<div style="color:#E5A400;letter-spacing:2px;font-size:13px;margin-bottom:6px">'+"★".repeat(t.stars)+' <span style="color:#9A9389;letter-spacing:0;font-size:11px;float:right">'+esc(t.ago)+'</span></div>'+
    '<div style="font-size:13.5px;line-height:1.6;color:#3A362F">'+esc(t.text)+'</div>'+
-   '<div style="font-size:12px;font-weight:700;margin-top:8px">'+esc(t.name)+(t.verified?' <span style="color:#2D6A4F;font-weight:600">✓ Verified purchase</span>':'')</div></div>';
+   '<div style="font-size:12px;font-weight:700;margin-top:8px">'+esc(t.name)+(t.verified?' <span style="color:#2D6A4F;font-weight:600">✓ Verified purchase</span>':'')+'</div></div>';
  }).join("");
  document.getElementById("realReviews").style.display="block";
 }).catch(function(){});
@@ -566,8 +601,8 @@ function startFreePreview(){
 
   fetch('/.netlify/functions/start-song',{method:'POST',
     headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-    .then(()=>{window.location.href=next;})
-    .catch(()=>{window.location.href=next;});
+    .then(()=>{ssTrackOnce("c2_email");window.location.href=next;})
+    .catch(()=>{ssTrackOnce("c2_email");window.location.href=next;});
 }
 
 
@@ -956,6 +991,7 @@ window.addEventListener('scroll', () => {
   </div>
 </div>
 
+<script>ssTrackOnce("c2_landing");</script>
 </body>
 </html>
 
