@@ -305,6 +305,41 @@ body.song-ready #lateRevealOuter .rv { opacity:1 !important; transform:none !imp
 .co-dots i:nth-child(3){animation-delay:.36s}
 @keyframes coBounce{0%,70%,100%{transform:translateY(0);opacity:.35}35%{transform:translateY(-9px);opacity:1}}
 </style>
+<script>
+/* ── FUNNEL TRACKER (fire-and-forget, never blocks) ───────────────────────── */
+(function(){
+  try{
+    var K = "ss_t0";
+    if(!sessionStorage.getItem(K)) sessionStorage.setItem(K, String(Date.now()));
+    window.__ssT0 = Number(sessionStorage.getItem(K)) || Date.now();
+  }catch(e){ window.__ssT0 = Date.now(); }
+
+  window.ssTrack = function(ev, extra){
+    try{
+      var body = JSON.stringify(Object.assign({
+        event: ev,
+        elapsed: Date.now() - (window.__ssT0 || Date.now())
+      }, extra || {}));
+      var url = "/.netlify/functions/track";
+      if(navigator.sendBeacon){
+        navigator.sendBeacon(url, new Blob([body], {type:"application/json"}));
+      } else {
+        fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body: body, keepalive:true}).catch(function(){});
+      }
+    }catch(e){}
+  };
+
+  // fire once per session per event name
+  window.ssTrackOnce = function(ev, extra){
+    try{
+      var k = "ss_ev_" + ev;
+      if(sessionStorage.getItem(k)) return;
+      sessionStorage.setItem(k, "1");
+    }catch(e){}
+    window.ssTrack(ev, extra);
+  };
+})();
+</script>
 </head>
 <body class="generating">
 <div id="coOverlay">
@@ -983,6 +1018,7 @@ const CONFIG = {
   // Text link under the reaction quote: skip the wait, go straight to checkout.
   // Reveals the same full page the 4-minute urgent exit does.
   window.skipToCheckout = function(){
+    if(window.ssTrack) ssTrack("c2_skip_wait_click");
     forceReveal();
     var lr = document.getElementById("lateRevealOuter") || document.getElementById("lateReveal");
     if(lr) lr.scrollIntoView({ behavior:"smooth", block:"start" });
@@ -1313,6 +1349,7 @@ const CONFIG = {
 })();
 </script>
 </div><!-- /lateRevealOuter -->
+<script>ssTrackOnce("c2_preview_landing");</script>
 </body>
 </html>
 
