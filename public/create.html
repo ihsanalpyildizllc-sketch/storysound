@@ -224,6 +224,41 @@ textarea.ifield{min-height:130px;resize:none;line-height:1.65}
 .co-dots i:nth-child(3){animation-delay:.36s}
 @keyframes coBounce{0%,70%,100%{transform:translateY(0);opacity:.35}35%{transform:translateY(-9px);opacity:1}}
 </style>
+<script>
+/* ── FUNNEL TRACKER (fire-and-forget, never blocks) ───────────────────────── */
+(function(){
+  try{
+    var K = "ss_t0";
+    if(!sessionStorage.getItem(K)) sessionStorage.setItem(K, String(Date.now()));
+    window.__ssT0 = Number(sessionStorage.getItem(K)) || Date.now();
+  }catch(e){ window.__ssT0 = Date.now(); }
+
+  window.ssTrack = function(ev, extra){
+    try{
+      var body = JSON.stringify(Object.assign({
+        event: ev,
+        elapsed: Date.now() - (window.__ssT0 || Date.now())
+      }, extra || {}));
+      var url = "/.netlify/functions/track";
+      if(navigator.sendBeacon){
+        navigator.sendBeacon(url, new Blob([body], {type:"application/json"}));
+      } else {
+        fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body: body, keepalive:true}).catch(function(){});
+      }
+    }catch(e){}
+  };
+
+  // fire once per session per event name
+  window.ssTrackOnce = function(ev, extra){
+    try{
+      var k = "ss_ev_" + ev;
+      if(sessionStorage.getItem(k)) return;
+      sessionStorage.setItem(k, "1");
+    }catch(e){}
+    window.ssTrack(ev, extra);
+  };
+})();
+</script>
 </head>
 <body>
 <div id="coOverlay">
@@ -1252,6 +1287,27 @@ restoreState();
   </div>
 </div>
 
+<script>
+  ssTrackOnce("c1_landing");
+  (function(){
+    var _gtb = window.goToBumps;
+    window.goToBumps = function(){
+      var before = document.getElementById('bumpsPage').style.display;
+      var r = _gtb.apply(this, arguments);
+      // only counts when the gate actually let them through
+      if(document.getElementById('bumpsPage').style.display !== 'none' && before === 'none'){
+        ssTrackOnce("c1_email");
+        ssTrackOnce("c1_bumps");
+      }
+      return r;
+    };
+    var _gts = window.goToShopify;
+    window.goToShopify = function(){
+      ssTrackOnce("c1_checkout_click");
+      return _gts.apply(this, arguments);
+    };
+  })();
+</script>
 </body>
 </html>
 
