@@ -26,8 +26,12 @@ exports.handler = async (event) => {
   try {
     const attrsQuick = {};
     (order.note_attributes || []).forEach(a => { attrsQuick[a.name] = a.value; });
-    const srcRaw = String(attrsQuick["Source"] || attrsQuick["source"] || "").toLowerCase();
-    const evName = srcRaw.includes("create2") ? "c2_purchase" : "c1_purchase";
+    // create2 orders always carry Original_Order (p2_*) and an Offer attribute.
+    // There is no "Source" note_attribute on real orders — using one silently
+    // classified every sale as create.
+    const orig = String(attrsQuick["Original_Order"] || "");
+    const isCreate2 = orig.startsWith("p2_") || !!attrsQuick["Offer"];
+    const evName = isCreate2 ? "c2_purchase" : "c1_purchase";
     const dayKey = new Date().toISOString().slice(0, 10);
     if (REDIS_URL && REDIS_TOKEN) {
       await fetch(`${REDIS_URL}/pipeline`, {
