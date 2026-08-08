@@ -22,6 +22,27 @@ exports.handler = async (event) => {
   try { order = JSON.parse(event.body); } catch(e) { return { statusCode: 400, body: "Invalid JSON" }; }
   const orderId = String(order.id || "");
 
+  // funnel analytics: count the purchase against its source funnel
+  try {
+    const attrsQuick = {};
+    (order.note_attributes || []).forEach(a => { attrsQuick[a.name] = a.value; });
+    const srcRaw = String(attrsQuick["Source"] || attrsQuick["source"] || "").toLowerCase();
+    const evName = srcRaw.includes("create2") ? "c2_purchase" : "c1_purchase";
+    const dayKey = new Date().toISOString().slice(0, 10);
+    if (REDIS_URL && REDIS_TOKEN) {
+      await fetch(`${REDIS_URL}/pipeline`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+        body: JSON.stringify([
+          ["INCR", "ev:" + evName],
+          ["HINCRBY", "stats:" + dayKey, evName, "1"],
+          ["HINCRBY", "stats:all", evName, "1"],
+          ["EXPIRE", "stats:" + dayKey, "7776000"]
+        ])
+      });
+    }
+  } catch (e) { /* analytics must never break order processing */ }
+
   // conversion marker: stops the /create abandonment ladder for this email
   try {
     const convEmail = String(order.email || (order.customer && order.customer.email) || "").toLowerCase().trim();
