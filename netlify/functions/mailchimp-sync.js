@@ -7,7 +7,7 @@
 const crypto = require("crypto");
 
 const DC   = "us20";
-const LIST = process.env.MAILCHIMP_LIST_ID || "fc18f7bed9"; // StorySound audience
+const LIST = process.env.MAILCHIMP_LIST_ID || "fc18f7bed9"; // Stoory audience
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method not allowed" };
