@@ -20,7 +20,7 @@ exports.handler = async (event) => {
   }
   const H = {"X-Shopify-Access-Token":token,"Content-Type":"application/json"};
   const base = `https://${STORE}/admin/api/2026-07`;
-  const r = await fetch(`${base}/orders.json?financial_status=paid&limit=50&fields=id,order_number,email,total_price,customer,note_attributes,created_at`,{headers:H});
+  const r = await fetch(`${base}/orders.json?status=any&limit=50&fields=id,order_number,email,total_price,customer,note_attributes,created_at`,{headers:H});
   const raw = await r.text();
   const d = JSON.parse(raw);
   const orders = (d.orders||[]).map(o => ({
