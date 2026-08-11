@@ -1,0 +1,217 @@
+{% capture submit_button %}
+  {% content_for 'block', type: 'contact-form-submit-button', id: 'submit-button' %}
+{% endcapture %}
+
+<div
+  class="contact-form spacing-style size-style {% if block.settings.inherit_color_scheme == false %}color-{{ block.settings.color_scheme }}{% endif %}"
+  style="{% render 'spacing-style', settings: block.settings %}{% render 'size-style', settings: block.settings %}"
+  {{ block.shopify_attributes }}
+>
+
+  {% assign form_id = block.id | default: section.id | prepend: 'ContactForm-' %}
+
+  {%- comment -%} JS-driven success message {%- endcomment -%}
+  <div id="ss-success" style="display:none;background:#F0FFF4;border:1.5px solid #52C472;border-radius:14px;padding:32px;text-align:center;margin-bottom:24px">
+    <div style="font-size:44px;margin-bottom:12px">✓</div>
+    <h2 id="ss-success-title" style="font-size:20px;font-weight:700;color:#1A4731;margin:0 0 10px">Message received!</h2>
+    <p id="ss-success-body" style="color:#2D6A4F;margin:0;line-height:1.6">We'll get back to you within 24 hours at the email you provided.</p>
+  </div>
+
+  <div id="ss-form-wrap">
+    {%- form 'contact', id: form_id, class: 'contact-form__form' -%}
+
+      <input name="contact[id]" type="hidden" value="{{ form_id }}">
+      <input name="contact[Order ID]" type="hidden" id="field-order-id">
+      <input name="contact[Song Title]" type="hidden" id="field-song-title">
+      <input name="contact[Reason]" type="hidden" id="field-reason">
+
+      {%- if form.errors and form.id == form_id -%}
+        <div class="contact-form__error" tabindex="-1" autofocus>
+          {{- 'icon-error.svg' | inline_asset_content -}}
+          {{- form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email -}}
+        </div>
+      {%- endif -%}
+
+      <!-- Name + Email row -->
+      <div class="contact-form__form-row">
+        <div style="flex:1">
+          <label for="ContactForm-name" style="display:block;font-weight:600;margin-bottom:6px">Your name</label>
+          <input type="text" id="ContactForm-name" class="contact-form__input" autocomplete="name" name="contact[name]"
+            value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+            placeholder="First name">
+        </div>
+        <div style="flex:1">
+          <label for="ContactForm-email" style="display:block;font-weight:600;margin-bottom:6px">
+            Email address <span style="color:#C8553D">*</span>
+          </label>
+          <input type="email" id="ContactForm-email" class="contact-form__input" autocomplete="email"
+            name="contact[email]" spellcheck="false" autocapitalize="off" aria-required="true"
+            value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+            placeholder="you@email.com">
+        </div>
+      </div>
+
+      <!-- Reason for contact -->
+      <div>
+        <label for="ss-reason" style="display:block;font-weight:600;margin-bottom:6px">
+          Reason for contact <span style="color:#C8553D">*</span>
+        </label>
+        <select id="ss-reason" class="contact-form__input" onchange="handleReason(this.value)" required style="cursor:pointer">
+          <option value="" disabled selected>— Select a reason —</option>
+          <option value="Revision Request">🔁 Revision Request — change something in my song</option>
+          <option value="Order Issue">📦 Order Issue — delivery, missing song, or access problem</option>
+          <option value="General Question">❓ General Question — before or after ordering</option>
+          <option value="Billing Inquiry">💳 Billing Inquiry — charge, refund, or subscription</option>
+          <option value="Other">💬 Other</option>
+        </select>
+      </div>
+
+      <!-- REVISION FIELDS (shown only for Revision Request) -->
+      <div id="ss-revision-fields" style="display:none;border-left:3px solid #B5471C;padding-left:20px;display:none;flex-direction:column;gap:16px">
+
+        <div>
+          <label for="ss-order-visible" style="display:block;font-weight:600;margin-bottom:4px">
+            Order number <span style="font-weight:400;font-size:12px;opacity:.6">(optional if email above is correct)</span>
+          </label>
+          <p style="font-size:11px;color:#9A9389;margin:0 0 8px">Found in your confirmation email, e.g. #1017 or p2_msjh0r2y91jxs</p>
+          <input type="text" id="ss-order-visible" class="contact-form__input"
+            placeholder="#1017 or p2_msjh0r2y91jxs" oninput="document.getElementById('field-order-id').value=this.value">
+        </div>
+
+        <div>
+          <label for="ss-song-visible" style="display:block;font-weight:600;margin-bottom:6px">Song title</label>
+          <input type="text" id="ss-song-visible" class="contact-form__input"
+            placeholder="e.g. Better Than I Know Myself" oninput="document.getElementById('field-song-title').value=this.value">
+        </div>
+
+        <div>
+          <label for="ContactForm-change" style="display:block;font-weight:600;margin-bottom:4px">
+            What should change? <span style="color:#C8553D">*</span>
+          </label>
+          <p style="font-size:12px;color:#9A9389;margin:0 0 8px">Be specific — what part, what feeling, what was missing</p>
+          <textarea id="ContactForm-change" class="contact-form__input contact-form__input--textarea"
+            name="contact[What to change]" rows="5"
+            placeholder="e.g. The chorus repeats too much. I'd love the second verse to focus more on our trip to the cabin, and a slower tempo overall."></textarea>
+        </div>
+
+        <div>
+          <label for="ContactForm-keep" style="display:block;font-weight:600;margin-bottom:6px">
+            What to keep exactly as-is? <span style="font-weight:400;opacity:.6">(optional)</span>
+          </label>
+          <textarea id="ContactForm-keep" class="contact-form__input contact-form__input--textarea"
+            name="contact[What to keep]" rows="3"
+            placeholder="e.g. The opening verse — that part is perfect."></textarea>
+        </div>
+
+        <div>
+          <label for="ContactForm-context" style="display:block;font-weight:600;margin-bottom:6px">
+            Anything else? <span style="font-weight:400;opacity:.6">(optional)</span>
+          </label>
+          <textarea id="ContactForm-context" class="contact-form__input contact-form__input--textarea"
+            name="contact[Additional context]" rows="3"
+            placeholder="e.g. She liked the melody but thought the bridge felt rushed."></textarea>
+        </div>
+
+      </div>
+
+      <!-- GENERAL MESSAGE (shown for all other reasons) -->
+      <div id="ss-general-fields" style="display:none">
+        <label for="ContactForm-message" style="display:block;font-weight:600;margin-bottom:4px">
+          Message <span style="color:#C8553D">*</span>
+        </label>
+        <textarea id="ContactForm-message" class="contact-form__input contact-form__input--textarea"
+          name="contact[body]" rows="6"
+          placeholder="Tell us what's going on and we'll get back to you within 24 hours…"></textarea>
+      </div>
+
+      {{ submit_button }}
+
+    {%- endform -%}
+  </div>
+</div>
+
+<script>
+(function(){
+  // Pre-fill from URL params (deep-linked from delivery page)
+  var p = new URLSearchParams(location.search);
+  var order  = p.get('order') || '';
+  var title  = p.get('title') || '';
+  var email  = p.get('email') || '';
+  var reason = p.get('reason') || '';
+
+  if(order){ document.getElementById('ss-order-visible').value = order; document.getElementById('field-order-id').value = order; }
+  if(title){ document.getElementById('ss-song-visible').value = title; document.getElementById('field-song-title').value = title; }
+  if(email){ var fe=document.getElementById('ContactForm-email'); if(fe&&!fe.value) fe.value=email; }
+  if(reason){ var rs=document.getElementById('ss-reason'); rs.value=reason; handleReason(reason); }
+
+  // Show/hide fields based on reason
+  window.handleReason = function(val){
+    document.getElementById('field-reason').value = val;
+    var rev = document.getElementById('ss-revision-fields');
+    var gen = document.getElementById('ss-general-fields');
+    if(val === 'Revision Request'){
+      rev.style.display = 'flex';
+      gen.style.display = 'none';
+    } else if(val){
+      rev.style.display = 'none';
+      gen.style.display = 'block';
+    }
+    // Update success message copy per reason
+    var titles = {
+      'Revision Request': 'We got your revision!',
+      'Order Issue': 'Message received!',
+      'General Question': 'Got your question!',
+      'Billing Inquiry': 'Received your billing inquiry!',
+      'Other': 'Message received!'
+    };
+    var bodies = {
+      'Revision Request': "We'll send you a new version in less than 24 hours.<br>Check the email you used to order.",
+      'Order Issue': "Our team will reach out within a few hours to resolve this.",
+      'General Question': "We'll get back to you within 24 hours.",
+      'Billing Inquiry': "We'll look into this and get back to you within 24 hours.",
+      'Other': "We'll get back to you within 24 hours."
+    };
+    document.getElementById('ss-success-title').textContent = titles[val] || 'Message received!';
+    document.getElementById('ss-success-body').innerHTML = bodies[val] || "We'll get back to you within 24 hours.";
+  };
+
+  // Show success state if Shopify redirected back after submit
+  if(location.search.indexOf('posted_successfully') !== -1){
+    document.getElementById('ss-form-wrap').style.display = 'none';
+    document.getElementById('ss-success').style.display = 'block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+})();
+</script>
+
+{% stylesheet %}
+  .contact-form__form { display:flex; flex-direction:column; gap:var(--gap-md); }
+  .contact-form__form-row { display:flex; flex-direction:column; gap:var(--gap-md); }
+  @media screen and (min-width:750px){ .contact-form__form-row { flex-direction:row; align-items:flex-start; } }
+  .contact-form__input { width:100%; overflow:hidden; text-overflow:ellipsis; color:var(--color-input-text); background-color:var(--color-input-background); padding:var(--padding-lg) var(--padding-xl); border-radius:var(--style-border-radius-inputs); border:var(--style-border-width-inputs) solid var(--color-input-border); -webkit-font-smoothing:antialiased; }
+  .contact-form__input--textarea { resize:vertical; min-height:var(--input-textarea-min-height); }
+  .contact-form__error { display:flex; align-items:center; gap:var(--gap-xs); }
+  select.contact-form__input { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:40px; }
+  #ss-revision-fields { flex-direction:column; gap:var(--gap-md,16px); }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.contact_form",
+  "tag": null,
+  "settings": [
+    { "type": "select", "id": "width", "label": "t:settings.width_desktop", "options": [{ "value": "fit-content", "label": "t:options.fit_content" }, { "value": "custom", "label": "t:options.custom" }], "default": "fit-content" },
+    { "type": "range", "id": "custom_width", "label": "t:settings.width", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 100, "visible_if": "{{ block.settings.width == 'custom' }}" },
+    { "type": "select", "id": "width_mobile", "label": "t:settings.width_mobile", "options": [{ "value": "fit-content", "label": "t:options.fit_content" }, { "value": "custom", "label": "t:options.custom" }], "default": "fit-content" },
+    { "type": "range", "id": "custom_width_mobile", "label": "t:settings.width", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 100, "visible_if": "{{ block.settings.width_mobile == 'custom' }}" },
+    { "type": "checkbox", "id": "inherit_color_scheme", "label": "t:settings.inherit_color_scheme", "default": true },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:settings.color_scheme", "default": "scheme-1", "visible_if": "{{ block.settings.inherit_color_scheme == false }}" },
+    { "type": "header", "content": "t:content.padding" },
+    { "type": "range", "id": "padding-block-start", "label": "t:settings.top", "min": 0, "max": 100, "step": 1, "unit": "px", "default": 0 },
+    { "type": "range", "id": "padding-block-end", "label": "t:settings.bottom", "min": 0, "max": 100, "step": 1, "unit": "px", "default": 0 },
+    { "type": "range", "id": "padding-inline-start", "label": "t:settings.left", "min": 0, "max": 100, "step": 1, "unit": "px", "default": 0 },
+    { "type": "range", "id": "padding-inline-end", "label": "t:settings.right", "min": 0, "max": 100, "step": 1, "unit": "px", "default": 0 }
+  ],
+  "presets": [{ "name": "t:names.contact_form", "category": "t:categories.forms" }]
+}
+{% endschema %}
