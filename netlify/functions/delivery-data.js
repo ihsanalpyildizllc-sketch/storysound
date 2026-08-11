@@ -57,7 +57,7 @@ exports.handler = async (event) => {
       title: song.song_title || "Your Song",
       name: (meta && meta.name) || null,
       relationship: (meta && meta.rel) || null,
-      audioUrl: `/.netlify/functions/get-audio?orderId=${encodeURIComponent(orderId)}`,
+      audioUrl: `/.netlify/functions/get-audio?orderId=${encodeURIComponent(orderId)}&v=${Date.now()}`,
       downloadUrl: downloadBought ? `/.netlify/functions/get-audio?orderId=${encodeURIComponent(orderId)}&dl=1` : null,
       downloadBought,
       verse3Bought,
