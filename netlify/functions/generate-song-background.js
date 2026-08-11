@@ -69,6 +69,7 @@ STRUCTURE — each section has ONE job, and no two sections may do the same job:
 [Final Chorus] — repeat, with ONE line changed to point at the future ("always will" energy).
 
 HARD RULES:
+- Use AT LEAST 6 specific, concrete details from the story (names, places, jobs, years, objects, inside references). If the story mentions Walmart, prison, trucking school, a year they married, kids, a nickname, a duo they compare themselves to — those exact things MUST appear in the lyrics. Generic lines are a failure.
 - Every memory/detail from the story appears AT MOST ONCE. Never restate a detail in different words.
 - Verses tell a story in concrete images (nouns you can touch). Choruses carry emotion. Do not put abstract emotion-words (love, heart, soul, forever) in verses more than once each.
 - No filler lines that could belong in any love song ("you mean the world to me", "I can't live without you"). If a line would work for a stranger's song, cut it and use a real detail instead.
@@ -117,6 +118,7 @@ Return ONLY valid JSON (no markdown):
           prompt: song.lyrics,
           sunoParams: {
             custom_mode: true,
+            auto_lyrics: false,               // CRITICAL: sing the prompt verbatim — do NOT let Suno rewrite
             style: song.music_style,
             title: song.song_title.slice(0, 80),
             instrumental: false,
@@ -135,7 +137,7 @@ Return ONLY valid JSON (no markdown):
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-API-Key': APIFRAME_KEY },
             body: JSON.stringify({ model: 'suno', prompt: song.lyrics,
-              sunoParams: { custom_mode: true, style: song.music_style, title: song.song_title.slice(0,80),
+              sunoParams: { custom_mode: true, auto_lyrics: false, style: song.music_style, title: song.song_title.slice(0,80),
                 instrumental: false, model_version: 'V5_5', vocal_gender: vocalGender } })
           });
           const raw2 = await sr2.text();
