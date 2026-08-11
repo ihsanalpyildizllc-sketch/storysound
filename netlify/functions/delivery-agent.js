@@ -83,8 +83,8 @@ function abEmail(step, { name, title, orderId, siteUrl }) {
       cta: "🔓 Keep my song"
     }
   }[step];
-  const foot = `<p style="color:#B8AC9E;font-size:11px;margin-top:26px;line-height:1.6">You're receiving this because you created a song preview at StorySound.
-  <a href="${unsub}" style="color:#B8AC9E">Unsubscribe from reminders</a><br>StorySound · Dubai, UAE</p>`;
+  const foot = `<p style="color:#B8AC9E;font-size:11px;margin-top:26px;line-height:1.6">You're receiving this because you created a song preview at Stoory.
+  <a href="${unsub}" style="color:#B8AC9E">Unsubscribe from reminders</a><br>Stoory · Dubai, UAE</p>`;
   return {
     subject: M.subject,
     html: `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2">
@@ -95,7 +95,7 @@ function abEmail(step, { name, title, orderId, siteUrl }) {
   };
 }
 const MIN_SIZE_KB = 500;                      // a real full song is ~3MB; below this = broken file
-const SITE = process.env.SITE_URL || "https://storysound.netlify.app";
+const SITE = process.env.SITE_URL || "https://getstoory.com";
 
 // Push a contact to Mailchimp with lifecycle tags (fire-and-forget)
 async function mcSync(payload){
