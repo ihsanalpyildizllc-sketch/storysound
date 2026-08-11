@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact — Stoory</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--rust:#B5471C;--ink:#0F0A06;--muted:#8C7B70;--bg:#FAF7F2;--white:#FFFFFF;--border:rgba(0,0,0,.08)}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;font-size:16px}
+nav{background:rgba(250,247,242,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:0;z-index:100}
+.nav-inner{max-width:780px;margin:0 auto;display:flex;align-items:center;height:60px;justify-content:space-between}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--ink);text-decoration:none}
+.logo em{color:var(--rust);font-style:normal}
+.nav-back{font-size:13px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:6px}
+.nav-back:hover{color:var(--ink)}
+.wrap{max-width:780px;margin:0 auto;padding:56px 24px 96px}
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,48px);font-weight:600;margin-bottom:8px;line-height:1.15}
+.date{color:var(--muted);font-size:13px;margin-bottom:48px}
+h2{font-size:18px;font-weight:600;margin:40px 0 12px;color:var(--ink)}
+p{margin-bottom:16px;color:#3D2E24}
+a{color:var(--rust);text-decoration:none}
+a:hover{text-decoration:underline}
+ul,ol{margin:0 0 16px 24px;color:#3D2E24}
+li{margin-bottom:8px}
+.info-box{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px;margin:32px 0}
+.info-box p{margin:0;font-size:14px;color:var(--muted)}
+.info-box strong{display:block;font-size:16px;color:var(--ink);margin-bottom:4px}
+footer{background:var(--ink);color:rgba(255,255,255,.4);text-align:center;padding:32px 24px;font-size:13px}
+footer a{color:rgba(255,255,255,.4);text-decoration:none;margin:0 12px}
+footer a:hover{color:#fff}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:32px 0}
+@media(max-width:600px){.contact-grid{grid-template-columns:1fr}}
+.cbox{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:28px}
+.cbox h3{font-size:16px;font-weight:600;margin-bottom:8px}
+.cbox p{font-size:14px;color:var(--muted);margin:0}
+.cbox a{color:var(--rust);font-weight:500}
+.badge{display:inline-block;background:rgba(181,71,28,.1);color:var(--rust);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border-radius:100px;padding:3px 10px;margin-bottom:12px}
+</style>
+</head><body>
+<nav><div class="nav-inner">
+  <a href="/" class="logo">Stoo<em>ry</em></a>
+  <a href="/" class="nav-back">← Back to home</a>
+</div></nav>
+<div class="wrap">
+  <h1>Contact & Support</h1>
+  <p class="date" style="margin-bottom:32px">We typically respond within 24 hours on business days.</p>
+
+  <div class="contact-grid">
+    <div class="cbox">
+      <div class="badge">Support</div>
+      <h3>Song questions & revisions</h3>
+      <p>For help with your order, revision requests, or delivery issues:<br><br>
+      <a href="mailto:support@getstoory.com">support@getstoory.com</a></p>
+    </div>
+    <div class="cbox">
+      <div class="badge">Business</div>
+      <h3>Business & partnerships</h3>
+      <p>For partnership inquiries, press, or business matters:<br><br>
+      <a href="mailto:support@getstoory.com">support@getstoory.com</a></p>
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-top:40px">
+    <strong>Johnson's Gadgets LLC dba Stoory</strong>
+    <p>
+      Registered in Delaware, United States<br>
+      Email: <a href="mailto:support@getstoory.com">support@getstoory.com</a><br>
+      Website: <a href="https://getstoory.com">getstoory.com</a>
+    </p>
+  </div>
+
+  <h2 style="margin-top:48px">Frequently Asked Questions</h2>
+
+  <h2 style="font-size:15px;margin-top:24px">How do I request a revision?</h2>
+  <p>Reply to your delivery email with what you'd like changed, or email <a href="mailto:support@getstoory.com">support@getstoory.com</a> with your order ID.</p>
+
+  <h2 style="font-size:15px;margin-top:24px">My song hasn't arrived — what do I do?</h2>
+  <p>First, check your spam folder. If you still can't find it, email us with your order email address and we'll look it up and resend immediately.</p>
+
+  <h2 style="font-size:15px;margin-top:24px">Can I get a refund?</h2>
+  <p>Yes — we offer a 100% money-back guarantee. See our <a href="/refund">Refund Policy</a> for full details.</p>
+
+  <h2 style="font-size:15px;margin-top:24px">How long does delivery take?</h2>
+  <p>The preview is ready in your browser within 2–5 minutes of submitting. Full delivery is 30 minutes or 48 hours depending on the plan you selected at checkout.</p>
+</div>
+<footer>
+  <a href="/privacy">Privacy Policy</a>
+  <a href="/terms">Terms of Service</a>
+  <a href="/refund">Refund Policy</a>
+  <a href="/contact">Contact</a>
+  <br><br>© 2026 Johnson's Gadgets LLC dba Stoory. All rights reserved.
+</footer>
+</body></html>
