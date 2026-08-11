@@ -46,7 +46,7 @@ exports.handler = async (event) => {
         emailErr: m.email_err || null,
         emailedAt: m.emailed_at || m.preview_emailed_at || null,
         flagged: m.flagged || null,
-        revision: !!m.revision_open, revisions: (m.revisions||[]).length
+        revision: !!m.revision_open, revisions: (m.revisions||[]).length, revisionNotes: (m.revisions||[]).map(function(r){ return {feedback: r.feedback||r.text||"", keep: r.keep||"", ts: r.ts||0}; })
       });
     }
 
