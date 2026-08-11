@@ -493,11 +493,46 @@ footer p{font-size:13px;color:rgba(255,255,255,0.25)}
   }
 })();
 
-// ── PLAYER TOGGLE ──
-let playing=false;
+// ── PLAYER TOGGLE — real audio ──
+const DEMO_URL = '/.netlify/functions/preview-audio?o=p2_msdgdywnyoro5';
+let _demoAudio = null, _playing = false, _demoTimer = null;
+
+// Preload when player section scrolls into view
+new IntersectionObserver(function(entries){
+  if(entries[0].isIntersecting && !_demoAudio){
+    _demoAudio = new Audio(DEMO_URL);
+    _demoAudio.preload = 'auto';
+    _demoAudio.addEventListener('ended', function(){
+      _playing = false;
+      _updatePlayerUI();
+    });
+    _demoAudio.load();
+  }
+}, { threshold: 0.1 }).observe(document.querySelector('.audio-section') || document.body);
+
+function _updatePlayerUI(){
+  var arrow = document.getElementById('playArrow');
+  if(arrow) arrow.style.borderLeftColor = _playing ? 'rgba(255,255,255,0.5)' : '#fff';
+  var wf = document.getElementById('wf');
+  if(wf) wf.querySelectorAll('.wb').forEach(function(b){
+    b.style.animationPlayState = _playing ? 'running' : 'paused';
+  });
+}
+
 function toggleThumb(el){
-  playing=!playing;
-  document.getElementById('playArrow').style.borderLeftColor=playing?'rgba(255,255,255,0.5)':'#fff';
+  if(!_demoAudio){
+    _demoAudio = new Audio(DEMO_URL);
+    _demoAudio.preload = 'auto';
+    _demoAudio.addEventListener('ended', function(){ _playing=false; _updatePlayerUI(); });
+    _demoAudio.load();
+  }
+  _playing = !_playing;
+  if(_playing){
+    _demoAudio.play().catch(function(){ _playing=false; _updatePlayerUI(); });
+  } else {
+    _demoAudio.pause();
+  }
+  _updatePlayerUI();
 }
 
 // ── SCROLL REVEAL ──
