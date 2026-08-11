@@ -41,56 +41,32 @@ async function persistSong(orderId, event) {
 }
 
 async function sendEmail({ to, subject, html, text, stream }) {
-  // Prefer Klaviyo transactional if key set, fall back to Postmark
-  const KLAV = process.env.KLAVIYO_API_KEY;
-  const POST = process.env.POSTMARK_SERVER_TOKEN;
-
   if (!to) return { ok: false, reason: "no recipient" };
 
-  // ── Klaviyo send ──
-  if (KLAV) {
+  const FROM   = process.env.FROM_EMAIL || "help@getstoory.com";
+  const RESEND = process.env.RESEND_API_KEY;
+  const POST   = process.env.POSTMARK_SERVER_TOKEN;
+
+  // ── Resend (primary) ──
+  if (RESEND) {
     try {
-      const res = await fetch("https://a.klaviyo.com/api/messages/", {
+      const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
-        headers: {
-          "Authorization": `Klaviyo-API-Key ${KLAV}`,
-          "Content-Type": "application/json",
-          "revision": "2024-10-15"
-        },
-        body: JSON.stringify({
-          data: {
-            type: "message",
-            attributes: {
-              channel: "email",
-              to: [{ type: "profile", attributes: { email: to } }],
-              content: {
-                subject,
-                html_body: html,
-                text_body: text || "",
-                from_email: process.env.FROM_EMAIL || "help@getstoory.com",
-                from_label: "Stoory"
-              }
-            }
-          }
-        })
+        headers: { "Authorization": "Bearer " + RESEND, "Content-Type": "application/json" },
+        body: JSON.stringify({ from: "Stoory <" + FROM + ">", to, subject, html, text })
       });
-      if (res.status === 202 || res.ok) return { ok: true, id: null, via: "klaviyo" };
-      // If Klaviyo returns 4xx (e.g. plan doesn't support transactional), fall through to Postmark
       const body = await res.json().catch(() => ({}));
-      console.log("klaviyo send error, falling back:", res.status, JSON.stringify(body).slice(0,120));
-    } catch(e) { console.log("klaviyo send exception:", e.message); }
+      if (res.ok || body.id) return { ok: true, id: body.id || null, via: "resend" };
+      console.log("resend error:", res.status, JSON.stringify(body).slice(0, 120));
+    } catch(e) { console.log("resend exception:", e.message); }
   }
 
-  // ── Postmark fallback ──
-  if (!POST) return { ok: false, reason: "no sending credentials" };
+  // ── Postmark (fallback) ──
+  if (!POST) return { ok: false, reason: "no sending credentials (add RESEND_API_KEY to Netlify)" };
   const res = await fetch("https://api.postmarkapp.com/email", {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Postmark-Server-Token": POST },
-    body: JSON.stringify({
-      From: process.env.FROM_EMAIL || "help@getstoory.com",
-      To: to, Subject: subject, HtmlBody: html, TextBody: text,
-      MessageStream: stream || "outbound"
-    })
+    body: JSON.stringify({ From: FROM, To: to, Subject: subject, HtmlBody: html, TextBody: text, MessageStream: stream || "outbound" })
   });
   const body = await res.json().catch(() => ({}));
   return { ok: res.ok, id: body.MessageID || null, reason: body.Message || null, via: "postmark" };
