@@ -175,11 +175,58 @@
     document.getElementById('ss-success-body').innerHTML = bodies[val] || "We'll get back to you within 24 hours.";
   };
 
-  // Show success state if Shopify redirected back after submit
-  if(location.search.indexOf('posted_successfully') !== -1){
+  // Show success state if Shopify redirected back after submit (standard behavior)
+  if(location.search.indexOf('posted_successfully') !== -1 || location.search.indexOf('contact_posted_successfully') !== -1){
+    showSuccess();
+  }
+
+  // Intercept form submit for inline success (no page reload)
+  var form = document.querySelector('.contact-form__form');
+  if(form){
+    form.addEventListener('submit', function(e){
+      var reason = document.getElementById('ss-reason').value;
+      if(!reason){ alert('Please select a reason for contact.'); e.preventDefault(); return; }
+
+      // For revision: require the change field
+      if(reason === 'Revision Request'){
+        var change = document.getElementById('ContactForm-change');
+        if(!change || change.value.trim().length < 10){
+          alert('Please describe what should change (at least a sentence).');
+          e.preventDefault(); return;
+        }
+      } else {
+        var msg = document.getElementById('ContactForm-message');
+        if(!msg || msg.value.trim().length < 5){
+          alert('Please add a message.'); e.preventDefault(); return;
+        }
+      }
+
+      // Submit via fetch so we can show inline success without reload
+      e.preventDefault();
+      var btn = form.querySelector('[type=submit], button');
+      if(btn){ btn.disabled=true; btn.textContent='Sending…'; }
+
+      fetch(form.action || location.pathname, {
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded','X-Requested-With':'XMLHttpRequest'},
+        body: new URLSearchParams(new FormData(form))
+      })
+      .then(function(r){
+        if(r.ok || r.status === 200 || r.redirected){ showSuccess(); }
+        else { if(btn){ btn.disabled=false; btn.textContent='Send'; } alert('Something went wrong — please try again.'); }
+      })
+      .catch(function(){
+        // Fallback: let form submit normally (will redirect with posted_successfully)
+        form.submit();
+      });
+    });
+  }
+
+  function showSuccess(){
     document.getElementById('ss-form-wrap').style.display = 'none';
-    document.getElementById('ss-success').style.display = 'block';
-    window.scrollTo({top:0,behavior:'smooth'});
+    var s = document.getElementById('ss-success');
+    s.style.display = 'block';
+    s.scrollIntoView({behavior:'smooth', block:'center'});
   }
 })();
 </script>
