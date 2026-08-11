@@ -210,6 +210,7 @@ footer p{font-size:13px;color:rgba(255,255,255,0.25)}
 /* ── ANIMATIONS ── */
 @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 .reveal{opacity:0;transform:translateY(30px);transition:opacity 0.65s ease,transform 0.65s ease}
+.reveal.in{opacity:1;transform:none}
 .reveal.in{opacity:1;transform:translateY(0)}
 
 /* ── BUTTON BASE ── */
@@ -721,5 +722,18 @@ function toggleThumb(el){
   }
   _updatePlayerUI();
 }</script>
+<script>
+(function(){
+  var revObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); revObs.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  // Run on DOM ready + observe all .reveal elements
+  function initReveal(){
+    document.querySelectorAll('.reveal').forEach(function(el){ revObs.observe(el); });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initReveal);
+  else initReveal();
+})();
+</script>
 </body>
 </html>
