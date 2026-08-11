@@ -41,6 +41,23 @@ exports.handler = async (event) => {
   const title = (song && song.song_title) || orderId;
   const emailTo = (meta && meta.email) || customerEmail;
 
+  // Track in Klaviyo so you can see it in the dashboard even if email fails
+  try {
+    const KLAV = process.env.KLAVIYO_API_KEY;
+    if (KLAV) {
+      await fetch("https://a.klaviyo.com/api/events/", {
+        method: "POST",
+        headers: { "Authorization": "Klaviyo-API-Key " + KLAV, "Content-Type": "application/json", "revision": "2024-10-15" },
+        body: JSON.stringify({ data: { type: "event", attributes: {
+          metric: { data: { type: "metric", attributes: { name: "Revision Requested" } } },
+          profile: { data: { type: "profile", attributes: { email: emailTo || "unknown" } } },
+          properties: { order_id: orderId, song_title: title, feedback, keep, revision_number: revisions.length + 1 },
+          time: new Date().toISOString()
+        }}})
+      });
+    }
+  } catch(e) {}
+
   // Notify owner
   await sendEmail({
     to: owner,
