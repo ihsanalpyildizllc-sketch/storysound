@@ -20,7 +20,7 @@ exports.handler = async (event) => {
 
     const headers = {
       'Content-Type': song.audio_mime || 'audio/mpeg',
-      'Cache-Control': 'public, max-age=86400',
+      'Cache-Control': 'no-store',
       'Access-Control-Allow-Origin': '*'
     };
     if (event.queryStringParameters?.dl === '1') {
