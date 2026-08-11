@@ -114,9 +114,10 @@ Return ONLY valid JSON (no markdown):
         headers: { 'Content-Type': 'application/json', 'X-API-Key': APIFRAME_KEY },
         body: JSON.stringify({
           model: 'suno',
-          prompt: song.lyrics,
+          prompt: song.music_style,
           sunoParams: {
             custom_mode: true,
+            lyrics: song.lyrics,
             style: song.music_style,
             title: song.song_title.slice(0, 80),
             instrumental: false,
@@ -134,8 +135,8 @@ Return ONLY valid JSON (no markdown):
           const sr2 = await fetch('https://api.apiframe.ai/v2/music/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-API-Key': APIFRAME_KEY },
-            body: JSON.stringify({ model: 'suno', prompt: song.lyrics,
-              sunoParams: { custom_mode: true, style: song.music_style, title: song.song_title.slice(0,80),
+            body: JSON.stringify({ model: 'suno', prompt: song.music_style,
+              sunoParams: { custom_mode: true, lyrics: song.lyrics, style: song.music_style, title: song.song_title.slice(0,80),
                 instrumental: false, model_version: 'V5_5', vocal_gender: vocalGender } })
           });
           const raw2 = await sr2.text();
