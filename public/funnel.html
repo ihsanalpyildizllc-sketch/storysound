@@ -33,6 +33,14 @@ h1{font-size:22px;font-weight:800;margin-bottom:4px}
 .timing{margin-top:20px}
 .trow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
 .trow:last-child{border:0}
+.rev-row{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);gap:16px}
+.rev-row:last-child{border:0}
+.rev-meta{font-size:11px;color:rgba(255,255,255,.35);white-space:nowrap;padding-top:2px}
+.rev-body{font-size:13px;color:rgba(255,255,255,.75);flex:1}
+.rev-email{font-size:12px;color:rgba(255,255,255,.45);margin-top:3px}
+.rev-title{font-size:13px;font-weight:500;color:#fff;margin-bottom:8px}
+.badge-open{background:rgba(255,107,107,.15);color:#FF8A8A;font-size:10px;font-weight:600;padding:2px 8px;border-radius:100px;border:1px solid rgba(255,107,107,.3)}
+.badge-done{background:rgba(110,231,168,.1);color:#6EE7A8;font-size:10px;font-weight:600;padding:2px 8px;border-radius:100px;border:1px solid rgba(110,231,168,.2)}
 .trow span{color:rgba(255,255,255,.55)}
 .trow b{font-variant-numeric:tabular-nums}
 .err{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3);padding:14px;border-radius:10px;font-size:13px}
@@ -116,7 +124,15 @@ function render(d){
   });
   h += '</div>';
 
+  // === REVISIONS ===
+  h += '<div class="card timing" style="margin-top:20px"><h2>Revision Requests</h2><span class="tag">customers asking for changes</span>';
+  h += '<div id="revLoading" style="font-size:13px;color:rgba(255,255,255,.4);padding:12px 0">Loading...</div>';
+  h += '<div id="revList"></div></div>';
+
   document.getElementById("out").innerHTML = h;
+
+  // Load revisions after main render
+  loadRevisions();
 }
 
 function load(){
@@ -138,6 +154,38 @@ document.querySelectorAll(".ctl button[data-d]").forEach(function(b){
 });
 document.getElementById("refresh").onclick = load;
 load();
+function loadRevisions(){
+  fetch("/.netlify/functions/orders-admin?key="+encodeURIComponent(KEY))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var rows = (d.rows || []).filter(function(r){ return r.revision; });
+      var el = document.getElementById("revList");
+      var loading = document.getElementById("revLoading");
+      if(loading) loading.style.display="none";
+      if(!el) return;
+      if(!rows.length){
+        el.innerHTML = '<p style="font-size:13px;color:rgba(255,255,255,.3);padding:12px 0">No revision requests yet.</p>';
+        return;
+      }
+      var h = "";
+      rows.forEach(function(r){
+        var badge = r.revisions > 0 ? '<span class="badge-open">'+r.revisions+' request'+(r.revisions>1?"s":"")+'</span>' : '<span class="badge-open">open</span>';
+        h += '<div class="rev-row">';
+        h += '<div style="flex:1"><div class="rev-title">'+esc(r.title||r.orderId)+' '+badge+'</div>';
+        h += '<div class="rev-email">'+esc(r.email||"")+'</div>';
+        h += '<div style="margin-top:8px"><a href="/delivery?o='+encodeURIComponent(r.orderId)+'" target="_blank" style="font-size:12px;color:#B5471C;text-decoration:none">View delivery page →</a></div></div>';
+        h += '<div class="rev-meta">$'+r.total+'</div>';
+        h += '</div>';
+      });
+      el.innerHTML = h;
+    })
+    .catch(function(){ 
+      var el=document.getElementById("revLoading"); 
+      if(el) el.textContent="Couldn't load revisions";
+    });
+}
+function esc(t){ return String(t||"").replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];}); }
+
 setInterval(load, 60000);
 </script>
 </body></html>
