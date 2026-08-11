@@ -111,7 +111,7 @@ function audio(slice, event) {
         "Content-Range":  `bytes ${start}-${end}/${total}`,
         "Content-Length": String(chunk.length),
         "Accept-Ranges":  "bytes",
-        "Cache-Control":  "public, max-age=600",
+        "Cache-Control":  "no-store",
         "Access-Control-Allow-Origin": "*"
       },
       body: chunk.toString("base64"),
@@ -126,7 +126,7 @@ function audio(slice, event) {
       "Content-Type":   "audio/mpeg",
       "Content-Length": String(total),
       "Accept-Ranges":  "bytes",
-      "Cache-Control":  "public, max-age=600",
+      "Cache-Control":  "no-store",
       "Access-Control-Allow-Origin": "*"
     },
     body: slice.toString("base64"),
