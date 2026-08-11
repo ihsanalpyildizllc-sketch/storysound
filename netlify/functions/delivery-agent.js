@@ -97,6 +97,23 @@ function abEmail(step, { name, title, orderId, siteUrl }) {
 const MIN_SIZE_KB = 500;                      // a real full song is ~3MB; below this = broken file
 const SITE = process.env.SITE_URL || "https://getstoory.com";
 
+async function klaviyo(email, eventName, props, profileProps) {
+  const KEY = process.env.KLAVIYO_API_KEY;
+  if (!KEY || !email) return;
+  try {
+    await fetch("https://a.klaviyo.com/api/events/", {
+      method: "POST",
+      headers: { "Authorization": "Klaviyo-API-Key " + KEY, "Content-Type": "application/json", "revision": "2024-10-15" },
+      body: JSON.stringify({ data: { type: "event", attributes: {
+        metric: { data: { type: "metric", attributes: { name: eventName } } },
+        profile: { data: { type: "profile", attributes: Object.assign({ email }, profileProps || {}) } },
+        properties: props || {},
+        time: new Date().toISOString()
+      }}})
+    });
+  } catch(e) { console.log("klaviyo err:", e.message); }
+}
+
 // Push a contact to Mailchimp with lifecycle tags (fire-and-forget)
 async function mcSync(payload){
   try {
@@ -135,6 +152,7 @@ exports.handler = async () => {
                 const r = await sendEmail({ to: mL.email, subject: e.subject, html: e.html, text: e.text, stream: BROADCAST });
                 if (!r.ok) break;                                 // token missing / pending approval \u2192 retry next pass, don\u2019t consume the step
                 await mergeMeta(orderId, { [step.key]: "sent", [step.key + "_at"]: Date.now() });
+                await klaviyo(mL.email, "Abandoned Quiz", { step: step.key, invoice_url: mL.invoiceUrl, song_for: mL.name }, { first_name: mL.buyerName });
                 out.leadLadder++;
                 break;                                            // max one ladder email per pass
               }
@@ -256,6 +274,7 @@ exports.handler = async () => {
           const e = deliveryEmail({ title: song.song_title || "Your Song", orderId, siteUrl: SITE });
           const r = await sendEmail({ to: m.email, subject: e.subject, html: e.html, text: e.text });
           await mergeMeta(orderId, { email_status: r.ok ? "sent" : "failed", emailed_at: Date.now(), email_id: r.id || null, email_err: r.ok ? null : r.reason });
+          if (r.ok) klaviyo(m.email, "Song Delivered", { song_title: song.song_title, delivery_url: SITE+"/delivery?o="+orderId, total: m.total }, { first_name: m.buyerName });
           if (r.ok) out.emailedDelivery++;
         }
 
@@ -277,6 +296,7 @@ exports.handler = async () => {
           const e = previewEmail({ title: song.song_title, orderId, siteUrl: SITE, name: m.name });
           const r = await sendEmail({ to: m.email, subject: e.subject, html: e.html, text: e.text });
           await mergeMeta(orderId, { preview_email: r.ok ? "sent" : "failed", preview_emailed_at: r.ok ? Date.now() : null, email_err: r.ok ? null : (r.reason || "unknown") });
+          if (r.ok) klaviyo(m.email, "Song Ready", { song_title: song.song_title, preview_url: SITE+"/create2-preview?o="+orderId, song_for: m.name, genre: m.genre }, { first_name: m.buyerName });
           if (r.ok) out.emailedPreview++;
         }
 
@@ -292,6 +312,7 @@ exports.handler = async () => {
             await mergeMeta(orderId, { [step.key]: r.ok ? "sent" : "failed", [step.key + "_at"]: Date.now() });
             m[step.key] = r.ok ? "sent" : "failed";
             if (r.ok) out.abandonment = (out.abandonment || 0) + 1;
+            if (r.ok) klaviyo(m.email, "Preview Abandoned", { step: step.key, song_title: song.song_title, preview_url: SITE+"/create2-preview?o="+orderId }, { first_name: m.buyerName });
             break;                                              // max one ladder email per pass per order
           }
         }
