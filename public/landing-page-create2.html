@@ -369,25 +369,31 @@ footer{background:var(--ink);color:rgba(255,255,255,.5);padding:48px 24px;text-a
 
 <!-- PLAYER DEMO -->
 <section class="demo fade-up" id="demo">
-  <div class="demo-inner">
+  <div class="demo-inner" style="max-width:600px">
     <p class="sec-label" style="color:var(--rust)">Hear an example</p>
-    <h2>This is what your song sounds like</h2>
-    <p class="demo-sub">A real song, made from a real story. Yours will be written the same way — just from <em>your</em> memories.</p>
+    <h2>Real songs, real stories</h2>
+    <p class="demo-sub">Every song below was made from someone's real memories — just like yours will be.</p>
+
+    <!-- Song tabs -->
+    <div id="songTabs" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:20px"></div>
+
+    <!-- Player card -->
     <div class="player-card">
-      <div class="player-song">Written In JN</div>
-      <div class="player-meta">Song for JN · R&B / Soul · Stoory Original</div>
+      <div class="player-song" id="demoTitle">Still Here</div>
+      <div class="player-meta" id="demoMeta">Reggaeton · Stoory Original</div>
       <div class="player-wave" id="demoWave"></div>
       <div class="player-track"><div class="player-fill" id="demoFill"></div></div>
       <div class="player-controls">
         <span id="demoCur">0:00</span>
         <button class="play-btn" id="demoPlay" onclick="toggleDemo()">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
         </button>
         <span>1:00</span>
       </div>
     </div>
-    <p class="demo-disclaimer">👆 This is a real Stoory song. <strong>Your story becomes one exactly like this</strong> — in your genre, about your person.</p>
-    <br><br>
+
+    <p class="demo-disclaimer" style="margin-top:16px">These are real Stoory songs. <strong>Yours will be written the same way</strong> — in your genre, about your person.</p>
+    <br>
     <a href="https://getstoory.com/create2" class="btn btn-lg">Create Mine — Free Preview</a>
   </div>
 </section>
@@ -510,98 +516,108 @@ const obs = new IntersectionObserver((entries) => {
 document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
 
 // ── DEMO PLAYER ──
-const DEMO_DUR = 60;
-const DEMO_URL = 'https://getstoory.com/.netlify/functions/preview-audio?o=p2_msdgdywnyoro5';
-const ICON_PLAY = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>';
+const ICON_PLAY  = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>';
 const ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+const DEMO_DUR   = 60;
+const SONGS = [
+  { id:"p2_mshmf7wa7tgg0", title:"Still Here",              genre:"Reggaeton"       },
+  { id:"p2_msitorzw8ryxz", title:"Everything I Chose",      genre:"Pop"             },
+  { id:"p2_msk72sddyoifw", title:"The Way You Found Me",    genre:"Latin"           },
+  { id:"p2_msdij6z27vi0h", title:"More Than Words Can Pay", genre:"Rap / Hip-Hop"  },
+];
 
-let demoAudio = null, demoPlaying = false, demoTimer = null, demoPos = 0, audioReady = false;
+let demoAudio=null, demoPlaying=false, demoTimer=null, demoPos=0, curSong=0;
 
 // Build wave bars
 const wave = document.getElementById('demoWave');
 const BARS = 40;
-for(let i = 0; i < BARS; i++){
-  const b = document.createElement('div');
-  b.className = 'pw-bar';
-  const h = 8 + Math.abs(Math.sin(i/3)*32) + Math.random()*10;
-  b.style.height = h + 'px';
+for(let i=0;i<BARS;i++){
+  const b=document.createElement('div'); b.className='pw-bar';
+  b.style.height=(8+Math.abs(Math.sin(i/3)*32)+Math.random()*10)+'px';
   wave.appendChild(b);
 }
 
-// Pre-load audio as soon as the demo section scrolls into view
+function buildTabs(){
+  var c=document.getElementById('songTabs'); if(!c) return;
+  SONGS.forEach(function(s,i){
+    var b=document.createElement('button');
+    b.id='tab_'+i; b.textContent=s.genre;
+    b.style.cssText='background:'+(i===0?'var(--rust)':'rgba(181,71,28,.1)')+
+      ';color:'+(i===0?'#fff':'var(--rust)')+
+      ';border:'+(i===0?'none':'1.5px solid rgba(181,71,28,.3)')+
+      ';border-radius:100px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s';
+    b.onclick=function(){ switchSong(i); };
+    c.appendChild(b);
+  });
+}
+
+function switchSong(idx){
+  if(demoPlaying){ demoPlaying=false; clearInterval(demoTimer); if(demoAudio) demoAudio.pause(); }
+  demoAudio=null; demoPos=0; curSong=idx;
+  var s=SONGS[idx];
+  document.getElementById('demoTitle').textContent=s.title;
+  document.getElementById('demoMeta').textContent=s.genre+' · Stoory Original';
+  document.getElementById('demoPlay').innerHTML=ICON_PLAY;
+  updateDemoUI();
+  SONGS.forEach(function(_,i){
+    var b=document.getElementById('tab_'+i); if(!b) return;
+    var on=(i===idx);
+    b.style.background=on?'var(--rust)':'rgba(181,71,28,.1)';
+    b.style.color=on?'#fff':'var(--rust)';
+    b.style.border=on?'none':'1.5px solid rgba(181,71,28,.3)';
+  });
+  initAudio();
+}
+
 function initAudio(){
   if(demoAudio) return;
-  demoAudio = new Audio(DEMO_URL);
-  demoAudio.preload = 'auto';
-  demoAudio.addEventListener('canplay', function(){ audioReady = true; });
-  demoAudio.addEventListener('canplaythrough', function(){ audioReady = true; });
-  demoAudio.addEventListener('waiting', function(){ if(demoPlaying) document.getElementById('demoPlay').style.opacity = '.6'; });
-  demoAudio.addEventListener('playing', function(){ document.getElementById('demoPlay').style.opacity = '1'; });
-  demoAudio.addEventListener('ended', function(){
-    demoPlaying = false; clearInterval(demoTimer);
-    document.getElementById('demoPlay').innerHTML = ICON_PLAY;
-    document.getElementById('demoPlay').style.opacity = '1';
+  demoAudio=new Audio('https://getstoory.com/.netlify/functions/preview-audio?o='+SONGS[curSong].id);
+  demoAudio.preload='auto';
+  demoAudio.addEventListener('waiting',function(){ if(demoPlaying) document.getElementById('demoPlay').style.opacity='.6'; });
+  demoAudio.addEventListener('playing',function(){ document.getElementById('demoPlay').style.opacity='1'; });
+  demoAudio.addEventListener('ended',function(){
+    demoPlaying=false; clearInterval(demoTimer);
+    document.getElementById('demoPlay').innerHTML=ICON_PLAY;
+    var next=(curSong+1)%SONGS.length; switchSong(next);
   });
   demoAudio.load();
 }
 
-// Start pre-loading when the demo section enters the viewport
+buildTabs();
 new IntersectionObserver(function(entries){
   if(entries[0].isIntersecting) initAudio();
-}, { threshold: 0.1 }).observe(document.getElementById('demo'));
+},{threshold:0.1}).observe(document.getElementById('demo'));
 
 function updateDemoUI(){
-  const fill = document.getElementById('demoFill');
-  const cur = document.getElementById('demoCur');
-  const pct = Math.min(demoPos / DEMO_DUR * 100, 100);
-  if(fill) fill.style.width = pct + '%';
-  const s = Math.floor(demoPos);
-  if(cur) cur.textContent = '0:' + String(s).padStart(2,'0');
-  const bars = wave.querySelectorAll('.pw-bar');
-  const active = Math.floor(pct / 100 * BARS);
-  bars.forEach((b, i) => b.classList.toggle('active', i < active));
+  const fill=document.getElementById('demoFill');
+  const cur=document.getElementById('demoCur');
+  const pct=Math.min(demoPos/DEMO_DUR*100,100);
+  if(fill) fill.style.width=pct+'%';
+  const s=Math.floor(demoPos);
+  if(cur) cur.textContent='0:'+String(s).padStart(2,'0');
+  const bars=wave.querySelectorAll('.pw-bar');
+  const active=Math.floor(pct/100*BARS);
+  bars.forEach((b,i)=>b.classList.toggle('active',i<active));
 }
 
 function toggleDemo(){
-  const btn = document.getElementById('demoPlay');
-
-  // Pause path
+  const btn=document.getElementById('demoPlay');
   if(demoPlaying){
-    demoPlaying = false;
-    clearInterval(demoTimer);
+    demoPlaying=false; clearInterval(demoTimer);
     if(demoAudio) demoAudio.pause();
-    btn.innerHTML = ICON_PLAY;
-    return;
+    btn.innerHTML=ICON_PLAY; return;
   }
-
-  // Ensure audio is initialised (safety — should already be loaded)
   initAudio();
-
-  // Play path — single play() call inside gesture keeps browser permission
-  demoPlaying = true;
-  btn.innerHTML = ICON_PAUSE;
-
-  demoAudio.play().then(function(){
-    btn.style.opacity = '1';
-  }).catch(function(){
-    // Audio not yet buffered — start the tick anyway so UI moves,
-    // then play will succeed on the next user interaction if needed
-    demoPlaying = false;
-    btn.innerHTML = ICON_PLAY;
+  demoPlaying=true; btn.innerHTML=ICON_PAUSE;
+  demoAudio.play().then(function(){ btn.style.opacity='1'; }).catch(function(){
+    demoPlaying=false; btn.innerHTML=ICON_PLAY;
   });
-
-  // Tick from actual currentTime so counter is accurate
   clearInterval(demoTimer);
-  demoTimer = setInterval(function(){
+  demoTimer=setInterval(function(){
     if(!demoAudio) return;
-    demoPos = demoAudio.currentTime;
-    updateDemoUI();
-    if(demoPos >= DEMO_DUR){
-      clearInterval(demoTimer);
-      demoPlaying = false;
-      btn.innerHTML = ICON_PLAY;
-    }
-  }, 200);
+    demoPos=demoAudio.currentTime; updateDemoUI();
+    if(demoPos>=DEMO_DUR){ clearInterval(demoTimer); demoPlaying=false; btn.innerHTML=ICON_PLAY; }
+  },200);
 }
 updateDemoUI();
 </script>
