@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your song is almost ready — StorySound</title>
+<title>Your song is almost ready — Stoory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://gut-1809.myshopify.com">
@@ -356,7 +356,7 @@ body.song-ready #lateRevealOuter .rv { opacity:1 !important; transform:none !imp
      ═══════════════════════════════════════════════════════════ -->
 <script>
 const CONFIG = {
-  brand: "StorySound",
+  brand: "Stoory",
 
   // ─── THIS PAGE IS OFFER 2. The main lander stays untouched at its own URL. ───
   offerId: "offer2",         // stamped on every tracked event so it never mixes with the main lander
@@ -649,7 +649,7 @@ const CONFIG = {
 <footer>
   <div class="logo" style="font-size:1rem;margin-bottom:10px">Story<span>Sound</span></div>
   <p><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refunds">Refund Policy</a> · <a href="/contact">Contact</a></p>
-  <p style="margin-top:8px">© <span id="yr"></span> StorySound. All rights reserved.</p>
+  <p style="margin-top:8px">© <span id="yr"></span> Stoory. All rights reserved.</p>
 </footer>
 
 <div class="sticky" id="sticky">
@@ -708,7 +708,7 @@ const CONFIG = {
     const owner = poss(name);
     $("#songTitle").innerHTML = owner + ' <em>Song</em>';
     $("#songMeta").textContent = [genre, rel && ("written for " + rel)].filter(Boolean).join(" \u00b7 ");
-    document.title = name ? owner + " Song is ready \u2014 StorySound" : "Your song is almost ready \u2014 StorySound";
+    document.title = name ? owner + " Song is ready \u2014 Stoory" : "Your song is almost ready \u2014 Stoory";
     document.querySelectorAll("[data-owner]").forEach(el => el.textContent = owner);
   }
   paintSong();
