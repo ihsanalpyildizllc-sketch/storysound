@@ -41,18 +41,59 @@ async function persistSong(orderId, event) {
 }
 
 async function sendEmail({ to, subject, html, text, stream }) {
-  if (!to || !process.env.POSTMARK_SERVER_TOKEN) return { ok: false, reason: "no email or token" };
+  // Prefer Klaviyo transactional if key set, fall back to Postmark
+  const KLAV = process.env.KLAVIYO_API_KEY;
+  const POST = process.env.POSTMARK_SERVER_TOKEN;
+
+  if (!to) return { ok: false, reason: "no recipient" };
+
+  // ── Klaviyo send ──
+  if (KLAV) {
+    try {
+      const res = await fetch("https://a.klaviyo.com/api/messages/", {
+        method: "POST",
+        headers: {
+          "Authorization": `Klaviyo-API-Key ${KLAV}`,
+          "Content-Type": "application/json",
+          "revision": "2024-10-15"
+        },
+        body: JSON.stringify({
+          data: {
+            type: "message",
+            attributes: {
+              channel: "email",
+              to: [{ type: "profile", attributes: { email: to } }],
+              content: {
+                subject,
+                html_body: html,
+                text_body: text || "",
+                from_email: process.env.FROM_EMAIL || "help@getstoory.com",
+                from_label: "Stoory"
+              }
+            }
+          }
+        })
+      });
+      if (res.status === 202 || res.ok) return { ok: true, id: null, via: "klaviyo" };
+      // If Klaviyo returns 4xx (e.g. plan doesn't support transactional), fall through to Postmark
+      const body = await res.json().catch(() => ({}));
+      console.log("klaviyo send error, falling back:", res.status, JSON.stringify(body).slice(0,120));
+    } catch(e) { console.log("klaviyo send exception:", e.message); }
+  }
+
+  // ── Postmark fallback ──
+  if (!POST) return { ok: false, reason: "no sending credentials" };
   const res = await fetch("https://api.postmarkapp.com/email", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Postmark-Server-Token": process.env.POSTMARK_SERVER_TOKEN },
+    headers: { "Content-Type": "application/json", "X-Postmark-Server-Token": POST },
     body: JSON.stringify({
-      From: process.env.FROM_EMAIL || "songs@storysound.ai",
+      From: process.env.FROM_EMAIL || "help@getstoory.com",
       To: to, Subject: subject, HtmlBody: html, TextBody: text,
-      MessageStream: stream || "outbound"   // transactional by default; pass the broadcast stream for marketing
+      MessageStream: stream || "outbound"
     })
   });
   const body = await res.json().catch(() => ({}));
-  return { ok: res.ok, id: body.MessageID || null, reason: body.Message || null };
+  return { ok: res.ok, id: body.MessageID || null, reason: body.Message || null, via: "postmark" };
 }
 
 function deliveryEmail({ title, orderId, siteUrl }) {
