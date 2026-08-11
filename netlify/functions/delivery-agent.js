@@ -97,17 +97,46 @@ function abEmail(step, { name, title, orderId, siteUrl }) {
 const MIN_SIZE_KB = 500;                      // a real full song is ~3MB; below this = broken file
 const SITE = process.env.SITE_URL || "https://getstoory.com";
 
+// Klaviyo list IDs per funnel source
+const KLAV_LISTS = {
+  "create":  "Sa5Fsn",
+  "create2": "SGttHB",
+  "create3": "VEic7W",
+  "paid":    "XZ7RTE",
+};
+
 async function klaviyo(email, eventName, props, profileProps) {
   const KEY = process.env.KLAVIYO_API_KEY;
   if (!KEY || !email) return;
+  const KLAV_HEADERS = { "Authorization": "Klaviyo-API-Key " + KEY, "Content-Type": "application/json", "revision": "2024-10-15" };
+  const source = (props && props.source) || (profileProps && profileProps.source) || "";
+
   try {
+    // 1. Upsert profile with source_funnel property
+    const listId = KLAV_LISTS[source] || null;
+    await fetch("https://a.klaviyo.com/api/profile-import/", {
+      method: "POST", headers: KLAV_HEADERS,
+      body: JSON.stringify({ data: { type: "profile", attributes: Object.assign(
+        { email, properties: { source_funnel: source || "unknown" } },
+        profileProps || {}
+      )}})
+    });
+
+    // 2. Add to source-specific list if we have one
+    if (listId) {
+      await fetch("https://a.klaviyo.com/api/lists/" + listId + "/relationships/profiles/", {
+        method: "POST", headers: KLAV_HEADERS,
+        body: JSON.stringify({ data: [{ type: "profile", attributes: { email } }] })
+      });
+    }
+
+    // 3. Track the event
     await fetch("https://a.klaviyo.com/api/events/", {
-      method: "POST",
-      headers: { "Authorization": "Klaviyo-API-Key " + KEY, "Content-Type": "application/json", "revision": "2024-10-15" },
+      method: "POST", headers: KLAV_HEADERS,
       body: JSON.stringify({ data: { type: "event", attributes: {
         metric: { data: { type: "metric", attributes: { name: eventName } } },
-        profile: { data: { type: "profile", attributes: Object.assign({ email }, profileProps || {}) } },
-        properties: props || {},
+        profile: { data: { type: "profile", attributes: { email } } },
+        properties: Object.assign({ source_funnel: source }, props || {}),
         time: new Date().toISOString()
       }}})
     });
@@ -274,7 +303,7 @@ exports.handler = async () => {
           const e = deliveryEmail({ title: song.song_title || "Your Song", orderId, siteUrl: SITE });
           const r = await sendEmail({ to: m.email, subject: e.subject, html: e.html, text: e.text });
           await mergeMeta(orderId, { email_status: r.ok ? "sent" : "failed", emailed_at: Date.now(), email_id: r.id || null, email_err: r.ok ? null : r.reason });
-          if (r.ok) klaviyo(m.email, "Song Delivered", { song_title: song.song_title, delivery_url: SITE+"/delivery?o="+orderId, total: m.total }, { first_name: m.buyerName });
+          if (r.ok) klaviyo(m.email, "Song Delivered", { song_title: song.song_title, delivery_url: SITE+"/delivery?o="+orderId, total: m.total, source: "paid" }, { first_name: m.buyerName, source: "paid" });
           if (r.ok) out.emailedDelivery++;
         }
 
@@ -296,7 +325,7 @@ exports.handler = async () => {
           const e = previewEmail({ title: song.song_title, orderId, siteUrl: SITE, name: m.name });
           const r = await sendEmail({ to: m.email, subject: e.subject, html: e.html, text: e.text });
           await mergeMeta(orderId, { preview_email: r.ok ? "sent" : "failed", preview_emailed_at: r.ok ? Date.now() : null, email_err: r.ok ? null : (r.reason || "unknown") });
-          if (r.ok) klaviyo(m.email, "Song Ready", { song_title: song.song_title, preview_url: SITE+"/create2-preview?o="+orderId, song_for: m.name, genre: m.genre }, { first_name: m.buyerName });
+          if (r.ok) klaviyo(m.email, "Song Ready", { song_title: song.song_title, preview_url: SITE+"/create2-preview?o="+orderId, song_for: m.name, genre: m.genre, source: "create2" }, { first_name: m.buyerName, source: "create2" });
           if (r.ok) out.emailedPreview++;
         }
 
@@ -312,7 +341,7 @@ exports.handler = async () => {
             await mergeMeta(orderId, { [step.key]: r.ok ? "sent" : "failed", [step.key + "_at"]: Date.now() });
             m[step.key] = r.ok ? "sent" : "failed";
             if (r.ok) out.abandonment = (out.abandonment || 0) + 1;
-            if (r.ok) klaviyo(m.email, "Preview Abandoned", { step: step.key, song_title: song.song_title, preview_url: SITE+"/create2-preview?o="+orderId }, { first_name: m.buyerName });
+            if (r.ok) klaviyo(m.email, "Preview Abandoned", { step: step.key, song_title: song.song_title, preview_url: SITE+"/create2-preview?o="+orderId, source: "create2" }, { first_name: m.buyerName, source: "create2" });
             break;                                              // max one ladder email per pass per order
           }
         }
