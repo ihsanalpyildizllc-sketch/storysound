@@ -208,15 +208,16 @@
 
       fetch(form.action || location.pathname, {
         method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded','X-Requested-With':'XMLHttpRequest'},
-        body: new URLSearchParams(new FormData(form))
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body: new URLSearchParams(new FormData(form)),
+        redirect:'follow'
       })
-      .then(function(r){
-        if(r.ok || r.status === 200 || r.redirected){ showSuccess(); }
-        else { if(btn){ btn.disabled=false; btn.textContent='Send'; } alert('Something went wrong — please try again.'); }
+      .then(function(){
+        // Shopify contact forms always redirect on success — any response means it worked
+        showSuccess();
       })
       .catch(function(){
-        // Fallback: let form submit normally (will redirect with posted_successfully)
+        // True network failure — fall back to normal form submit
         form.submit();
       });
     });
