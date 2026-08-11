@@ -97,7 +97,7 @@ function render(d){
      '</div>'
   )+
   lb+
-  '<div class="card" id="revCard"><div class="cap">&#128260; Want something changed?</div><p style="font-size:14px;color:var(--mut);text-align:center;margin-bottom:14px">Revisions are free until you love it. Tell us what to adjust and a new version lands in your inbox.</p><button class="btn ghost" id="revOpen">&#128260; Request a free revision</button><div id="revForm" style="display:none;margin-top:16px"><label style="font-weight:700;font-size:14px;display:block;margin-bottom:6px">What should change?</label><textarea id="revText" style="width:100%;border:1.5px solid var(--bd);border-radius:12px;padding:12px;font-family:inherit;font-size:14px;min-height:90px;resize:vertical" placeholder="e.g. Less repetition in the chorus, focus more on the trip to the cabin, slower tempo\u2026"></textarea><label style="font-weight:700;font-size:14px;display:block;margin:10px 0 6px">Anything to keep exactly as-is? <span style="font-weight:400;color:var(--fade)">(optional)</span></label><input id="revKeep" style="width:100%;border:1.5px solid var(--bd);border-radius:12px;padding:12px;font-family:inherit;font-size:14px" placeholder="e.g. The opening verse \u2014 that one is perfect"><button class="btn" id="revSend" style="margin-top:12px">Send revision request</button><p id="revMsg" style="text-align:center;font-size:13px;margin-top:8px;min-height:18px"></p></div></div>'+
+  '<div class="card" id="revCard"><div class="cap">&#128260; Want something changed?</div><p style="font-size:14px;color:var(--mut);text-align:center;margin-bottom:18px">Revisions are free until you love it. Tell us what to adjust and a new version lands in your inbox.</p><a id="revBtn" href="#" class="btn" style="display:block;text-align:center;text-decoration:none">&#128260; Request a Revision</a><p style="font-size:12px;color:var(--fade);text-align:center;margin-top:10px">Takes 30 seconds. Usually delivered within a few hours.</p></div>'+
   (d.grief ? '' :
    '<div class="up" style="position:relative;overflow:hidden">'+
    '<div style="position:absolute;top:12px;right:14px;background:#E5A400;color:#1A1814;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px">50% OFF</div>'+
@@ -130,20 +130,13 @@ function render(d){
  var newA=document.querySelector('a[href="/create"]');if(newA)newA.addEventListener("click",function(){ping("another_song");});
  var dlA=document.querySelector('a[href*="44339845791833"]');if(dlA)dlA.addEventListener("click",function(){ping("download_upsell");});
  var v3A=document.querySelector('a[href*="44263046381657"]');if(v3A)v3A.addEventListener("click",function(){ping("verse3");});
- // revision inline form
- var revOpen=document.getElementById("revOpen");
- if(revOpen) revOpen.addEventListener("click",function(){ping("revision");this.style.display="none";document.getElementById("revForm").style.display="block";});
- var revSend=document.getElementById("revSend");
- if(revSend) revSend.addEventListener("click",function(){
-  var t=document.getElementById("revText").value.trim(),msg=document.getElementById("revMsg");
-  if(t.length<10){msg.textContent="Tell us a bit more — what should be different?";msg.style.color="var(--rust)";return;}
-  var btn=this;btn.disabled=true;btn.textContent="Sending\u2026";
-  fetch("/.netlify/functions/revision-request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({o:d.orderId,feedback:t,keep:(document.getElementById("revKeep")||{}).value||""})})
-  .then(function(r){return r.json();}).then(function(x){
-   if(x.ok){document.getElementById("revForm").innerHTML='<p style="text-align:center;font-weight:700;padding:10px">&#10003; Got it \u2014 check your email. New version usually within a few hours.</p>';}
-   else{msg.textContent=x.error||"Couldn\u2019t send \u2014 try again";msg.style.color="var(--rust)";btn.disabled=false;btn.textContent="Send revision request";}
-  }).catch(function(){msg.textContent="Couldn\u2019t send \u2014 try again";btn.disabled=false;btn.textContent="Send revision request";});
- });
+ // revision button — links to Shopify contact page pre-filled
+ var revBtn = document.getElementById("revBtn");
+ if(revBtn){
+   var params = new URLSearchParams({ reason:"Revision Request", order:d.orderId||"", title:d.title||"", email:d.email||"" });
+   revBtn.href = "https://gut-1809.myshopify.com/pages/contact?" + params.toString();
+   revBtn.onclick = function(){ ping("revision"); };
+ }
 }
 load();
 })();
