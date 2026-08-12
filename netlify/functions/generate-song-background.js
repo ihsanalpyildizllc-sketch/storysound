@@ -59,13 +59,15 @@ ${story}
 
 Genre: ${genre} | Language: ${language} | Voice: ${voice} | Occasion: ${occasion}
 
+THE OCCASION DRIVES THE ARC: Apology → own the mistake, ask to come back. Anniversary/Wedding → vow renewed. Birthday → celebrate who they are. Memorial/Grief → honor and carry them forward. Mother/Father → gratitude for sacrifices. Miss You → distance and longing. The final chorus must resolve the occasion's emotional question.
+
 STRUCTURE — each section has ONE job, and no two sections may do the same job:
 
 [Verse 1] — THE ORIGIN. Where it began. Use the earliest or most scene-setting memory from the story. Paint one specific moment the listener can see (a place, a season, an object). Past tense.
 [Chorus] — THE CORE TRUTH. The one sentence this whole song exists to say, with ${songFor}'s name in it. Not a list of compliments — ONE central truth, stated memorably. This exact chorus repeats later, so make it strong enough to hear three times.
 [Verse 2] — THE JOURNEY. Time passes. What changed, what was survived, what grew. Use a DIFFERENT memory than Verse 1 — never re-describe the origin. If the story mentions hard times, this is where they live, resolved with warmth.
 [Chorus] — repeat exactly.
-[Bridge] — THE TURN. Shift perspective: speak directly to ${songFor} in present tense, quieter and more intimate than everything before it. This is the line that makes them cry. 2-3 lines, no rhyme required.
+[Bridge] — THE TURN. Shift perspective: speak directly to ${songFor} in present tense, quieter and more intimate than everything before it. If the buyer wrote a "Special Message", its core sentence MUST live here or in the Final Chorus — in words close to their own. This is the line that makes them cry. 2-3 lines, no rhyme required.
 [Final Chorus] — repeat, with ONE line changed to point at the future ("always will" energy).
 
 HARD RULES:
@@ -75,6 +77,8 @@ HARD RULES:
 - No filler lines that could belong in any love song ("you mean the world to me", "I can't live without you"). If a line would work for a stranger's song, cut it and use a real detail instead.
 - Lines must be SHORT and singable: 6-10 words. Natural ${language}.
 - If the story is thin on details, invent small sensory specifics consistent with what's given — never invent major events.
+
+FINAL CHECK before you output: list (silently, to yourself) every concrete detail in the story — every name, place, job, year, object, nickname, comparison, habit. Verify each important one appears in the lyrics exactly once. If any detail that clearly matters to the buyer is missing, rewrite the weakest generic line to include it.
 
 Return ONLY valid JSON (no markdown):
 {"song_title":"...","song_meta":"For ${songFor} - ${occasion} - ${genre}","music_style":"${genre} song, ${voice.toLowerCase()} vocals, emotional and deeply personal, radio quality","lyrics":"[Verse 1]\\n...\\n\\n[Chorus]\\n...\\n\\n[Verse 2]\\n...\\n\\n[Chorus]\\n...\\n\\n[Bridge]\\n...\\n\\n[Final Chorus]\\n..."}` }]
