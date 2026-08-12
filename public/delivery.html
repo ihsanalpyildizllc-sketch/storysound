@@ -133,8 +133,7 @@ function render(d){
  // revision button — links to Shopify contact page pre-filled
  var revBtn = document.getElementById("revBtn");
  if(revBtn){
-   var params = new URLSearchParams({ reason:"Revision Request", order:d.orderId||"", title:d.title||"", email:d.email||"" });
-   revBtn.href = "https://gut-1809.myshopify.com/pages/contact?" + params.toString();
+   revBtn.href = "https://myexxtra.com/pages/contact";
    revBtn.onclick = function(){ ping("revision"); };
  }
 }
