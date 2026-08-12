@@ -53,7 +53,16 @@ async function sendEmail({ to, subject, html, text, stream }) {
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { "Authorization": "Bearer " + RESEND, "Content-Type": "application/json" },
-        body: JSON.stringify({ from: "Stoory <" + FROM + ">", to, subject, html, text })
+        body: JSON.stringify({
+          from: "Stoory <" + FROM + ">",
+          to, subject, html, text,
+          reply_to: FROM,
+          headers: {
+            "List-Unsubscribe": "<mailto:" + FROM + "?subject=unsubscribe>",
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            "X-Entity-Ref-ID": "stoory-" + Date.now()
+          }
+        })
       });
       const body = await res.json().catch(() => ({}));
       if (res.ok || body.id) return { ok: true, id: body.id || null, via: "resend" };
