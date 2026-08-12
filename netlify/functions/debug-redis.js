@@ -29,6 +29,16 @@ exports.handler = async (event) => {
       const total = rows.reduce((a, r) => a + r.bytes, 0);
       return { statusCode: 200, body: JSON.stringify({ total, count: rows.length, rows: rows.slice(0, 80) }) };
     }
+    if (q.action === "merge" && q.k && q.fields) {
+      const cur = await call([["GET", q.k]]);
+      let obj = {};
+      try { obj = JSON.parse(cur[0].result || "{}"); } catch(e) {}
+      Object.assign(obj, JSON.parse(q.fields));
+      await call([["SET", q.k, JSON.stringify(obj)]]);
+      return { statusCode: 200, headers: {"Content-Type":"application/json"},
+               body: JSON.stringify({ ok: true, k: q.k }) };
+    }
+
     if (q.action === "read" && q.k) {
       const res = await call([["GET", q.k]]);
       const raw = res[0]?.result || null;
