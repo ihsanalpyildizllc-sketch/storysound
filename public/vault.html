@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stoory Vault — Keep Your Song Forever</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --rust:#B5471C;--rust-dark:#8C3312;--rust-light:#F5EAE4;
+  --cream:#FAF7F2;--ink:#0F0A06;--warm:#3D2E24;--muted:#8C7B70;
+  --gold:#C9973A;--green:#1A4731;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);line-height:1.6}
+.logo{font-family:'Fraunces',serif;font-weight:700;font-size:22px;letter-spacing:-.02em}
+.logo em{color:var(--rust);font-style:normal}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 48px;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(12px);background:rgba(250,247,242,.92);border-bottom:1px solid rgba(0,0,0,.06)}
+.nav-cta{background:var(--rust);color:#fff;padding:10px 24px;border-radius:100px;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s}
+.nav-cta:hover{background:var(--rust-dark);transform:translateY(-1px)}
+
+/* HERO */
+.hero{padding:160px 48px 120px;text-align:center;background:var(--ink);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(181,71,28,.25) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-block;background:rgba(181,71,28,.2);border:1px solid rgba(181,71,28,.4);color:#E8956A;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:6px 16px;border-radius:100px;margin-bottom:32px}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(48px,7vw,88px);font-weight:300;color:#FAF7F2;line-height:1.05;letter-spacing:-.03em;margin-bottom:24px}
+.hero h1 em{color:var(--rust);font-style:italic}
+.hero p{font-size:clamp(17px,2vw,21px);color:rgba(250,247,242,.65);max-width:600px;margin:0 auto 48px;line-height:1.7}
+.hero-cta{display:inline-block;background:var(--rust);color:#fff;padding:18px 48px;border-radius:100px;font-size:17px;font-weight:600;text-decoration:none;transition:all .25s;box-shadow:0 4px 24px rgba(181,71,28,.4)}
+.hero-cta:hover{background:var(--rust-dark);transform:translateY(-2px);box-shadow:0 8px 32px rgba(181,71,28,.5)}
+.hero-sub{font-size:13px;color:rgba(250,247,242,.35);margin-top:16px}
+
+/* FEAR SECTION */
+.fear{padding:100px 48px;background:#fff}
+.section-label{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--rust);margin-bottom:16px}
+.fear h2{font-family:'Fraunces',serif;font-size:clamp(36px,5vw,56px);font-weight:300;color:var(--ink);line-height:1.15;margin-bottom:48px;max-width:700px}
+.fear-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px}
+.fear-card{background:var(--cream);border:1px solid rgba(0,0,0,.06);border-radius:16px;padding:32px 24px;position:relative}
+.fear-icon{font-size:28px;margin-bottom:16px}
+.fear-card h3{font-family:'Fraunces',serif;font-size:18px;font-weight:400;color:var(--ink);margin-bottom:8px}
+.fear-card p{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* VAULT INTRO */
+.vault-intro{padding:100px 48px;background:var(--ink);text-align:center;position:relative;overflow:hidden}
+.vault-intro::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(181,71,28,.15) 0%,transparent 70%);pointer-events:none}
+.vault-intro h2{font-family:'Fraunces',serif;font-size:clamp(40px,6vw,72px);font-weight:300;color:#FAF7F2;line-height:1.1;margin-bottom:24px;letter-spacing:-.02em}
+.vault-intro h2 em{color:var(--rust);font-style:italic}
+.vault-intro p{font-size:18px;color:rgba(250,247,242,.6);max-width:560px;margin:0 auto;line-height:1.7}
+
+/* PRICING */
+.pricing{padding:100px 48px;background:var(--cream)}
+.pricing-inner{max-width:680px;margin:0 auto}
+.pricing-card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:24px;padding:48px;box-shadow:0 2px 4px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06),0 24px 64px rgba(0,0,0,.06)}
+.price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.price-main{font-family:'Fraunces',serif;font-size:72px;font-weight:700;color:var(--ink);line-height:1}
+.price-period{font-size:18px;color:var(--muted)}
+.price-monthly{font-size:14px;color:var(--muted);margin-bottom:32px}
+.price-cta{display:block;background:var(--rust);color:#fff;text-align:center;padding:18px;border-radius:100px;font-size:17px;font-weight:600;text-decoration:none;transition:all .25s;box-shadow:0 4px 16px rgba(181,71,28,.3);margin-bottom:16px}
+.price-cta:hover{background:var(--rust-dark);transform:translateY(-2px)}
+.price-terms{font-size:12px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:40px}
+.divider{border:none;border-top:1px solid rgba(0,0,0,.08);margin:32px 0}
+.vip-label{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
+.gift-list{display:flex;flex-direction:column;gap:14px}
+.gift-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.gift-name{font-size:15px;color:var(--warm)}
+.gift-desc{font-size:13px;color:var(--muted);margin-top:2px}
+.gift-price{font-size:15px;color:var(--muted);white-space:nowrap;font-weight:500}
+.gift-total{display:flex;justify-content:space-between;font-size:16px;font-weight:600;color:var(--ink);padding-top:20px;border-top:1px solid rgba(0,0,0,.08);margin-top:20px}
+.gift-total .you-pay{color:var(--rust)}
+
+/* 7 DAY PROMISE */
+.promise{padding:100px 48px;background:var(--rust);text-align:center}
+.promise h2{font-family:'Fraunces',serif;font-size:clamp(36px,5vw,56px);font-weight:300;color:#fff;line-height:1.15;margin-bottom:20px}
+.promise p{font-size:18px;color:rgba(255,255,255,.75);max-width:540px;margin:0 auto 40px;line-height:1.7}
+.promise-cta{display:inline-block;background:#fff;color:var(--rust);padding:18px 48px;border-radius:100px;font-size:17px;font-weight:700;text-decoration:none;transition:all .25s}
+.promise-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.2)}
+
+/* HOW IT WORKS */
+.how{padding:100px 48px;background:#fff}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:900px;margin:0 auto}
+.how-step{text-align:center}
+.step-num{font-family:'Fraunces',serif;font-size:56px;font-weight:300;color:var(--rust-light);line-height:1;margin-bottom:16px}
+.how-step h3{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.how-step p{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* FAQ */
+.faq{padding:100px 48px;background:var(--cream)}
+.faq-inner{max-width:680px;margin:0 auto}
+.faq h2{font-family:'Fraunces',serif;font-size:clamp(32px,4vw,48px);font-weight:300;color:var(--ink);margin-bottom:48px}
+.faq-item{border-bottom:1px solid rgba(0,0,0,.08);padding:24px 0}
+.faq-q{font-size:16px;font-weight:600;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;gap:16px}
+.faq-a{font-size:15px;color:var(--muted);line-height:1.7;margin-top:12px;display:none}
+.faq-item.open .faq-a{display:block}
+.faq-item.open .faq-q::after{content:'−'}
+.faq-q::after{content:'+';color:var(--rust);font-size:20px}
+
+/* FOOTER */
+footer{background:var(--ink);padding:48px;text-align:center}
+footer .logo{color:#FAF7F2;margin-bottom:16px;display:block}
+footer p{font-size:13px;color:rgba(250,247,242,.35)}
+footer a{color:rgba(250,247,242,.5);text-decoration:none}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+
+@media(max-width:768px){
+  nav{padding:16px 24px}
+  .hero,.fear,.vault-intro,.pricing,.promise,.how,.faq{padding-left:24px;padding-right:24px}
+  .how-grid{grid-template-columns:1fr}
+  .pricing-card{padding:32px 24px}
+  .price-main{font-size:56px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">St<em>oo</em>ry</div>
+  <a href="#vault" class="nav-cta">Get Vault — $99/yr</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">Stoory Vault + VIP Membership</div>
+  <h1>Your song deserves<br>to live <em>forever.</em></h1>
+  <p>Phones die. Emails get wiped. Hard drives fail. But the song we made for you — the one with every name, every memory, every word that mattered — that should never disappear.</p>
+  <a href="#vault" class="hero-cta">Protect My Song Forever</a>
+  <p class="hero-sub">7-day free trial · $99/year · cancel anytime</p>
+</section>
+
+<section class="fear">
+  <div class="section-label">The truth no one tells you</div>
+  <h2>Most precious things get lost. Your song won't be one of them.</h2>
+  <div class="fear-grid">
+    <div class="fear-card reveal">
+      <div class="fear-icon">📱</div>
+      <h3>Phones die</h3>
+      <p>The song saved in your downloads folder is one cracked screen away from being gone forever.</p>
+    </div>
+    <div class="fear-card reveal">
+      <div class="fear-icon">📧</div>
+      <h3>Emails get wiped</h3>
+      <p>Old email accounts get deleted. Inboxes get cleared. The link you saved disappears without warning.</p>
+    </div>
+    <div class="fear-card reveal">
+      <div class="fear-icon">🕐</div>
+      <h3>Links expire</h3>
+      <p>Standard Stoory links last 90 days. After that, without Vault, the song is gone.</p>
+    </div>
+    <div class="fear-card reveal">
+      <div class="fear-icon">📸</div>
+      <h3>Memories fade</h3>
+      <p>The words, the details, the story behind the song — in 10 years, you'll be glad it's still there.</p>
+    </div>
+  </div>
+</section>
+
+<section class="vault-intro">
+  <div class="section-label" style="color:#E8956A;margin-bottom:24px">The solution</div>
+  <h2>Vault keeps your song<br><em>alive, forever.</em></h2>
+  <p>A permanent private link. Studio-quality audio. Full lyrics. Shareable anywhere. Protected for as long as you choose to keep it.</p>
+</section>
+
+<section class="pricing" id="vault">
+  <div class="section-label" style="text-align:center;margin-bottom:48px">Stoory Vault + VIP Membership</div>
+  <div class="pricing-inner">
+    <div class="pricing-card reveal">
+      <div class="price-row">
+        <div class="price-main">$99</div>
+        <div class="price-period">/year</div>
+      </div>
+      <div class="price-monthly">Just $7.99/month — less than a Spotify subscription</div>
+      <a href="https://getstoory.com/create2" class="price-cta">Start My 7-Day Free Trial</a>
+      <p class="price-terms">7 days free. Then $99/year on Day 8.<br>We'll remind you on Day 7 before you're charged.<br>Cancel anytime — no questions asked.</p>
+
+      <hr class="divider">
+
+      <div class="vip-label">⭐ VIP Membership — $480 in free gifts included</div>
+      <div class="gift-list">
+        <div class="gift-row">
+          <div><div class="gift-name">2 custom songs, yours to gift</div><div class="gift-desc">One per month for your first 2 months. Compose them for anyone.</div></div>
+          <div class="gift-price">$198</div>
+        </div>
+        <div class="gift-row">
+          <div><div class="gift-name">Full lyric sheet with every song</div><div class="gift-desc">Every word, beautifully typeset. Print it, frame it, gift it.</div></div>
+          <div class="gift-price">$39</div>
+        </div>
+        <div class="gift-row">
+          <div><div class="gift-name">10 remixes — any genre, any voice</div><div class="gift-desc">Jazz, R&B, Country, Classical — hear your song in different worlds.</div></div>
+          <div class="gift-price">$99</div>
+        </div>
+        <div class="gift-row">
+          <div><div class="gift-name">Private song page + QR code</div><div class="gift-desc">Print the QR on a card. They scan and the song plays instantly.</div></div>
+          <div class="gift-price">$19</div>
+        </div>
+        <div class="gift-row">
+          <div><div class="gift-name">Date Vault — 12 important dates</div><div class="gift-desc">We email you 10 days before each one. Never miss a moment again.</div></div>
+          <div class="gift-price">$29</div>
+        </div>
+        <div class="gift-row">
+          <div><div class="gift-name">Song page guest book</div><div class="gift-desc">Recipients leave messages on the song's page. One gift becomes a living memory.</div></div>
+          <div class="gift-price">$29</div>
+        </div>
+        <div class="gift-row">
+          <div><div class="gift-name">Rush delivery — front of the queue</div><div class="gift-desc">Always. No waiting, no stress, no late gifts.</div></div>
+          <div class="gift-price">$29</div>
+        </div>
+        <div class="gift-row">
+          <div><div class="gift-name">Studio pack: MP3 + WAV + ringtone</div><div class="gift-desc">Every format you'll ever need, ready to download forever.</div></div>
+          <div class="gift-price">$39</div>
+        </div>
+        <div class="gift-total">
+          <span>Total value</span>
+          <span>$481</span>
+        </div>
+        <div class="gift-total">
+          <span>You pay</span>
+          <span class="you-pay">$99/year</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="promise">
+  <h2>Try it free for 7 days.<br>Not convinced? Cancel.</h2>
+  <p>We believe so much in what Vault protects that we'll let you try it completely free. If it's not right for you, cancel before Day 8 and you're charged nothing.</p>
+  <a href="https://getstoory.com/create2" class="promise-cta">Start Free — 7 Days on Us</a>
+</section>
+
+<section class="how">
+  <div class="section-label" style="text-align:center;margin-bottom:12px">How it works</div>
+  <h2 style="font-family:'Fraunces',serif;font-size:clamp(32px,4vw,48px);font-weight:300;color:var(--ink);text-align:center;margin-bottom:64px">Simple. Permanent. Yours.</h2>
+  <div class="how-grid">
+    <div class="how-step reveal">
+      <div class="step-num">01</div>
+      <h3>Join Vault</h3>
+      <p>Start your 7-day free trial. Your song is immediately protected with a permanent link.</p>
+    </div>
+    <div class="how-step reveal">
+      <div class="step-num">02</div>
+      <h3>Claim your gifts</h3>
+      <p>Your VIP membership unlocks immediately. Songs, lyrics, guest book, Date Vault — all yours.</p>
+    </div>
+    <div class="how-step reveal">
+      <div class="step-num">03</div>
+      <h3>Keep it forever</h3>
+      <p>Your song lives at a permanent private link. Share it anywhere. It never expires, never fades.</p>
+    </div>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="faq-inner">
+    <h2>Questions you might have</h2>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What happens if I cancel?</div>
+      <p class="faq-a">If you cancel within 7 days, you pay nothing. If you cancel after your year begins, you keep access through the end of your paid year. After that, your song link will revert to a 90-day standard link.</p>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">When do I get my free songs?</div>
+      <p class="faq-a">Your first free song is available immediately when you join. The second unlocks after your year begins on Day 8. Both are full custom songs — same quality, same process, yours to keep or gift.</p>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Is the $99 price locked in?</div>
+      <p class="faq-a">Yes. Founding Vault members are price-locked at $99/year for as long as they remain members. If we ever raise the price for new members, yours stays the same.</p>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What does "permanent" actually mean?</div>
+      <p class="faq-a">Your song lives in our Vault — backed up, studio-quality, with a private link that never changes. As long as your Vault membership is active, your song is there. Forever is a strong word, but we mean it.</p>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Can I gift my free songs to someone else?</div>
+      <p class="faq-a">Absolutely — that's the whole idea. Your free monthly songs can be for anyone. A parent, a partner, a friend. You fill out their story and we compose it. Their song, their permanent link, their gift.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="logo">St<em style="color:var(--rust)">oo</em>ry</span>
+  <p>© 2026 Johnson's Gadgets LLC dba Stoory &nbsp;·&nbsp; <a href="/privacy">Privacy</a> &nbsp;·&nbsp; <a href="/refund">Refunds</a> &nbsp;·&nbsp; help@getstoory.com</p>
+</footer>
+
+<script>
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, {threshold:.15});
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+document.querySelectorAll('a[href="#vault"]').forEach(a => {
+  a.addEventListener('click', e => { e.preventDefault(); document.getElementById('vault').scrollIntoView({behavior:'smooth'}); });
+});
+</script>
+</body>
+</html>
