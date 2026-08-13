@@ -1,71 +1,44 @@
-// netlify/functions/send-admin.js — admin triggered email send
 exports.handler = async (event) => {
   const q = event.queryStringParameters || {};
   if ((q.key||"") !== (process.env.DASH_KEY||"ss-admin-2026")) return {statusCode:401,body:"no"};
-
   const RESEND = process.env.RESEND_API_KEY;
-  const FROM   = "Stoory <help@getstoory.com>";
   const SITE   = process.env.SITE_URL || "https://getstoory.com";
+  const oid    = "7426564096089";
+  const title  = "Virginia Soul";
+  const link   = `${SITE}/delivery?o=${oid}`;
+  const cart   = "https://myexxtra.com/cart/44263046381657:1";
 
-  const emails = [
-    {
-      to: "jaylac.jb@gmail.com", name: "Jackie",
-      subject: "Jackie, your song for Darnell is ready 🎵",
-      title: "Two Blocks From Where We Met",
-      oid: "7427981672537",
-      note: "Sorry for the wait — your custom song for Darnell is done. Your full lyrics are on the delivery page too."
-    },
-    {
-      to: "jayhenry1986t18@gmail.com", name: "Jay",
-      subject: "Updated: \"The Day She Said Yes\" — Seraphina & Celestia are in 🎵",
-      title: "The Day She Said Yes",
-      oid: "p2_mskfgvpq99db8",
-      note: "We updated the song with Seraphina and Celestia's names as you requested. Here's your new version:"
-    },
-    {
-      to: "lpickert@mac.com", name: "Linda",
-      subject: "Your custom song is ready 🎵",
-      title: "Your Custom Song",
-      oid: "7426382626905",
-      note: "Your custom song has been composed and is ready for you."
-    }
-  ];
-
-  // Fetch titles for orders that need them
-  for (const e of emails) {
-    try {
-      const r = await fetch(`${SITE}/.netlify/functions/preview-song?o=${e.oid}`);
-      const d = await r.json();
-      if (d.title) { e.title = d.title; e.teaser = d.lyricsTeaser || []; }
-    } catch(err) {}
-  }
-
-  const results = [];
-  for (const e of emails) {
-    const link  = `${SITE}/delivery?o=${e.oid}`;
-    const tHtml = (e.teaser||[]).slice(0,3).map(l => `<p style="margin:4px 0;font-style:italic;color:#B5471C">&#8220;${l}&#8221;</p>`).join('');
-    const html  = `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2">
+  const html = `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;background:#FAF7F2">
   <div style="background:#fff;border-radius:16px;padding:40px 36px;border:1px solid rgba(0,0,0,.08)">
     <div style="font-size:22px;font-weight:700;color:#0F0A06;text-align:center;margin-bottom:28px">St<span style="color:#B5471C">oo</span>ry</div>
-    <h1 style="font-size:24px;font-weight:600;color:#0F0A06;margin:0 0 16px">Hi ${e.name} — your song is ready 🎵</h1>
-    <p style="font-size:15px;color:#3D2E24;line-height:1.7;margin:0 0 20px">${e.note}</p>
-    <div style="background:#FAF7F2;border-left:3px solid #B5471C;padding:16px 20px;border-radius:0 8px 8px 0;margin:0 0 24px">
-      <p style="font-size:15px;font-weight:700;color:#0F0A06;margin:0 0 10px">&#127925; &#8220;${e.title}&#8221;</p>${tHtml}
+    <h1 style="font-size:24px;font-weight:600;color:#0F0A06;margin:0 0 12px">Hey Brandon — glad you love it! 🎵</h1>
+    <p style="font-size:15px;color:#3D2E24;line-height:1.7;margin:0 0 24px">Yes — you can absolutely make it longer and add more details. Here's how:</p>
+    <div style="background:#FAF7F2;border:1.5px solid #B5471C;border-radius:12px;padding:24px;margin:0 0 20px">
+      <p style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B5471C;margin:0 0 8px">Option 1 — Add a 3rd Verse</p>
+      <p style="font-size:18px;font-weight:700;color:#0F0A06;margin:0 0 8px">A full new verse written from your story</p>
+      <p style="font-size:14px;color:#5A4A3F;line-height:1.7;margin:0 0 16px">We'll write a brand new verse using the details that didn't make it into the original — new memories, deeper moments, specific names or places you want included. Then we recompose the full track with it added.</p>
+      <div style="margin:0 0 16px"><span style="font-size:22px;font-weight:700;color:#0F0A06">$39</span> <span style="font-size:13px;color:#8C7B70">· one-time · yours forever</span></div>
+      <a href="${cart}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:14px;border-radius:100px;font-weight:700;font-size:15px;text-decoration:none;">✍️ Add a 3rd Verse — $39</a>
     </div>
-    <a href="${link}" style="display:block;background:#B5471C;color:#fff;text-align:center;padding:16px;border-radius:100px;text-decoration:none;font-size:16px;font-weight:700;margin:0 0 16px">&#9654; Listen to My Song</a>
-    <p style="font-size:14px;color:#3D2E24;line-height:1.7;margin:0">If anything needs adjusting, reply to this email — unlimited free revisions.</p>
+    <div style="background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:24px;margin:0 0 24px">
+      <p style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5A4A3F;margin:0 0 8px">Option 2 — Free: Send us more details</p>
+      <p style="font-size:14px;color:#5A4A3F;line-height:1.7;margin:0 0 16px">If there are specific memories, names, or moments you'd like woven in, just send them to us — we'll do a free revision and rewrite with your new details included.</p>
+      <a href="${link}" style="display:block;background:#0F0A06;color:#fff;text-align:center;padding:14px;border-radius:100px;font-weight:700;font-size:15px;text-decoration:none;">🔁 Request a Free Revision</a>
+    </div>
+    <p style="font-size:13px;color:#8C7B70;text-align:center;">Either way — reply to this email and we'll make it exactly what you imagined.</p>
   </div>
-  <p style="text-align:center;font-size:12px;color:#8C7B70;margin-top:20px">Stoory &middot; help@getstoory.com</p>
+  <p style="text-align:center;font-size:12px;color:#8C7B70;margin-top:20px">Stoory · help@getstoory.com</p>
 </div>`;
 
-    const r = await fetch("https://api.resend.com/emails", {
-      method:"POST",
-      headers:{"Authorization":"Bearer "+RESEND,"Content-Type":"application/json"},
-      body: JSON.stringify({from:FROM, to:e.to, subject:e.subject, html, reply_to:"help@getstoory.com"})
-    });
-    const d = await r.json();
-    results.push({to:e.to, name:e.name, ok:!!d.id, id:d.id||null, error:d.message||null});
-  }
-
-  return {statusCode:200, body: JSON.stringify(results, null, 2)};
+  const r = await fetch("https://api.resend.com/emails", {
+    method:"POST",
+    headers:{"Authorization":"Bearer "+RESEND,"Content-Type":"application/json"},
+    body: JSON.stringify({
+      from:"Stoory <help@getstoory.com>", to:"1986bwoods@gmail.com",
+      subject:`Want more? Here's how to extend "${title}" 🎵`,
+      html, reply_to:"help@getstoory.com"
+    })
+  });
+  const d = await r.json();
+  return {statusCode:200, body: JSON.stringify({ok:!!d.id, id:d.id||null, error:d.message||null})};
 };
