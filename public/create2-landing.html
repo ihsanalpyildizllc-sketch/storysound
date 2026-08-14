@@ -218,13 +218,132 @@ footer div a{color:rgba(250,247,242,.4);font-size:12px;text-decoration:none;marg
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta">
-  <h2>Ready to give someone<br>a gift they'll <em>never forget?</em></h2>
-  <p>Their reaction is worth it.</p>
-  <a href="/create2" class="btn-cta">Create Your Song Now →</a>
-  <p class="cta-note">Free preview · Under 12 hours · 100% money-back guarantee</p>
+<!-- VINYL PLAYER + CTA -->
+<section class="vinyl-section">
+  <div class="vinyl-card">
+    <!-- Vinyl record -->
+    <div class="vinyl-art">
+      <div class="vinyl-record" id="vinyl-disc">
+        <div class="vinyl-label">
+          <span>🎵</span>
+        </div>
+      </div>
+    </div>
+    <!-- Progress bar -->
+    <div class="vinyl-progress">
+      <div class="progress-bar" id="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+        <div class="progress-thumb" id="progress-thumb"></div>
+      </div>
+      <div class="progress-times">
+        <span id="cur-time">0:00</span>
+        <span id="tot-time">0:00</span>
+      </div>
+    </div>
+    <!-- Controls -->
+    <div class="vinyl-controls">
+      <button class="skip-btn" onclick="skipTrack(-1)">⏮</button>
+      <button class="vinyl-play-btn" id="vplay" onclick="toggleVinyl()">▶</button>
+      <button class="skip-btn" onclick="skipTrack(1)">⏭</button>
+    </div>
+    <div class="vinyl-track-name" id="vinyl-track-name">Tap play to listen</div>
+  </div>
+  <a href="/create2" class="btn-vinyl-cta">Start Creating Your Song →</a>
+  <p class="vinyl-note">Free preview · Under 12 hours · 100% money-back guarantee</p>
 </section>
+
+<style>
+.vinyl-section{padding:60px 32px;background:#F5EDE4;text-align:center}
+.vinyl-card{background:#fff;border-radius:28px;padding:28px 28px 24px;max-width:340px;margin:0 auto 28px;box-shadow:0 8px 40px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06)}
+.vinyl-art{background:#F8F4F0;border-radius:16px;padding:28px;margin-bottom:20px;display:flex;align-items:center;justify-content:center}
+.vinyl-record{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#111 0%,#1a1a1a 60%,#222 80%,#111 100%);position:relative;transition:transform .1s linear;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.vinyl-record.spinning{animation:spin 3s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.vinyl-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#fff;border:2px solid rgba(181,71,28,.2);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 0 4px rgba(181,71,28,.08)}
+.vinyl-progress{margin-bottom:16px}
+.progress-bar{height:4px;background:#EAEAEA;border-radius:100px;position:relative;cursor:pointer;margin-bottom:8px}
+.progress-fill{height:100%;background:var(--rust);border-radius:100px;width:0%;transition:width .5s linear}
+.progress-thumb{width:12px;height:12px;border-radius:50%;background:var(--rust);position:absolute;top:50%;transform:translateY(-50%);left:0%;transition:left .5s linear;box-shadow:0 1px 4px rgba(181,71,28,.4)}
+.progress-times{display:flex;justify-content:space-between;font-size:12px;color:#999;font-family:'DM Sans',sans-serif}
+.vinyl-controls{display:flex;align-items:center;justify-content:center;gap:28px;margin-bottom:14px}
+.skip-btn{background:none;border:none;font-size:20px;color:#ccc;cursor:pointer;padding:8px;transition:color .2s}
+.skip-btn:hover{color:var(--ink)}
+.vinyl-play-btn{width:60px;height:60px;border-radius:50%;background:var(--rust);color:#fff;border:none;cursor:pointer;font-size:20px;box-shadow:0 4px 16px rgba(181,71,28,.4);transition:all .2s;display:flex;align-items:center;justify-content:center}
+.vinyl-play-btn:hover{background:var(--rust-dark);transform:scale(1.05)}
+.vinyl-track-name{font-size:13px;color:#888;font-family:'DM Sans',sans-serif}
+.btn-vinyl-cta{display:inline-block;background:var(--rust);color:#fff;padding:16px 40px;border-radius:100px;font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(181,71,28,.4);transition:all .2s;margin-bottom:12px}
+.btn-vinyl-cta:hover{background:var(--rust-dark);transform:translateY(-1px)}
+.vinyl-note{font-size:11px;color:rgba(0,0,0,.35)}
+</style>
+
+<script>
+var TRACKS = [
+  {oid:'p2_mskqrdaxtc5im', name:'My Buds — Reggae'},
+  {oid:'7414007758937',    name:'I Choose You, Albert — R&B'},
+  {oid:'7414831087705',    name:"I'd Find My Way Back — R&B"},
+  {oid:'7427981672537',    name:'Two Blocks From Where We Met — R&B'}
+];
+var tIdx = 0;
+var vAudio = new Audio();
+var spinning = false;
+
+function fmtTime(s){
+  s=Math.floor(s||0);
+  return Math.floor(s/60)+':'+(s%60<10?'0':'')+s%60;
+}
+
+function setTrack(i){
+  tIdx = (i+TRACKS.length)%TRACKS.length;
+  var t = TRACKS[tIdx];
+  document.getElementById('vinyl-track-name').textContent = t.name;
+  document.getElementById('cur-time').textContent='0:00';
+  document.getElementById('tot-time').textContent='0:00';
+  document.getElementById('progress-fill').style.width='0%';
+  document.getElementById('progress-thumb').style.left='0%';
+  vAudio.src='https://getstoory.com/.netlify/functions/get-audio?orderId='+t.oid+'&v='+Date.now();
+  vAudio.load();
+}
+
+function toggleVinyl(){
+  if(!vAudio.src || vAudio.src===window.location.href){setTrack(0);}
+  if(vAudio.paused){
+    vAudio.play().catch(function(){});
+    document.getElementById('vplay').textContent='⏸';
+    document.getElementById('vinyl-disc').classList.add('spinning');
+  } else {
+    vAudio.pause();
+    document.getElementById('vplay').textContent='▶';
+    document.getElementById('vinyl-disc').classList.remove('spinning');
+  }
+}
+
+function skipTrack(dir){
+  var wasPlaying=!vAudio.paused;
+  setTrack(tIdx+dir);
+  if(wasPlaying) setTimeout(function(){vAudio.play().catch(function(){});document.getElementById('vplay').textContent='⏸';document.getElementById('vinyl-disc').classList.add('spinning');},300);
+}
+
+vAudio.addEventListener('timeupdate',function(){
+  if(!vAudio.duration)return;
+  var pct=(vAudio.currentTime/vAudio.duration)*100;
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-thumb').style.left=pct+'%';
+  document.getElementById('cur-time').textContent=fmtTime(vAudio.currentTime);
+});
+vAudio.addEventListener('loadedmetadata',function(){
+  document.getElementById('tot-time').textContent=fmtTime(vAudio.duration);
+});
+vAudio.addEventListener('ended',function(){skipTrack(1);vAudio.play().catch(function(){});document.getElementById('vplay').textContent='⏸';document.getElementById('vinyl-disc').classList.add('spinning');});
+
+document.getElementById('progress-bar').addEventListener('click',function(e){
+  if(!vAudio.duration)return;
+  var rect=this.getBoundingClientRect();
+  vAudio.currentTime=((e.clientX-rect.left)/rect.width)*vAudio.duration;
+});
+
+// Init first track name
+document.getElementById('vinyl-track-name').textContent='Tap ▶ to listen';
+</script>
 
 <footer>
   <a href="/" class="f-logo">St<em>oo</em>ry</a>
