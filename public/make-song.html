@@ -32,9 +32,10 @@ nav{padding:14px 32px;display:flex;justify-content:space-between;align-items:cen
 .trust strong{color:var(--ink)}
 
 /* SONGS — vertical list like foreversongs */
-.songs{padding:24px 32px;border-top:1px solid var(--border)}
+.songs{padding:24px 32px;border-top:1px solid var(--border);text-align:center}
 .songs-title{font-size:20px;font-weight:700;color:var(--ink);margin-bottom:4px;font-family:'Fraunces',serif}
 .songs-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.songs-list{max-width:500px;margin:0 auto;text-align:left}
 .song-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .song-item:last-child{border:none}
 .thumb{width:52px;height:52px;border-radius:10px;background:var(--ink);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
@@ -85,6 +86,7 @@ footer div a{color:rgba(250,247,242,.4);font-size:12px;text-decoration:none;marg
   <div class="songs-title">Listen to real examples</div>
   <div class="songs-sub">Songs created for real customers</div>
 
+  <div class="songs-list">
   <div class="song-item" onclick="play(this,'p2_mskqrdaxtc5im')">
     <div class="thumb" style="background:#2D4A3E"></div>
     <div>
@@ -135,6 +137,7 @@ footer div a{color:rgba(250,247,242,.4);font-size:12px;text-decoration:none;marg
     <span class="song-dur">2:44</span>
   </div>
 
+  </div>
   <div style="margin-top:20px;text-align:center">
     <a href="/create" class="btn">Start My Song →</a>
   </div>
