@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stoory — Turn Your Memories Into a Custom Song</title>
+<meta name="description" content="The most personal gift you'll ever give. A custom song written from your story, delivered within 30 minutes.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--rust:#B5471C;--rust-dark:#8C3312;--cream:#FAF7F2;--ink:#0F0A06;--muted:#7A6A5A;--border:rgba(0,0,0,.08);--green:#1A7A4A}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden}
+
+/* ANNOUNCEMENT BAR */
+.ann{background:var(--rust);color:#fff;text-align:center;padding:10px 20px;font-size:13px;font-weight:600;letter-spacing:.02em}
+.ann span{opacity:.8;margin:0 6px}
+
+/* NAV */
+nav{padding:14px 32px;display:flex;justify-content:space-between;align-items:center;background:var(--cream);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{font-family:'Fraunces',serif;font-weight:700;font-size:19px;text-decoration:none;color:var(--ink)}
+.logo em{color:var(--rust);font-style:normal}
+.nav-cta{background:var(--rust);color:#fff;padding:10px 22px;border-radius:100px;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s;box-shadow:0 3px 12px rgba(181,71,28,.3)}
+.nav-cta:hover{background:var(--rust-dark);transform:translateY(-1px)}
+
+/* HERO */
+.hero{padding:60px 32px 48px;text-align:center;background:var(--cream)}
+.hero-tag{display:inline-block;background:var(--rust-light,#FFF0EA);color:var(--rust);border:1px solid rgba(181,71,28,.2);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:20px}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(36px,7vw,62px);font-weight:600;line-height:1.08;letter-spacing:-.02em;margin-bottom:12px;color:var(--ink)}
+.hero h1 em{color:var(--rust);font-style:italic;font-weight:400}
+.hero-sub{font-size:16px;color:var(--muted);margin:0 auto 28px;max-width:400px;line-height:1.6}
+.hero-btns{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:20px}
+.btn-primary{display:inline-block;background:var(--rust);color:#fff;padding:16px 44px;border-radius:100px;font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(181,71,28,.4);transition:all .2s}
+.btn-primary:hover{background:var(--rust-dark);transform:translateY(-1px)}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;color:var(--ink);font-size:14px;font-weight:500;text-decoration:none;border:1.5px solid var(--border);padding:11px 24px;border-radius:100px;transition:all .2s}
+.btn-ghost:hover{border-color:var(--rust);color:var(--rust)}
+.hero-note{font-size:12px;color:var(--muted);margin-bottom:28px}
+.social-proof{display:flex;flex-direction:column;align-items:center;gap:10px}
+.proof-count{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--ink)}
+.proof-count strong{font-size:22px;font-family:'Fraunces',serif}
+.tp-row{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:100px;padding:7px 16px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.tp-stars{display:flex;gap:2px}
+.tp-star{width:16px;height:16px;background:#00B67A;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px}
+.tp-text{font-size:12px;color:#333;font-weight:500}
+.tp-text b{color:#00B67A}
+
+/* HOW IT WORKS */
+.how{padding:48px 32px;background:#fff;text-align:center}
+.section-tag{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--rust);margin-bottom:8px}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(26px,5vw,38px);font-weight:600;color:var(--ink);margin-bottom:32px;letter-spacing:-.01em}
+.steps{display:flex;flex-direction:column;gap:0;max-width:480px;margin:0 auto 32px;text-align:left}
+.step-row{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--border)}
+.step-row:last-child{border:none}
+.step-circle{width:36px;height:36px;border-radius:50%;background:var(--rust);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-body h3{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.step-body p{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* INCLUDES */
+.includes{padding:48px 32px;text-align:center}
+.includes-grid{max-width:480px;margin:24px auto 0;display:flex;flex-direction:column;gap:14px;text-align:left}
+.include-item{display:flex;gap:12px;align-items:flex-start}
+.check{width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.include-item h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.include-item p{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* EXAMPLES */
+.examples{padding:48px 32px;background:#fff;text-align:center}
+.songs-list{max-width:480px;margin:20px auto 0;text-align:left}
+.song-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.song-row:last-child{border:none}
+.song-row:hover .sthumb{transform:scale(1.05)}
+.sthumb{width:52px;height:52px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;overflow:hidden;transition:transform .2s}
+.sthumb::after{content:'▶';position:absolute;color:#fff;font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.song-row.playing .sthumb::after{content:'⏸'}
+.sgenre{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--rust);margin-bottom:2px}
+.stitle{font-size:15px;font-weight:600;color:var(--ink)}
+.ssub{font-size:12px;color:var(--muted)}
+.sdur{font-size:12px;color:var(--muted);margin-left:auto;flex-shrink:0}
+
+/* BOTTOM CTA */
+.cta{padding:60px 32px;background:var(--ink);text-align:center;position:relative;overflow:hidden}
+.cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 110%,rgba(181,71,28,.25) 0%,transparent 65%)}
+.cta h2{font-family:'Fraunces',serif;font-size:clamp(28px,6vw,44px);font-weight:400;color:#FAF7F2;line-height:1.15;margin-bottom:8px;position:relative}
+.cta h2 em{color:var(--rust);font-style:italic}
+.cta p{font-size:14px;color:rgba(250,247,242,.5);margin-bottom:28px;position:relative}
+.btn-cta{display:inline-block;background:var(--rust);color:#fff;padding:16px 44px;border-radius:100px;font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(181,71,28,.5);position:relative;transition:all .2s}
+.btn-cta:hover{background:var(--rust-dark);transform:translateY(-1px)}
+.cta-note{font-size:11px;color:rgba(250,247,242,.3);margin-top:12px;position:relative}
+
+footer{padding:20px 32px;background:var(--ink);border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.f-logo{font-family:'Fraunces',serif;font-weight:700;font-size:16px;color:#FAF7F2;text-decoration:none}
+.f-logo em{color:var(--rust);font-style:normal}
+footer div a{color:rgba(250,247,242,.4);font-size:12px;text-decoration:none;margin-left:12px}
+</style>
+</head>
+<body>
+
+<div class="ann">🎵 FREE PREVIEW — Hear your song before you pay <span>·</span> 30-minute delivery</div>
+
+<nav>
+  <a href="/" class="logo">St<em>oo</em>ry</a>
+  <a href="/create2" class="nav-cta">Create My Song</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">The #1 Custom Song Platform</div>
+  <h1>Turn your memories into a song<br>they'll <em>never forget</em></h1>
+  <p class="hero-sub">The most personal gift you'll ever give.</p>
+  <div class="hero-btns">
+    <a href="/create2" class="btn-primary">Get My Free Preview →</a>
+    <a href="#examples" class="btn-ghost">🎵 Listen to an example</a>
+  </div>
+  <p class="hero-note">Takes 2 minutes &nbsp;·&nbsp; Just a name, a few memories &nbsp;·&nbsp; Delivered within 30 minutes</p>
+  <div class="social-proof">
+    <div class="proof-count"><strong>996+</strong> Loved by 1000+ families</div>
+    <div class="tp-row">
+      <div class="tp-stars"><div class="tp-star">★</div><div class="tp-star">★</div><div class="tp-star">★</div><div class="tp-star">★</div><div class="tp-star">★</div></div>
+      <div class="tp-text"><b>4.9</b> &nbsp;Trustpilot</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="section-tag">Simple as 1-2-3</div>
+  <h2 class="section-title">How It Works</h2>
+  <div class="steps">
+    <div class="step-row">
+      <div class="step-circle">1</div>
+      <div class="step-body">
+        <h3>Tell us your story</h3>
+        <p>Share the name, a few memories, and how you want it to feel. Takes 2 minutes.</p>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-circle">2</div>
+      <div class="step-body">
+        <h3>We create your song</h3>
+        <p>Our team writes and produces a fully custom song from your story. Every word is yours.</p>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-circle">3</div>
+      <div class="step-body">
+        <h3>Receive your song by email</h3>
+        <p>Get a private link to listen, download, and share — ready within 30 minutes.</p>
+      </div>
+    </div>
+  </div>
+  <a href="/create2" class="btn-primary">Start My Custom Song →</a>
+</section>
+
+<!-- WHAT'S INCLUDED -->
+<section class="includes">
+  <div class="section-tag">What you get</div>
+  <h2 class="section-title">What's Included in Your Song</h2>
+  <p style="font-size:14px;color:var(--muted);max-width:400px;margin:0 auto">When your song is ready, we'll email you a private link to listen and share — it's that easy.</p>
+  <div class="includes-grid">
+    <div class="include-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>Studio-Quality Recording</h4>
+        <p>A professionally produced song you'll be proud to play for family and friends.</p>
+      </div>
+    </div>
+    <div class="include-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>Lyrics Written From YOUR Story</h4>
+        <p>Every word is crafted from the details you share — names, memories, and moments that matter.</p>
+      </div>
+    </div>
+    <div class="include-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>Delivered in Under 30 Minutes</h4>
+        <p>Plenty of time for birthdays, anniversaries, or that special moment you're planning.</p>
+      </div>
+    </div>
+    <div class="include-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>Unlimited Free Revisions</h4>
+        <p>Not perfect? We'll keep rewriting until you love every word. No limits.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLES -->
+<section class="examples" id="examples">
+  <div class="section-tag">Real examples</div>
+  <h2 class="section-title">Listen to Real Customer Songs</h2>
+  <div class="songs-list">
+    <div class="song-row" onclick="play(this,'p2_mskqrdaxtc5im')">
+      <div class="sthumb" style="background:#2D4A3E">🎵</div>
+      <div><div class="sgenre">Reggae</div><div class="stitle">My Buds</div><div class="ssub">Tap to play</div></div>
+      <span class="sdur">2:53</span>
+    </div>
+    <div class="song-row" onclick="play(this,'7414007758937')">
+      <div class="sthumb" style="background:#3A2A1E">🎶</div>
+      <div><div class="sgenre">R&amp;B</div><div class="stitle">I Choose You, Albert</div><div class="ssub">Tap to play</div></div>
+      <span class="sdur">2:47</span>
+    </div>
+    <div class="song-row" onclick="play(this,'7414831087705')">
+      <div class="sthumb" style="background:#1E2A3A">🎵</div>
+      <div><div class="sgenre">R&amp;B</div><div class="stitle">I'd Find My Way Back</div><div class="ssub">Tap to play</div></div>
+      <span class="sdur">3:01</span>
+    </div>
+    <div class="song-row" onclick="play(this,'7427981672537')">
+      <div class="sthumb" style="background:#2A3A1E">🎶</div>
+      <div><div class="sgenre">R&amp;B</div><div class="stitle">Two Blocks From Where We Met</div><div class="ssub">Tap to play</div></div>
+      <span class="sdur">2:58</span>
+    </div>
+  </div>
+  <div style="margin-top:28px">
+    <a href="/create2" class="btn-primary">Start Creating Your Song →</a>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2>Ready to give someone<br>a gift they'll <em>never forget?</em></h2>
+  <p>Their reaction is worth it.</p>
+  <a href="/create2" class="btn-cta">Create Your Song Now →</a>
+  <p class="cta-note">Free preview · 30-minute delivery · 100% money-back guarantee</p>
+</section>
+
+<footer>
+  <a href="/" class="f-logo">St<em>oo</em>ry</a>
+  <div>
+    <a href="/privacy">Privacy</a>
+    <a href="/refund">Refunds</a>
+    <a href="https://myexxtra.com/pages/contact">Contact</a>
+  </div>
+</footer>
+
+<audio id="ap" style="display:none"></audio>
+<script>
+let cur=null;const ap=document.getElementById('ap');
+function play(row,oid){
+  if(cur===row&&!ap.paused){ap.pause();reset(cur);cur=null;return;}
+  if(cur)reset(cur);
+  row.classList.add('playing');row.querySelector('.ssub').textContent='Loading...';cur=row;
+  ap.src=`https://getstoory.com/.netlify/functions/get-audio?orderId=${oid}&v=${Date.now()}`;
+  ap.play().then(()=>row.querySelector('.ssub').textContent='Now playing').catch(()=>{reset(row);cur=null;});
+}
+function reset(r){r.classList.remove('playing');r.querySelector('.ssub').textContent='Tap to play';}
+ap.onended=()=>{if(cur){reset(cur);cur=null;}};
+</script>
+</body>
+</html>
