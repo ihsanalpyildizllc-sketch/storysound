@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stoory — Create a Custom Song They'll Never Forget</title>
+<meta name="description" content="Turn your story into a one-of-a-kind custom song, written and produced just for someone you love. Ready in under 30 minutes.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --rust:#B5471C;--rust-dark:#8C3312;--rust-light:#F5EAE4;
+  --cream:#FAF7F2;--ink:#0F0A06;--warm:#3D2E24;--muted:#7A6A5A;
+  --border:rgba(0,0,0,.07);
+  --sh-sm:0 1px 2px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.06);
+  --sh-md:0 2px 4px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.08),0 24px 64px rgba(0,0,0,.06);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(16px);background:rgba(250,247,242,.9);border-bottom:1px solid var(--border);padding:14px 48px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-family:'Fraunces',serif;font-weight:700;font-size:20px;text-decoration:none;color:var(--ink)}
+.logo em{color:var(--rust);font-style:normal}
+.nav-cta{background:var(--rust);color:#fff;padding:10px 24px;border-radius:100px;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s;box-shadow:0 4px 12px rgba(181,71,28,.3)}
+.nav-cta:hover{background:var(--rust-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(181,71,28,.4)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:140px 48px 100px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 120% 80% at 50% 110%,rgba(181,71,28,.08) 0%,transparent 65%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:500;color:var(--warm);margin-bottom:32px;box-shadow:var(--sh-sm);animation:fadeUp .6s ease both}
+.hero-badge span{color:var(--rust);font-weight:700}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(48px,7vw,88px);font-weight:300;line-height:1.05;letter-spacing:-.03em;color:var(--ink);max-width:900px;margin:0 auto 24px;animation:fadeUp .6s .1s ease both}
+.hero h1 em{color:var(--rust);font-style:italic}
+.hero-sub{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:560px;margin:0 auto 48px;line-height:1.7;animation:fadeUp .6s .2s ease both}
+.hero-cta{display:inline-block;background:var(--rust);color:#fff;padding:20px 56px;border-radius:100px;font-size:18px;font-weight:700;text-decoration:none;transition:all .25s;box-shadow:0 4px 24px rgba(181,71,28,.4),0 0 0 0 rgba(181,71,28,.3);animation:fadeUp .6s .3s ease both}
+.hero-cta:hover{background:var(--rust-dark);transform:translateY(-2px);box-shadow:0 8px 40px rgba(181,71,28,.5),0 0 0 8px rgba(181,71,28,.1)}
+.hero-trust{font-size:13px;color:var(--muted);margin-top:20px;animation:fadeUp .6s .4s ease both}
+.hero-trust strong{color:var(--ink)}
+
+/* SOCIAL PROOF BAR */
+.proof-bar{background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 48px;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap}
+.proof-item{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--warm)}
+.proof-num{font-family:'Fraunces',serif;font-size:24px;font-weight:600;color:var(--ink)}
+
+/* HOW IT WORKS */
+.how{padding:120px 48px;text-align:center}
+.section-label{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--rust);margin-bottom:12px}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(36px,5vw,56px);font-weight:300;color:var(--ink);line-height:1.15;margin-bottom:64px;letter-spacing:-.02em}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:960px;margin:0 auto}
+.step{background:#fff;border:1px solid var(--border);border-radius:20px;padding:40px 32px;box-shadow:var(--sh-sm);position:relative;transition:all .3s}
+.step:hover{transform:translateY(-4px);box-shadow:var(--sh-md)}
+.step-num{font-family:'Fraunces',serif;font-size:48px;font-weight:300;color:var(--rust-light);line-height:1;margin-bottom:20px}
+.step-icon{font-size:36px;margin-bottom:16px}
+.step h3{font-size:20px;font-weight:600;color:var(--ink);margin-bottom:12px}
+.step p{font-size:15px;color:var(--muted);line-height:1.7}
+.step-connector{display:none}
+
+/* PLAYER SECTION */
+.player-section{padding:120px 48px;background:#fff}
+.player-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:800px;margin:48px auto 0}
+.player-card{background:var(--cream);border:1px solid var(--border);border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .25s;box-shadow:var(--sh-sm)}
+.player-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md);border-color:rgba(181,71,28,.2)}
+.player-card.playing{background:var(--rust-light);border-color:rgba(181,71,28,.3)}
+.play-btn{width:44px;height:44px;border-radius:50%;background:var(--rust);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all .2s;box-shadow:0 4px 12px rgba(181,71,28,.3)}
+.play-btn:hover{background:var(--rust-dark);transform:scale(1.08)}
+.player-info{flex:1;min-width:0}
+.player-genre{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--rust);margin-bottom:4px}
+.player-title{font-size:15px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player-sub{font-size:12px;color:var(--muted)}
+.player-wave{width:60px;height:24px;opacity:.4;flex-shrink:0}
+
+/* CTA SECTION */
+.cta-section{padding:120px 48px;background:var(--ink);text-align:center;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 100%,rgba(181,71,28,.3) 0%,transparent 70%)}
+.cta-section h2{font-family:'Fraunces',serif;font-size:clamp(40px,6vw,64px);font-weight:300;color:#FAF7F2;line-height:1.1;margin-bottom:20px;letter-spacing:-.02em;position:relative}
+.cta-section h2 em{color:var(--rust);font-style:italic}
+.cta-section p{font-size:18px;color:rgba(250,247,242,.6);max-width:520px;margin:0 auto 48px;position:relative}
+.cta-btn{display:inline-block;background:var(--rust);color:#fff;padding:20px 56px;border-radius:100px;font-size:18px;font-weight:700;text-decoration:none;transition:all .25s;box-shadow:0 4px 24px rgba(181,71,28,.5);position:relative}
+.cta-btn:hover{background:var(--rust-dark);transform:translateY(-2px)}
+.cta-sub{font-size:13px;color:rgba(250,247,242,.4);margin-top:16px;position:relative}
+
+/* FEATURES */
+.features{padding:120px 48px}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:960px;margin:48px auto 0}
+.feat{padding:32px;border:1px solid var(--border);border-radius:16px;transition:all .3s}
+.feat:hover{background:#fff;box-shadow:var(--sh-sm);transform:translateY(-2px)}
+.feat-icon{font-size:32px;margin-bottom:16px}
+.feat h3{font-size:17px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.feat p{font-size:14px;color:var(--muted);line-height:1.7}
+
+/* FAQ */
+.faq{padding:120px 48px;background:#fff}
+.faq-inner{max-width:680px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);padding:24px 0;cursor:pointer}
+.faq-q{display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:16px;font-weight:600;color:var(--ink)}
+.faq-q::after{content:'+';color:var(--rust);font-size:22px;font-weight:300;transition:transform .2s;flex-shrink:0}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{font-size:15px;color:var(--muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
+.faq-item.open .faq-a{max-height:200px;padding-top:12px}
+
+/* FOOTER */
+footer{background:var(--ink);padding:48px;text-align:center}
+footer .logo{font-size:20px;color:#FAF7F2;margin-bottom:16px;display:block;text-decoration:none}
+footer p{font-size:13px;color:rgba(250,247,242,.35);margin-bottom:8px}
+footer a{color:rgba(250,247,242,.5);text-decoration:none;margin:0 12px}
+footer a:hover{color:rgba(250,247,242,.8)}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.v{opacity:1;transform:none}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+/* MOBILE */
+@media(max-width:768px){
+  nav{padding:14px 24px}
+  .hero,.how,.player-section,.cta-section,.features,.faq{padding-left:24px;padding-right:24px}
+  .steps,.features-grid{grid-template-columns:1fr}
+  .player-grid{grid-template-columns:1fr}
+  .proof-bar{gap:24px;padding:20px 24px}
+  .hero h1{font-size:42px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">St<em>oo</em>ry</a>
+  <a href="/create2" class="nav-cta">Start My Song</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🎵 <span>Custom song created in under 30 minutes</span></div>
+  <h1>Turn your story into a song<br>they'll <em>never forget</em></h1>
+  <p class="hero-sub">A one-of-a-kind custom song, written and produced just for someone you love. Every name, every memory, every word that matters — in the music.</p>
+  <a href="/create2" class="hero-cta">Start My Song →</a>
+  <p class="hero-trust">Takes only 5 minutes to fill out &nbsp;·&nbsp; <strong>100% money-back guarantee</strong> &nbsp;·&nbsp; Unlimited revisions</p>
+</section>
+
+<!-- PROOF BAR -->
+<div class="proof-bar reveal">
+  <div class="proof-item"><span class="proof-num">⭐ 4.9</span> Customer rating</div>
+  <div class="proof-item"><span class="proof-num">30 min</span> Average delivery</div>
+  <div class="proof-item"><span class="proof-num">100%</span> Money-back guarantee</div>
+  <div class="proof-item"><span class="proof-num">∞</span> Free revisions</div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <p class="section-label reveal">How it works</p>
+  <h2 class="section-title reveal">Three steps to a song<br>they'll treasure forever</h2>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-icon">❤️</div>
+      <div class="step-num">01</div>
+      <h3>Tell Us Your Story</h3>
+      <p>Answer a few questions about your memories, relationship, and the person you're celebrating. Takes about 5 minutes.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-icon">🎶</div>
+      <div class="step-num">02</div>
+      <h3>We Turn It Into Music</h3>
+      <p>Our team creates a professionally produced custom song using every detail you shared. Ready in under 30 minutes.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-icon">😭</div>
+      <div class="step-num">03</div>
+      <h3>Watch Their Reaction</h3>
+      <p>Play their song and experience the moment they'll never forget. Keep it forever — the link never expires.</p>
+    </div>
+  </div>
+  <div style="margin-top:48px" class="reveal">
+    <a href="/create2" class="hero-cta">Create My Song Now →</a>
+  </div>
+</section>
+
+<!-- SONG EXAMPLES -->
+<section class="player-section">
+  <div style="text-align:center">
+    <p class="section-label reveal">Real examples</p>
+    <h2 class="section-title reveal">Songs created for real customers</h2>
+  </div>
+  <div class="player-grid">
+    <div class="player-card reveal" onclick="togglePlay(this,'p2_mskqrdaxtc5im')">
+      <button class="play-btn">▶</button>
+      <div class="player-info">
+        <div class="player-genre">Reggae</div>
+        <div class="player-title">My Buds</div>
+        <div class="player-sub">Tap to play</div>
+      </div>
+    </div>
+    <div class="player-card reveal" onclick="togglePlay(this,'7414007758937')">
+      <button class="play-btn">▶</button>
+      <div class="player-info">
+        <div class="player-genre">R&amp;B</div>
+        <div class="player-title">I Choose You, Albert</div>
+        <div class="player-sub">Tap to play</div>
+      </div>
+    </div>
+    <div class="player-card reveal" onclick="togglePlay(this,'7414831087705')">
+      <button class="play-btn">▶</button>
+      <div class="player-info">
+        <div class="player-genre">R&amp;B</div>
+        <div class="player-title">I'd Find My Way Back</div>
+        <div class="player-sub">Tap to play</div>
+      </div>
+    </div>
+    <div class="player-card reveal" onclick="togglePlay(this,'7426597290073')">
+      <button class="play-btn">▶</button>
+      <div class="player-info">
+        <div class="player-genre">R&amp;B</div>
+        <div class="player-title">Three Times and I Knew</div>
+        <div class="player-sub">Tap to play</div>
+      </div>
+    </div>
+  </div>
+  <audio id="audio-player" style="display:none"></audio>
+</section>
+
+<!-- CTA SECTION -->
+<section class="cta-section">
+  <h2>Ready to make someone<br>cry <em>happy tears?</em> 😭</h2>
+  <p>Their reaction is worth it. Every name, every memory — in a song that lasts forever.</p>
+  <a href="/create2" class="cta-btn">Create Your Song Now →</a>
+  <p class="cta-sub">Takes 5 minutes &nbsp;·&nbsp; Ready in under 30 min &nbsp;·&nbsp; Love it or your money back</p>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div style="text-align:center">
+    <p class="section-label reveal">Why Stoory</p>
+    <h2 class="section-title reveal">Everything you'd want<br>in a custom song</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feat reveal">
+      <div class="feat-icon">🎯</div>
+      <h3>Fully Personalized</h3>
+      <p>Every lyric is written using the exact names, memories, and story details you provide. No generic templates.</p>
+    </div>
+    <div class="feat reveal">
+      <div class="feat-icon">⚡</div>
+      <h3>Ready in Under 30 Min</h3>
+      <p>No waiting days or weeks. Your song is composed, produced, and delivered fast — in time for any occasion.</p>
+    </div>
+    <div class="feat reveal">
+      <div class="feat-icon">🔁</div>
+      <h3>Unlimited Free Revisions</h3>
+      <p>Not exactly right? Tell us what to change and we'll rewrite it until it's perfect. No limits, no questions.</p>
+    </div>
+    <div class="feat reveal">
+      <div class="feat-icon">🔒</div>
+      <h3>Private Forever Link</h3>
+      <p>Your song lives at a private link you can share anywhere. Play it on any device, anytime, no app needed.</p>
+    </div>
+    <div class="feat reveal">
+      <div class="feat-icon">🎁</div>
+      <h3>Perfect for Any Occasion</h3>
+      <p>Birthdays, anniversaries, apologies, Mother's Day, weddings, memorials — if it matters, it deserves a song.</p>
+    </div>
+    <div class="feat reveal">
+      <div class="feat-icon">💳</div>
+      <h3>100% Money-Back Guarantee</h3>
+      <p>If you're not completely in love with the song after revisions, we'll refund you in full. No risk.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="faq-inner">
+    <div style="text-align:center;margin-bottom:48px">
+      <p class="section-label reveal">FAQ</p>
+      <h2 class="section-title reveal" style="margin-bottom:0">Questions you might have</h2>
+    </div>
+    <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+      <div class="faq-q">How long does it take?</div>
+      <div class="faq-a">Under 30 minutes for most orders. We'll send the song to your email the moment it's ready — usually before you even finish checking your inbox.</div>
+    </div>
+    <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What if I don't love it?</div>
+      <div class="faq-a">We offer unlimited free revisions until you love it — no limits, no questions. And if after all that you're still not happy, we'll give you a full refund. You take zero risk.</div>
+    </div>
+    <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Can I gift it to someone?</div>
+      <div class="faq-a">Absolutely — that's what most people use Stoory for. You'll get a private delivery link you can text, email, or print as a QR code. They click, and the song plays instantly on any device.</div>
+    </div>
+    <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What genres and styles do you offer?</div>
+      <div class="faq-a">R&B, Pop, Country, Reggae, Jazz, Hip-Hop, Classical, Latin, and more. You choose the genre and the voice (male or female) when you fill out your story.</div>
+    </div>
+    <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Will it actually mention the specific details I share?</div>
+      <div class="faq-a">Yes — every song is written using the exact names, places, dates, and memories you provide. Not a template. Not generic. Yours, and only yours.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta-section">
+  <h2>Start your song<br>in <em>5 minutes</em></h2>
+  <p>Thousands of people have given someone a song that made them cry. You're next.</p>
+  <a href="/create2" class="cta-btn">Create My Song →</a>
+  <p class="cta-sub">No account needed &nbsp;·&nbsp; Pay after you love it &nbsp;·&nbsp; Cancel anytime</p>
+</section>
+
+<footer>
+  <a href="/" class="logo">St<em style="color:var(--rust)">oo</em>ry</a>
+  <p>© 2026 Johnson's Gadgets LLC dba Stoory</p>
+  <p><a href="/privacy">Privacy</a><a href="/refund">Refunds</a><a href="https://myexxtra.com/pages/contact">Contact</a></p>
+</footer>
+
+<script>
+// Scroll reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('v'); obs.unobserve(e.target); }});
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Audio player
+let currentCard = null;
+const audio = document.getElementById('audio-player');
+
+function togglePlay(card, oid) {
+  if(currentCard === card && !audio.paused){
+    audio.pause();
+    card.classList.remove('playing');
+    card.querySelector('.play-btn').textContent = '▶';
+    currentCard = null;
+    return;
+  }
+  if(currentCard){
+    currentCard.classList.remove('playing');
+    currentCard.querySelector('.play-btn').textContent = '▶';
+  }
+  card.classList.add('playing');
+  card.querySelector('.play-btn').textContent = '⏸';
+  card.querySelector('.player-sub').textContent = 'Loading...';
+  currentCard = card;
+  audio.src = `https://getstoory.com/.netlify/functions/get-audio?orderId=${oid}&v=${Date.now()}`;
+  audio.play().then(() => {
+    card.querySelector('.player-sub').textContent = 'Now playing';
+  }).catch(() => {
+    card.querySelector('.player-sub').textContent = 'Tap to play';
+    card.classList.remove('playing');
+    card.querySelector('.play-btn').textContent = '▶';
+    currentCard = null;
+  });
+}
+audio.onended = () => {
+  if(currentCard){ currentCard.classList.remove('playing'); currentCard.querySelector('.play-btn').textContent = '▶'; currentCard.querySelector('.player-sub').textContent = 'Tap to play'; currentCard = null; }
+};
+</script>
+</body>
+</html>
